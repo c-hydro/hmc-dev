@@ -757,6 +757,7 @@ contains
             
             !------------------------------------------------------------------------------------------
             ! SnowHeight (example: SnowHeight_201405010000.bin.gz)
+            iScaleFactor = 10
             sFileNameData_Updating = trim(sPathData_Updating)//"SnowHeight_"// &
                 sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
                 sTime(12:13)//sTime(15:16)// &
@@ -786,7 +787,8 @@ contains
             !------------------------------------------------------------------------------------------
             
             !------------------------------------------------------------------------------------------
-            ! Snow Kernel (example: Kernel_201405010000.bin.gz)
+            ! Snow Kernel (example: Kernel_201405010000.bin.gz) 
+            iScaleFactor = 10
             sFileNameData_Updating = trim(sPathData_Updating)//"Kernel_"// &
                 sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
                 sTime(12:13)//sTime(15:16)// &
