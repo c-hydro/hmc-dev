@@ -1,0 +1,263 @@
+----------------------------------------------
+ HMC LOGGER 
+ StartLog: 2018-01-19 13:32:38.342
+----------------------------------------------
+ [2018-01-19 13:32:38.342] INFO:    ************************************************************************
+ [2018-01-19 13:32:38.343] INFO:     Hydrological Model Continuum (Version: 2.0.7)
+ [2018-01-19 13:32:38.343] INFO:     Author(s): Delogu F., Silvestro F., Gabellani S.
+ [2018-01-19 13:32:38.343] INFO:     Release Date: 2017/12/20
+ [2018-01-19 13:32:38.343] INFO:    ************************************************************************
+ [2018-01-19 13:32:38.343] INFO:     PARAMETER(S) INFO --- dUc:    30.0000000 - dUh:    1.70000005 dCt:   0.400000006 dCf:   0.100000001
+ [2018-01-19 13:32:38.343] INFO:     SIMULATION START :: Time: 2018-01-19 13:32:38.342
+ [2018-01-19 13:32:38.945] WARNING:  INQUIRE FAILED :: GetArcGrid ---> file not found (filename: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/static_data/land/vda.mask.txt)
+ [2018-01-19 13:32:38.945] WARNING:  Mask data not found. Initializing Mask with default values
+ [2018-01-19 13:32:38.945] WARNING:  READ OK :: Get1d_ASCII ---> file length > expected length  (filename: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/static_data/land/vda.ia.txt)
+ [2018-01-19 13:32:38.945] WARNING:  INQUIRE FAILED :: GetArcGrid ---> file not found (filename: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/static_data/land/vda.coeffres.txt)
+ [2018-01-19 13:32:38.945] WARNING:  CoeffRes data not found. Initializing CoeffRes with namelist flag condition
+ [2018-01-19 13:32:39.010] WARNING:  Ct values are equal to 0.0 in         1747 pixels over domain. Initialize with default value:   0.400000006.
+ [2018-01-19 13:32:39.011] WARNING:  Cf values are equal to 0.0 in         1747 pixels over domain. Initialize with default value:   0.100000001.
+ [2018-01-19 13:32:39.011] WARNING:  Uh values are equal to 0.0 in         1747 pixels over domain. Initialize with default value:    1.70000005.
+ [2018-01-19 13:32:39.012] WARNING:  Uc values are equal to 0.0 in         1747 pixels over domain. Initialize with default value:    30.0000000.
+ [2018-01-19 13:32:39.015] WARNING:  CoeffRes data is set to null in according with namelist flag condition
+ [2018-01-19 13:32:39.129] INFO:     Get (restart gridded) at time 1980-01-01_00:00:00 ...
+ [2018-01-19 13:32:39.129] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/restart-NO/1980/01/01/V_198001010000.bin.gz --> Undefined restart data values
+ [2018-01-19 13:32:39.130] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/restart-NO/1980/01/01/Ret_198001010000.bin.gz --> Undefined restart data values
+ [2018-01-19 13:32:39.130] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/restart-NO/1980/01/01/Wl_198001010000.bin.gz --> Undefined restart data values
+ [2018-01-19 13:32:39.130] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/restart-NO/1980/01/01/Rou_198001010000.bin.gz --> Undefined restart data values
+ [2018-01-19 13:32:39.131] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/restart-NO/1980/01/01/DFE_198001010000.bin.gz --> Undefined restart data values
+ [2018-01-19 13:32:39.131] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/restart-NO/1980/01/01/Vw_198001010000.bin.gz --> Undefined restart data values
+ [2018-01-19 13:32:39.132] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/restart-NO/1980/01/01/Ts_198001010000.bin.gz --> Undefined restart data values
+ [2018-01-19 13:32:39.132] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/restart-NO/1980/01/01/Tmk_198001010000.bin.gz --> Undefined restart data values
+ [2018-01-19 13:32:39.134] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/restart-NO/1980/01/01/T24_198001010000.bin.gz --> Undefined restart data values
+ [2018-01-19 13:32:39.148] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/restart-NO/1980/01/01/WS_198001010000.bin.gz --> Undefined restart data values. Not in mandatory restart variables
+ [2018-01-19 13:32:39.148] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/restart-NO/1980/01/01/SWE_198001010000.bin.gz --> Undefined restart data values. Snow physics is activated! If needed check restart data!
+ [2018-01-19 13:32:39.148] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/restart-NO/1980/01/01/Density_198001010000.bin.gz --> Undefined restart data values. Snow physics is activated! If needed check restart data!
+ [2018-01-19 13:32:39.149] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/restart-NO/1980/01/01/AlbedoS_198001010000.bin.gz --> Undefined restart data values. Snow physics is activated! If needed check restart data!
+ [2018-01-19 13:32:39.149] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/restart-NO/1980/01/01/Age_198001010000.bin.gz --> Undefined restart data values. Snow physics is activated! If needed check restart data!
+ [2018-01-19 13:32:39.149] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/restart-NO/1980/01/01/Ta_1Days_198001010000.bin.gz --> Undefined restart data values. Snow physics is activated! If needed check restart data!
+ [2018-01-19 13:32:39.163] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/restart-NO/1980/01/01/Ta_5Days_198001010000.bin.gz --> Undefined restart data values. Snow physics is activated! If needed check restart data!
+ [2018-01-19 13:32:39.246] INFO:     Get (restart gridded) at time 1980-01-01_00:00:00 ... OK
+ [2018-01-19 13:32:39.246] INFO:     Data :: Restart gridded :: Binary :: Some/All variable(s) are N/A!
+ [2018-01-19 13:32:39.246] WARNING:  Restart flag activated but data restart are not available!
+ [2018-01-19 13:32:39.246] WARNING:  Restart gridded conditions are null!
+ [2018-01-19 13:32:39.246] WARNING:  Restart flag activated but snow data restart are not available!
+ [2018-01-19 13:32:39.246] WARNING:  Restart snow conditions are null!
+ [2018-01-19 13:32:39.251] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1980-01-01_00:00:00            1           48         3600 =====
+ [2018-01-19 13:32:39.251] INFO:     STEP CLOCK START :: Time: 2018-01-19 13:32:39.251
+ [2018-01-19 13:32:39.330] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Pressure_198001010000.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:32:39.331] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Albedo_198001010000.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:32:39.331] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/LAI_198001010000.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:32:39.347] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2018-01-19 13:32:39.353] WARNING:  All LAI values are undefined! LAI will be initialized using monthly mean information!
+ [2018-01-19 13:32:39.354] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2018-01-19 13:32:39.367] WARNING:  All snow CA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:32:39.367] WARNING:  All snow QA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:32:39.368] WARNING:  All snow height values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:32:39.368] WARNING:  All snow kernel values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:32:39.612] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2018-01-19 13:32:39.612] INFO:     Phys :: LSM :: AvgValue ::  LST: 270.5      [K]  Rn:  -64.4     [W/m^2]  H:    9.2     [W/m^2]  LE:   42.8     [W/m^2]
+ [2018-01-19 13:32:43.759] INFO:     Phys :: EVT :: AvgValue ::  AE:  0.0458    [mm]  ET:  0.0458    [mm]  ET Tot:  0.0458    [mm]
+ [2018-01-19 13:32:47.504] INFO:     STEP CLOCK END :: Time: 2018-01-19 13:32:47.504
+ [2018-01-19 13:32:47.504] INFO:     ===== TIME STEP END :: Date, iT, iNTime, iDt :: 1980-01-01_00:00:00            1           48         3600 =====
+ [2018-01-19 13:32:47.504] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1980-01-01_01:00:00            2           48         3600 =====
+ [2018-01-19 13:32:47.504] INFO:     STEP CLOCK START :: Time: 2018-01-19 13:32:47.504
+ [2018-01-19 13:32:47.617] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Pressure_198001010100.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:32:47.618] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Albedo_198001010100.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:32:47.619] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/LAI_198001010100.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:32:47.637] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2018-01-19 13:32:47.644] WARNING:  All LAI values are undefined! LAI will be initialized using monthly mean information!
+ [2018-01-19 13:32:47.644] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2018-01-19 13:32:47.659] WARNING:  All snow CA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:32:47.660] WARNING:  All snow QA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:32:47.660] WARNING:  All snow height values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:32:47.661] WARNING:  All snow kernel values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:32:47.875] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2018-01-19 13:32:47.875] INFO:     Phys :: LSM :: AvgValue ::  LST: 270.2      [K]  Rn:  -61.3     [W/m^2]  H:   -0.5     [W/m^2]  LE:   37.6     [W/m^2]
+ [2018-01-19 13:32:54.975] INFO:     Phys :: EVT :: AvgValue ::  AE:  0.0399    [mm]  ET:  0.0401    [mm]  ET Tot:  0.0857    [mm]
+ [2018-01-19 13:32:57.524] INFO:     STEP CLOCK END :: Time: 2018-01-19 13:32:57.524
+ [2018-01-19 13:32:57.524] INFO:     ===== TIME STEP END :: Date, iT, iNTime, iDt :: 1980-01-01_01:00:00            2           48         3600 =====
+ [2018-01-19 13:32:57.524] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1980-01-01_02:00:00            3           48         3600 =====
+ [2018-01-19 13:32:57.524] INFO:     STEP CLOCK START :: Time: 2018-01-19 13:32:57.524
+ [2018-01-19 13:32:57.636] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Pressure_198001010200.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:32:57.636] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Albedo_198001010200.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:32:57.637] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/LAI_198001010200.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:32:57.655] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2018-01-19 13:32:57.662] WARNING:  All LAI values are undefined! LAI will be initialized using monthly mean information!
+ [2018-01-19 13:32:57.662] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2018-01-19 13:32:57.675] WARNING:  All snow CA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:32:57.676] WARNING:  All snow QA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:32:57.677] WARNING:  All snow height values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:32:57.677] WARNING:  All snow kernel values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:32:57.887] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2018-01-19 13:32:57.887] INFO:     Phys :: LSM :: AvgValue ::  LST: 270.1      [K]  Rn:  -60.1     [W/m^2]  H:   -4.4     [W/m^2]  LE:   35.6     [W/m^2]
+ [2018-01-19 13:32:57.895] INFO:     Phys :: EVT :: AvgValue ::  AE:  0.0378    [mm]  ET:  0.0379    [mm]  ET Tot:  0.1235    [mm]
+ [2018-01-19 13:33:00.822] INFO:     STEP CLOCK END :: Time: 2018-01-19 13:33:00.822
+ [2018-01-19 13:33:00.822] INFO:     ===== TIME STEP END :: Date, iT, iNTime, iDt :: 1980-01-01_02:00:00            3           48         3600 =====
+ [2018-01-19 13:33:00.822] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1980-01-01_03:00:00            4           48         3600 =====
+ [2018-01-19 13:33:00.822] INFO:     STEP CLOCK START :: Time: 2018-01-19 13:33:00.822
+ [2018-01-19 13:33:00.964] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Pressure_198001010300.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:00.965] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Albedo_198001010300.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:00.966] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/LAI_198001010300.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:00.986] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2018-01-19 13:33:00.993] WARNING:  All LAI values are undefined! LAI will be initialized using monthly mean information!
+ [2018-01-19 13:33:00.994] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2018-01-19 13:33:01.006] WARNING:  All snow CA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:01.007] WARNING:  All snow QA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:01.008] WARNING:  All snow height values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:01.008] WARNING:  All snow kernel values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:01.218] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2018-01-19 13:33:01.218] INFO:     Phys :: LSM :: AvgValue ::  LST: 269.0      [K]  Rn:  -60.9     [W/m^2]  H:  -29.0     [W/m^2]  LE:   25.4     [W/m^2]
+ [2018-01-19 13:33:01.226] INFO:     Phys :: EVT :: AvgValue ::  AE:  0.0288    [mm]  ET:  0.0288    [mm]  ET Tot:  0.1523    [mm]
+ [2018-01-19 13:33:02.882] INFO:     STEP CLOCK END :: Time: 2018-01-19 13:33:02.882
+ [2018-01-19 13:33:02.882] INFO:     ===== TIME STEP END :: Date, iT, iNTime, iDt :: 1980-01-01_03:00:00            4           48         3600 =====
+ [2018-01-19 13:33:02.882] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1980-01-01_04:00:00            5           48         3600 =====
+ [2018-01-19 13:33:02.882] INFO:     STEP CLOCK START :: Time: 2018-01-19 13:33:02.882
+ [2018-01-19 13:33:02.991] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Pressure_198001010400.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:02.991] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Albedo_198001010400.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:02.992] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/LAI_198001010400.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:03.008] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2018-01-19 13:33:03.015] WARNING:  All LAI values are undefined! LAI will be initialized using monthly mean information!
+ [2018-01-19 13:33:03.016] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2018-01-19 13:33:03.029] WARNING:  All snow CA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:03.030] WARNING:  All snow QA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:03.031] WARNING:  All snow height values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:03.031] WARNING:  All snow kernel values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:03.237] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2018-01-19 13:33:03.237] INFO:     Phys :: LSM :: AvgValue ::  LST: 268.5      [K]  Rn:  -56.2     [W/m^2]  H:  -44.4     [W/m^2]  LE:   20.9     [W/m^2]
+ [2018-01-19 13:33:03.245] INFO:     Phys :: EVT :: AvgValue ::  AE:  0.0248    [mm]  ET:  0.0248    [mm]  ET Tot:  0.1771    [mm]
+ [2018-01-19 13:33:05.479] INFO:     STEP CLOCK END :: Time: 2018-01-19 13:33:05.479
+ [2018-01-19 13:33:05.479] INFO:     ===== TIME STEP END :: Date, iT, iNTime, iDt :: 1980-01-01_04:00:00            5           48         3600 =====
+ [2018-01-19 13:33:05.479] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1980-01-01_05:00:00            6           48         3600 =====
+ [2018-01-19 13:33:05.479] INFO:     STEP CLOCK START :: Time: 2018-01-19 13:33:05.479
+ [2018-01-19 13:33:05.615] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Pressure_198001010500.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:05.616] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Albedo_198001010500.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:05.616] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/LAI_198001010500.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:05.634] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2018-01-19 13:33:05.640] WARNING:  All LAI values are undefined! LAI will be initialized using monthly mean information!
+ [2018-01-19 13:33:05.640] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2018-01-19 13:33:05.653] WARNING:  All snow CA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:05.653] WARNING:  All snow QA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:05.654] WARNING:  All snow height values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:05.654] WARNING:  All snow kernel values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:05.856] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2018-01-19 13:33:05.856] INFO:     Phys :: LSM :: AvgValue ::  LST: 268.3      [K]  Rn:  -54.2     [W/m^2]  H:  -51.6     [W/m^2]  LE:   19.1     [W/m^2]
+ [2018-01-19 13:33:05.865] INFO:     Phys :: EVT :: AvgValue ::  AE:  0.0232    [mm]  ET:  0.0232    [mm]  ET Tot:  0.2003    [mm]
+ [2018-01-19 13:33:06.893] INFO:     STEP CLOCK END :: Time: 2018-01-19 13:33:06.893
+ [2018-01-19 13:33:06.894] INFO:     ===== TIME STEP END :: Date, iT, iNTime, iDt :: 1980-01-01_05:00:00            6           48         3600 =====
+ [2018-01-19 13:33:06.894] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1980-01-01_06:00:00            7           48         3600 =====
+ [2018-01-19 13:33:06.894] INFO:     STEP CLOCK START :: Time: 2018-01-19 13:33:06.894
+ [2018-01-19 13:33:07.100] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Pressure_198001010600.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:07.101] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Albedo_198001010600.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:07.101] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/LAI_198001010600.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:07.116] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2018-01-19 13:33:07.122] WARNING:  All LAI values are undefined! LAI will be initialized using monthly mean information!
+ [2018-01-19 13:33:07.122] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2018-01-19 13:33:07.135] WARNING:  All snow CA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:07.135] WARNING:  All snow QA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:07.136] WARNING:  All snow height values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:07.136] WARNING:  All snow kernel values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:07.338] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2018-01-19 13:33:07.338] INFO:     Phys :: LSM :: AvgValue ::  LST: 268.3      [K]  Rn:  -10.9     [W/m^2]  H:   -3.6     [W/m^2]  LE:    2.2     [W/m^2]
+ [2018-01-19 13:33:07.345] INFO:     Phys :: EVT :: AvgValue ::  AE:  0.0026    [mm]  ET:  0.0026    [mm]  ET Tot:  0.2029    [mm]
+ [2018-01-19 13:33:09.161] INFO:     STEP CLOCK END :: Time: 2018-01-19 13:33:09.161
+ [2018-01-19 13:33:09.161] INFO:     ===== TIME STEP END :: Date, iT, iNTime, iDt :: 1980-01-01_06:00:00            7           48         3600 =====
+ [2018-01-19 13:33:09.161] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1980-01-01_07:00:00            8           48         3600 =====
+ [2018-01-19 13:33:09.161] INFO:     STEP CLOCK START :: Time: 2018-01-19 13:33:09.161
+ [2018-01-19 13:33:09.291] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Pressure_198001010700.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:09.292] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Albedo_198001010700.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:09.293] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/LAI_198001010700.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:09.311] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2018-01-19 13:33:09.317] WARNING:  All LAI values are undefined! LAI will be initialized using monthly mean information!
+ [2018-01-19 13:33:09.318] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2018-01-19 13:33:09.331] WARNING:  All snow CA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:09.331] WARNING:  All snow QA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:09.332] WARNING:  All snow height values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:09.332] WARNING:  All snow kernel values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:09.542] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2018-01-19 13:33:09.542] INFO:     Phys :: LSM :: AvgValue ::  LST: 268.3      [K]  Rn:  -10.9     [W/m^2]  H:   -3.5     [W/m^2]  LE:    2.3     [W/m^2]
+ [2018-01-19 13:33:09.551] INFO:     Phys :: EVT :: AvgValue ::  AE:  0.0027    [mm]  ET:  0.0027    [mm]  ET Tot:  0.2056    [mm]
+ [2018-01-19 13:33:10.536] INFO:     STEP CLOCK END :: Time: 2018-01-19 13:33:10.536
+ [2018-01-19 13:33:10.536] INFO:     ===== TIME STEP END :: Date, iT, iNTime, iDt :: 1980-01-01_07:00:00            8           48         3600 =====
+ [2018-01-19 13:33:10.536] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1980-01-01_08:00:00            9           48         3600 =====
+ [2018-01-19 13:33:10.536] INFO:     STEP CLOCK START :: Time: 2018-01-19 13:33:10.536
+ [2018-01-19 13:33:10.698] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Pressure_198001010800.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:10.699] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Albedo_198001010800.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:10.700] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/LAI_198001010800.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:10.716] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2018-01-19 13:33:10.724] WARNING:  All LAI values are undefined! LAI will be initialized using monthly mean information!
+ [2018-01-19 13:33:10.724] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2018-01-19 13:33:10.737] WARNING:  All snow CA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:10.737] WARNING:  All snow QA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:10.738] WARNING:  All snow height values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:10.738] WARNING:  All snow kernel values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:10.947] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2018-01-19 13:33:10.947] INFO:     Phys :: LSM :: AvgValue ::  LST: 268.3      [K]  Rn:  -11.0     [W/m^2]  H:   -3.5     [W/m^2]  LE:    2.3     [W/m^2]
+ [2018-01-19 13:33:10.955] INFO:     Phys :: EVT :: AvgValue ::  AE:  0.0027    [mm]  ET:  0.0027    [mm]  ET Tot:  0.2083    [mm]
+ [2018-01-19 13:33:11.826] INFO:     STEP CLOCK END :: Time: 2018-01-19 13:33:11.826
+ [2018-01-19 13:33:11.826] INFO:     ===== TIME STEP END :: Date, iT, iNTime, iDt :: 1980-01-01_08:00:00            9           48         3600 =====
+ [2018-01-19 13:33:11.827] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1980-01-01_09:00:00           10           48         3600 =====
+ [2018-01-19 13:33:11.827] INFO:     STEP CLOCK START :: Time: 2018-01-19 13:33:11.827
+ [2018-01-19 13:33:11.967] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Pressure_198001010900.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:11.969] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Albedo_198001010900.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:11.969] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/LAI_198001010900.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:11.985] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2018-01-19 13:33:11.991] WARNING:  All LAI values are undefined! LAI will be initialized using monthly mean information!
+ [2018-01-19 13:33:11.991] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2018-01-19 13:33:12.005] WARNING:  All snow CA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:12.005] WARNING:  All snow QA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:12.006] WARNING:  All snow height values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:12.006] WARNING:  All snow kernel values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:12.226] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2018-01-19 13:33:12.227] INFO:     Phys :: LSM :: AvgValue ::  LST: 270.0      [K]  Rn:  203.5     [W/m^2]  H:   10.5     [W/m^2]  LE:   34.7     [W/m^2]
+ [2018-01-19 13:33:12.235] INFO:     Phys :: EVT :: AvgValue ::  AE:  0.0374    [mm]  ET:  0.0374    [mm]  ET Tot:  0.2457    [mm]
+ [2018-01-19 13:33:14.487] INFO:     STEP CLOCK END :: Time: 2018-01-19 13:33:14.487
+ [2018-01-19 13:33:14.487] INFO:     ===== TIME STEP END :: Date, iT, iNTime, iDt :: 1980-01-01_09:00:00           10           48         3600 =====
+ [2018-01-19 13:33:14.487] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1980-01-01_10:00:00           11           48         3600 =====
+ [2018-01-19 13:33:14.487] INFO:     STEP CLOCK START :: Time: 2018-01-19 13:33:14.487
+ [2018-01-19 13:33:14.593] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Pressure_198001011000.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:14.594] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Albedo_198001011000.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:14.594] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/LAI_198001011000.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:14.613] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2018-01-19 13:33:14.620] WARNING:  All LAI values are undefined! LAI will be initialized using monthly mean information!
+ [2018-01-19 13:33:14.620] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2018-01-19 13:33:14.633] WARNING:  All snow CA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:14.634] WARNING:  All snow QA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:14.635] WARNING:  All snow height values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:14.635] WARNING:  All snow kernel values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:14.837] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2018-01-19 13:33:14.837] INFO:     Phys :: LSM :: AvgValue ::  LST: 271.5      [K]  Rn:  196.6     [W/m^2]  H:   50.9     [W/m^2]  LE:   48.2     [W/m^2]
+ [2018-01-19 13:33:14.846] INFO:     Phys :: EVT :: AvgValue ::  AE:  0.0499    [mm]  ET:  0.0500    [mm]  ET Tot:  0.2956    [mm]
+ [2018-01-19 13:33:15.755] INFO:     STEP CLOCK END :: Time: 2018-01-19 13:33:15.755
+ [2018-01-19 13:33:15.755] INFO:     ===== TIME STEP END :: Date, iT, iNTime, iDt :: 1980-01-01_10:00:00           11           48         3600 =====
+ [2018-01-19 13:33:15.755] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1980-01-01_11:00:00           12           48         3600 =====
+ [2018-01-19 13:33:15.755] INFO:     STEP CLOCK START :: Time: 2018-01-19 13:33:15.755
+ [2018-01-19 13:33:15.899] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Pressure_198001011100.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:15.900] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Albedo_198001011100.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:15.900] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/LAI_198001011100.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:15.918] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2018-01-19 13:33:15.924] WARNING:  All LAI values are undefined! LAI will be initialized using monthly mean information!
+ [2018-01-19 13:33:15.925] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2018-01-19 13:33:15.939] WARNING:  All snow CA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:15.940] WARNING:  All snow QA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:15.940] WARNING:  All snow height values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:15.941] WARNING:  All snow kernel values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:16.152] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2018-01-19 13:33:16.153] INFO:     Phys :: LSM :: AvgValue ::  LST: 272.4      [K]  Rn:  190.2     [W/m^2]  H:   78.7     [W/m^2]  LE:   57.1     [W/m^2]
+ [2018-01-19 13:33:16.162] INFO:     Phys :: EVT :: AvgValue ::  AE:  0.0576    [mm]  ET:  0.0577    [mm]  ET Tot:  0.3532    [mm]
+ [2018-01-19 13:33:17.049] INFO:     STEP CLOCK END :: Time: 2018-01-19 13:33:17.049
+ [2018-01-19 13:33:17.049] INFO:     ===== TIME STEP END :: Date, iT, iNTime, iDt :: 1980-01-01_11:00:00           12           48         3600 =====
+ [2018-01-19 13:33:17.049] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1980-01-01_12:00:00           13           48         3600 =====
+ [2018-01-19 13:33:17.049] INFO:     STEP CLOCK START :: Time: 2018-01-19 13:33:17.049
+ [2018-01-19 13:33:17.151] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Pressure_198001011200.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:17.152] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/Albedo_198001011200.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:17.153] WARNING:  Problem opening uncompressed binary file: /home/fabio/Desktop/NetBeans_Workspace/Data_HMC_TestDebug2/dynamic_data/forcing/ERAINTERIM/1980/01/01/LAI_198001011200.bin.gz --> Undefined forcing data values!
+ [2018-01-19 13:33:17.171] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2018-01-19 13:33:17.177] WARNING:  All LAI values are undefined! LAI will be initialized using monthly mean information!
+ [2018-01-19 13:33:17.177] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2018-01-19 13:33:17.190] WARNING:  All snow CA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:17.190] WARNING:  All snow QA values are undefined! Check updating data! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:17.191] WARNING:  All snow height values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:17.191] WARNING:  All snow kernel values are undefined! Snow physics is activated! If needed check updating data!
+ [2018-01-19 13:33:17.403] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2018-01-19 13:33:17.403] INFO:     Phys :: LSM :: AvgValue ::  LST: 273.1      [K]  Rn:  145.2     [W/m^2]  H:   52.6     [W/m^2]  LE:   47.8     [W/m^2]
+ [2018-01-19 13:33:17.412] INFO:     Phys :: EVT :: AvgValue ::  AE:  0.0475    [mm]  ET:  0.0477    [mm]  ET Tot:  0.4007    [mm]
