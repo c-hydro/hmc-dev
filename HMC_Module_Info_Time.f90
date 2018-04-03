@@ -199,7 +199,7 @@ contains
         if (iTc.gt.840) iTc = 840 !No more than 5 weeks
         
         ! Define iTMaxFor
-        if (iTcMax.gt.0) iTc = iTcMax ! defined by user
+        if (iTcMax.ge.0) iTc = iTcMax ! defined by user
         iTcSeconds = iTc*3600
         
         ! Compute extra time
