@@ -1102,7 +1102,9 @@ contains
                     ! Punctual lake
                     a1dVarVLake(iL) = a1dVarVLake(iL) + a2dVarQDisOut(iI, iJ)/1000*(oHMC_Vars(iID)%a2dAreaCell(iI, iJ))
                 endif
-                
+		
+                a2dVarQDisOut(iI, iJ) = 0.0
+		
             enddo
         endif
         !------------------------------------------------------------------------------------------
@@ -1827,7 +1829,7 @@ contains
         a2dVarHydro = oHMC_Vars(iID)%a2dHydro
         
         a1dVarVLake = oHMC_Vars(iID)%a1dVLake
-        a1dVarQoutLake = oHMC_Vars(iID)%a1dQoutLake
+        a1dVarQoutLake = 0.0
         
         a1dVarVDam = oHMC_Vars(iID)%a1dVDam
         a1dVarHDam = oHMC_Vars(iID)%a1dHDam 
