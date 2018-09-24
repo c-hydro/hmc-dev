@@ -52,7 +52,7 @@ contains
         !------------------------------------------------------------------------------------------
         !------------------------------------------------------------------------------------------
         ! Re-initialize dam height (part added to compute Q of spilling WITHIN the convolution in [m^3/s])
-        a1dVarHDam(iD) = 0.0
+        a1dVarHDam = 0.0
 
 !        ! Update dam volume using observation(s) 
 !        where (oHMC_Vars(iID)%a1dVDamObs .gt. -9999.0)
