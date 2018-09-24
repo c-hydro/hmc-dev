@@ -4,7 +4,7 @@
 # Script option(s)
 Script="HMC Model Builder"
 Version="2.0.7"
-# Other option(s)
+# Other option(s) for default arguments
 Archive="hmc_model-apps_codes_2.0.7.tar.gz"
 Exec_Default='HMC_Model_V2_$RUN.x'
 NC_Dir_Default="/home/fabio/Desktop/Library/netcdf-4.1.2_shared/"
