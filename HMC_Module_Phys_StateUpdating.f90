@@ -35,7 +35,7 @@ contains
         
         integer(kind = 4)           :: iFlagSMAssim
 
-        integer(kind = 4), dimension (iRows, iCols)         :: a2iVarMask
+        integer(kind = 4), dimension (iRows, iCols)         :: a2iVarMask, a2iVarChoice
         real(kind = 4), dimension (iRows, iCols)            :: a2dVarDEM, a2dVarS
         
         real(kind = 4), dimension (iRows, iCols)            :: a2dVarVTot
@@ -47,7 +47,7 @@ contains
         !------------------------------------------------------------------------------------------
         ! Initialization variable(s)
         iFlagSMAssim = 0;
-        a2iVarMask = 0; a2dVarDEM = 0.0; a2dVarS = 0.0;
+        a2iVarMask = 0; a2dVarDEM = 0.0; a2dVarS = 0.0; a2iVarChoice = 0.0;
         a2dVarVTot = -9999.0; a2dVarSMStar = -9999.0; a2dVarSMGain = -9999.0; 
         a2dVarVTot_Obs = -9999.0; a2dVarVTot_Assim = -9999.0; a2dVarVTot_Corr = -9999.0
         !------------------------------------------------------------------------------------------
@@ -59,6 +59,7 @@ contains
         a2dVarDEM = oHMC_Vars(iID)%a2dDem
         a2iVarMask = oHMC_Vars(iID)%a2iMask
         a2dVarS = oHMC_Vars(iID)%a2dS
+	a2iVarChoice = oHMC_Vars(iID)%a2iChoice
         ! Data dynamic definition
         a2dVarVTot = oHMC_Vars(iID)%a2dVTot
         a2dVarSMStar = oHMC_Vars(iID)%a2dSMStar
@@ -96,6 +97,12 @@ contains
                     a2dVarVTot_Obs = a2dVarVTot
                 endwhere
                 !------------------------------------------------------------------------------------------
+
+                !------------------------------------------------------------------------------------------
+                ! Replace volumetric soil water content [mm] from HSAF product(s) with volumetric soil water content [mm] from HMC in channel cells               
+                where (a2iVarChoice.gt.0)
+                    a2dVarVTot_Obs = a2dVarVTot 
+                endwhere
 
                 !------------------------------------------------------------------------------------------
                 ! Nudging assimilation method
