@@ -15,6 +15,8 @@ name_exec='HMC_Model_V2_DebugTest.x'
 name_args='HMC_Args_DebugTest.txt'
 name_results='HMC_Results_DebugTest.txt'
 
+#fabio suca
+
 # Settings
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/netcdf-4.1.2/lib/
 ulimit -s unlimited
