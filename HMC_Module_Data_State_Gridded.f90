@@ -339,8 +339,8 @@ contains
         
         ! Dimension(s)        
         call check( nf90_def_dim(iFileID, "time", NF90_UNLIMITED, iID_Dim_Time) )
-        call check( nf90_def_dim(iFileID, "south_north", iRows, iID_Dim_Rows) )
-        call check( nf90_def_dim(iFileID, "west_east", iCols, iID_Dim_Cols) )
+        call check( nf90_def_dim(iFileID, "west_east", iRows, iID_Dim_Rows) )
+        call check( nf90_def_dim(iFileID, "south_north", iCols, iID_Dim_Cols) )
         call check( nf90_def_dim(iFileID, "tmarked_steps", iTMarkedSteps, iID_Dim_TMarkedSteps) )
         call check( nf90_def_dim(iFileID, "day1_steps", iDaySteps, iID_Dim_Day1Steps) )
         call check( nf90_def_dim(iFileID, "day5_steps", iDaySteps*5, iID_Dim_Day5Steps) )
