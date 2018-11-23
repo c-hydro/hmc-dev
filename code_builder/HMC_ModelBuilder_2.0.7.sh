@@ -7,7 +7,7 @@ Version="2.0.7"
 # Other option(s)
 Archive="hmc_model-apps_codes_2.0.7.tar.gz"
 Exec_Default='HMC_Model_V2_$RUN.x'
-NC_Dir_Default="/home/fabio/Desktop/Library/netcdf-4.1.2_shared/"
+NC_Dir_Default="$HOME/fp_libs_hmc/nc4_fortran/"
 #-----------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------
