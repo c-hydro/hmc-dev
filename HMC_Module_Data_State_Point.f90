@@ -197,7 +197,14 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Open file
-        open(unit = 20, file = trim(sFileNameData_State), status = 'new', iostat = iRet)
+        inquire (file = trim(sFileNameData_State), exist = bFileExist)
+        
+        if (.not. bFileExist ) then
+            open(unit = 20, file = trim(sFileNameData_State), status = 'new', iostat = iRet)
+        elseif ( bFileExist ) then
+            open(unit = 20, file = trim(sFileNameData_State), status = 'replace', iostat = iRet)
+        endif
+        
         inquire (file = trim(sFileNameData_State), exist = bFileExist, iostat = iRet)
         !------------------------------------------------------------------------------------------
         
