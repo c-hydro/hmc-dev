@@ -309,7 +309,7 @@ contains
 
         !------------------------------------------------------------------------------------------
         ! Create netcdf file
-        call check( nf90_create(trim(sFileNameData_Output), 0, iFileID) )
+        call check( nf90_create(trim(sFileNameData_Output), NF90_NETCDF4, iFileID) )
 	
         ! Dimension(s)
         call check( nf90_def_dim(iFileID, "time", NF90_UNLIMITED, iID_Dim_Time) )
