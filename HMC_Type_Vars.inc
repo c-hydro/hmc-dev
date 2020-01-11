@@ -17,7 +17,7 @@ TYPE HMC_Type_Vars
     ! HMC STATIC VARIABLE(S) - 1D, 2D
     ! Land variable(s)
     integer(kind = 4),      allocatable, dimension (:, :)       :: a2iMask, a2iPNT, a2iChoice
-    !integer(kind = 4),      allocatable, dimension (:, :)       :: a2iArea
+    integer(kind = 4),      allocatable, dimension (:, :)       :: a2iArea
     integer(kind = 4),      allocatable, dimension (:, :)       :: a2iNature
     integer(kind = 4),      allocatable, dimension (:, :)       :: a2iXIndex, a2iYIndex
     real(kind = 4),         allocatable, dimension (:)          :: a1dFCN
@@ -102,7 +102,7 @@ TYPE HMC_Type_Vars
     real(kind = 4), allocatable,  	dimension(:, :)         :: a2dET, a2dAE
     real(kind = 4), allocatable,        dimension(:, :)         :: a2dETCum
     
-    ! Convolution variable(s)
+    ! Convolution variable(s) for channel network
     real(kind = 4), allocatable,  	dimension(:, :)         :: a2dHydro, a2dHydroPrev, a2dRouting, a2dDarcy
     real(kind = 4), allocatable,  	dimension(:, :)         :: a2dQDisOut, a2dQVolOut, a2dQTot, a2dQout
     real(kind = 4), allocatable,  	dimension(:, :)         :: a2dIntensity
@@ -135,4 +135,17 @@ TYPE HMC_Type_Vars
     integer(kind = 4)                   :: iFileUnitTSQ, iFileUnitTSVDam
     logical                             :: bFileUnitTSQ, bFileUnitTSVDam
     
+    ! Convolution variable(s) for channel fraction
+    real(kind = 4), allocatable,        dimension (:, :)       :: a2dQC, a2dQH, a2dHydroC, a2dHydroH
+    real(kind = 4), allocatable,        dimension (:, :)       :: a2dRunoffC, a2dRunoffH, a2dQup
+    real(kind = 4), allocatable,        dimension (:, :)       :: a2dWidthC, a2dWidthH
+     
+    ! Fracturation variable(s)
+    real(kind = 4), allocatable,        dimension (:, :)       :: a2dFrac
+    
+    ! Flooding variable (s)
+    real(kind = 4)                      :: dFlagFlood
+    real(kind = 4), allocatable,        dimension (:, :)       :: a2dLevBankL, a2dLevBankR, a2dFirst
+    real(kind = 4), allocatable,        dimension (:, :)       :: a2dQfloodIL, a2dQfloodCL, a2dQfloodIR, a2dQfloodCR
+
 END TYPE HMC_Type_Vars

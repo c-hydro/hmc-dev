@@ -63,6 +63,8 @@ contains
         integer(kind = 4)       :: iFlagSnow, iFlagSnowAssim, iFlagSMAssim
         integer(kind = 4)       :: iFlagGrid
         integer(kind = 4)       :: iFlagCoeffRes, iFlagWS
+        integer(kind = 4)       :: iFlagCType
+        integer(kind = 4)       :: iFlagFrac
         
         logical                 :: bGridCheck
 
@@ -180,6 +182,8 @@ contains
                                         iFlagLAI, iFlagAlbedo, iFlagCH, &
                                         iFlagSnow, iFlagSnowAssim, iFlagSMAssim, &
                                         iFlagCoeffRes, iFlagWS, &
+                                        iFlagCType, &
+                                        iFlagFrac, &
                                         a1dGeoForcing, a1dResForcing, a1iDimsForcing, &
                                         iScaleFactor, iTcMax, &
                                         iSimLength, iDtModel, &
@@ -235,6 +239,8 @@ contains
         iFlagLAI = -9999; iFlagAlbedo = -9999; iFlagCH = -9999; 
         iFlagSnow = -9999; iFlagSnowAssim = -9999; iFlagSMAssim = -9999;
         iFlagCoeffRes = -9999; iFlagWS = -9999;
+        iFlagCType = -9999;
+        iFlagFrac = -9999;
         a1dGeoForcing = -9999.0; a1dResForcing = -9999.0; a1iDimsForcing = -9999; 
         iScaleFactor = -9999; iTcMax = -9999; iTc = -9999
         iSimLength = -9999; iDtModel = -9999; 
@@ -438,6 +444,18 @@ contains
             oHMC_Namelist_Init%iFlagWS = 0          ! default mode without water sources dynamic
         else
             oHMC_Namelist_Init%iFlagWS = iFlagWS 
+        endif
+        
+        if (iFlagFrac .eq. -9999) then  ! backward compatibility with older version of info file (without frac flag)
+            oHMC_Namelist_Init%iFlagFrac = 0              ! deactivate groundwater bedrock fracturation
+        else
+            oHMC_Namelist_Init%iFlagFrac = iFlagFrac      ! activate/deactivate groundwater bedrock fracturation
+        endif
+        
+        if (iFlagCType .eq. -9999) then  ! backward compatibility with older version of info file (without ctype flag)
+            oHMC_Namelist_Init%iFlagCType = 1               ! channel network
+        else
+            oHMC_Namelist_Init%iFlagCType = iFlagCType      ! channel network/fraction
         endif
         
         ! Geographical land and forcing info
