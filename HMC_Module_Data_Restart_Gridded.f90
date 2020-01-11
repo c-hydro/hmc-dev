@@ -58,7 +58,7 @@ contains
         !------------------------------------------------------------------------------------------
         ! Variable(s)                                    
         integer(kind = 4)           :: iID
-        integer(kind = 4)           :: iFlagRestart, iFlagSnow
+        integer(kind = 4)           :: iFlagRestart, iFlagSnow, iFlagCType
         integer(kind = 4)           :: iRows, iCols
         integer(kind = 4)           :: iRowsStart, iColsStart, iRowsEnd, iColsEnd
         integer(kind = 4)           :: iDaySteps, iTMarkedSteps
@@ -71,13 +71,16 @@ contains
         character(len = 700)        :: sFileNameData_Restart, sFileNameData_Restart_Zip
         character(len = 700)        :: sCommandUnzipFile
         
-        real(kind = 4), dimension(iRowsEnd - iRowsStart + 1, iColsEnd - iColsStart + 1) :: a2dVarDEM
+        real(kind = 4), dimension(iRowsEnd - iRowsStart + 1, iColsEnd - iColsStart + 1)     :: a2dVarDEM
         
-        real(kind = 4), dimension(iRowsEnd - iRowsStart + 1, iColsEnd - iColsStart + 1)    :: a2dVarVTot, a2dVarVRet, &
-                                                                                              a2dVarHydro, a2dVarRouting, &
-                                                                                              a2dVarFlowDeep, &
-                                                                                              a2dVarWTable, a2dVarLST, &
-                                                                                              a2dVarLat, a2dVarLon
+        real(kind = 4), dimension(iRowsEnd - iRowsStart + 1, iColsEnd - iColsStart + 1)     :: a2dVarVTot, a2dVarVRet, &
+                                                                                               a2dVarHydro, a2dVarRouting, &
+                                                                                               a2dVarFlowDeep, &
+                                                                                               a2dVarWTable, a2dVarLST, &
+                                                                                               a2dVarLat, a2dVarLon
+                                                                                              
+        real(kind = 4), dimension(iRowsEnd - iRowsStart + 1, iColsEnd - iColsStart + 1)     :: a2dVarHydroC, a2dVarHydroH, &
+                                                                                               a2dVarQup
                                                                                            
         integer(kind = 4), dimension(iRowsEnd - iRowsStart + 1, iColsEnd - iColsStart + 1)              :: a2iVarAgeS
         real(kind = 4), dimension(iRowsEnd - iRowsStart + 1, iColsEnd - iColsStart + 1)                 :: a2dVarSWE, a2dVarAlbedoS
@@ -100,6 +103,8 @@ contains
         a2dVarLST = 0.0; a2dVarWTable = 0.0; a3dVarTaKMarked = 0.0; a3dVarTaK24  = 0.0;
         a2dVarLat = 0.0; a2dVarLon = 0.0
         
+        a2dVarHydroC = 0.0; a2dVarHydroH = 0.0; a2dVarQup = 0.0;
+        
         a2iVarAgeS = 0; a2dVarSWE = 0.0; a2dVarAlbedoS = 0.0; a2dVarRhoS = 0.0; a2dVarRhoS0 = 0.0
         a3dVarTaC_1Days = 0.0; a3dVarTaC_5Days = 0.0;
         
@@ -117,6 +122,7 @@ contains
         ! Get global information
         iFlagRestart = oHMC_Namelist(iID)%iFlagRestart
         iFlagSnow = oHMC_Namelist(iID)%iFlagSnow
+        iFlagCType = oHMC_Namelist(iID)%iFlagCType
         sPathData_Restart = oHMC_Namelist(iID)%sPathData_Restart_Gridded
         iFlagTypeData_Restart = oHMC_Namelist(iID)%iFlagTypeData_Restart_Gridded
         iScaleFactor = oHMC_Namelist(iID)%iScaleFactor
@@ -136,6 +142,9 @@ contains
             call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dVTot, oHMC_Vars(iID)%a2iMask, 'VTOT START') )
             call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dVRet, oHMC_Vars(iID)%a2iMask, 'VRET START') )
             call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dHydro, oHMC_Vars(iID)%a2iMask, 'HYDRO START') )
+            call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dHydroC, oHMC_Vars(iID)%a2iMask, 'HYDROC START') )
+            call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dHydroH, oHMC_Vars(iID)%a2iMask, 'HYDROH START') )
+            call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dQup, oHMC_Vars(iID)%a2iMask, 'QUP START') )
             call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dRouting, oHMC_Vars(iID)%a2iMask, 'ROUTING START') )
             call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dWTable, oHMC_Vars(iID)%a2iMask, 'WTABLE START') )
             call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dLST, oHMC_Vars(iID)%a2iMask, 'LST START') )
@@ -178,9 +187,10 @@ contains
                                         sPathData_Restart, &
                                         iRows, iCols, &
                                         iDaySteps, iTMarkedSteps, &
-                                        sTime, iFlagSnow, &
+                                        sTime, iFlagSnow, iFlagCType, &
                                         a2dVarVTot, a2dVarVRet, &
                                         a2dVarHydro, a2dVarRouting, &
+                                        a2dVarHydroC, a2dVarHydroH, a2dVarQup, &
                                         a2dVarFlowDeep, &
                                         a2dVarWTable, &
                                         a2dVarLST, a3dVarTaKMarked, a3dVarTaK24, &
@@ -211,9 +221,10 @@ contains
                                         sPathData_Restart, &
                                         iRows, iCols, &
                                         iDaySteps, iTMarkedSteps, &
-                                        sTime, iFlagSnow, &
+                                        sTime, iFlagSnow, iFlagCType, &
                                         a2dVarVTot, a2dVarVRet, &
                                         a2dVarHydro, a2dVarRouting, &
+                                        a2dVarHydroC, a2dVarHydroH, a2dVarQup, &
                                         a2dVarFlowDeep, &
                                         a2dVarWTable, &
                                         a2dVarLST, a3dVarTaKMarked, a3dVarTaK24, &
@@ -244,20 +255,51 @@ contains
                     a2dVarWTableUpd = oHMC_Vars(iID)%a2dWTableMax
                 endwhere
                 
-                ! Check hydro initialization
-                where (a2dVarHydro .lt. 0.0000001)
-                    a2dVarHydro = 0.0000001
-                endwhere
-                where (a2dVarHydro .gt. 100000.0)
-                    a2dVarHydro = 0.0000001
-                endwhere
+                ! Initialize hydro variable(s) according with channel type
+                if (iFlagCType.eq.2) then
+                
+                    ! Check hydro c initialization [m]
+                    where (a2dVarHydroC .lt. 0.0)
+                        a2dVarHydroC = 0.0000001
+                    endwhere
+                    where (a2dVarHydroC .gt. 200.0)
+                        a2dVarHydroC = 0.0000001
+                    endwhere
+
+                    ! Check hydro h initialization [m]
+                    where (a2dVarHydroH .lt. 0.0)
+                        a2dVarHydroH = 0.0000001
+                    endwhere
+                    where (a2dVarHydroH .gt. 200.0)
+                        a2dVarHydroH = 0.0000001
+                    endwhere
+                
+                else
+                
+                    ! Check hydro initialization [mm]
+                    where (a2dVarHydro .lt. 0.0)
+                        a2dVarHydro = 0.0000001
+                    endwhere
+                    where (a2dVarHydro .gt. 100000.0)
+                        a2dVarHydro = 0.0000001
+                    endwhere
+                
+                endif
                 !------------------------------------------------------------------------------------------
                 
                 !------------------------------------------------------------------------------------------
                 ! Check variable(s) domain
                 a2dVarVTot = checkdomainvar(a2dVarVTot, oHMC_Vars(iID)%a2iMask,             -9999.0 )
                 a2dVarVRet = checkdomainvar(a2dVarVRet, oHMC_Vars(iID)%a2iMask,             0.001 )
-                a2dVarHydro = checkdomainvar(a2dVarHydro, oHMC_Vars(iID)%a2iMask,           0.0 )
+                
+                if (iFlagCType.eq.2) then
+                    a2dVarHydroC = checkdomainvar(a2dVarHydroC, oHMC_Vars(iID)%a2iMask,     0.0 )
+                    a2dVarHydroH = checkdomainvar(a2dVarHydroH, oHMC_Vars(iID)%a2iMask,     0.0 )
+                    a2dVarQup = checkdomainvar(a2dVarQup, oHMC_Vars(iID)%a2iMask,           0.0 ) 
+                else
+                    a2dVarHydro = checkdomainvar(a2dVarHydro, oHMC_Vars(iID)%a2iMask,       0.0 )
+                endif
+                
                 a2dVarRouting = checkdomainvar(a2dVarRouting, oHMC_Vars(iID)%a2iMask,       0.0 )
                 a2dVarWTableUpd = checkdomainvar(a2dVarWTableUpd, oHMC_Vars(iID)%a2iMask,   -9999.0 )
                 a2dVarLST = checkdomainvar(a2dVarLST, oHMC_Vars(iID)%a2iMask,               -9999.0 )
@@ -270,6 +312,9 @@ contains
                 oHMC_Vars(iID)%a2dVTot = a2dVarVTot;
                 oHMC_Vars(iID)%a2dVRet = a2dVarVRet;
                 oHMC_Vars(iID)%a2dHydro = a2dVarHydro;
+                oHMC_Vars(iID)%a2dHydroC = a2dVarHydroC;
+                oHMC_Vars(iID)%a2dHydroH = a2dVarHydroH;
+                oHMC_Vars(iID)%a2dQup = a2dVarQup;
                 oHMC_Vars(iID)%a2dRouting = a2dVarRouting;
                 oHMC_Vars(iID)%a2dWTable = a2dVarWTableUpd;
                 oHMC_Vars(iID)%a2dLST = a2dVarLST;
@@ -345,6 +390,9 @@ contains
             call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dVTot, oHMC_Vars(iID)%a2iMask, 'VTOT END') )
             call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dVRet, oHMC_Vars(iID)%a2iMask, 'VRET END') )
             call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dHydro, oHMC_Vars(iID)%a2iMask, 'HYDRO END') )
+            call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dHydroC, oHMC_Vars(iID)%a2iMask, 'HYDROC END') )
+            call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dHydroH, oHMC_Vars(iID)%a2iMask, 'HYDROH END') )
+            call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dQup, oHMC_Vars(iID)%a2iMask, 'QUP END') )
             call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dRouting, oHMC_Vars(iID)%a2iMask, 'ROUTING END') )
             call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dWTable, oHMC_Vars(iID)%a2iMask, 'WTABLE END') )
             call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dLST, oHMC_Vars(iID)%a2iMask, 'LST END') )
@@ -374,9 +422,10 @@ contains
                                            sPathData_Restart, &
                                            iRows, iCols, &
                                            iDaySteps, iTMarkedSteps, &
-                                           sTime, iFlagSnow, &
+                                           sTime, iFlagSnow, iFlagCType, &
                                            a2dVarVTot, a2dVarVRet, &
                                            a2dVarHydro, a2dVarRouting, &
+                                           a2dVarHydroC, a2dVarHydroH, a2dVarQup, &
                                            a2dVarFlowDeep, &
                                            a2dVarWTable, &
                                            a2dVarLST, a3dVarTaKMarked, a3dVarTaK24, &
@@ -396,7 +445,7 @@ contains
         character(len = 256)                    :: sVarName
         integer(kind = 4), intent(in)           :: iRows, iCols
         integer(kind = 4), intent(in)           :: iDaySteps, iTMarkedSteps
-        integer(kind = 4), intent(in)           :: iFlagSnow
+        integer(kind = 4), intent(in)           :: iFlagSnow, iFlagCType
 
         character(len = 19), intent(in)         :: sTime
 
@@ -409,7 +458,10 @@ contains
         real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarVTot
         real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarVRet
         real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarHydro
-        real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarRouting      
+        real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarRouting    
+        real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarHydroC
+        real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarHydroH   
+        real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarQup
         real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarFlowDeep       
         real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarWTable
         real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarLST
@@ -426,9 +478,6 @@ contains
         real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarLat
         real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarLon
         
-        logical, dimension(10)  :: a1bVarCheck
-        logical, dimension(6)   :: a1bVarCheckS
-
         character(len = 256)    :: sVarUnits
         integer(kind = 4)       :: iErr
         integer(kind = 4)       :: iFileID
@@ -436,12 +485,14 @@ contains
         logical                 :: bFileExist
         
         logical                 :: bCheckRestart, bCheckRestartS
+        logical                 :: bCheckVar, bCheckVarS
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
         ! Initialize variable(s)
         a2dVarVTot = -9999.0; a2dVarVRet = -9999.0; 
         a2dVarHydro = -9999.0; a2dVarRouting = -9999.0; 
+        a2dVarHydroC = -9999.0; a2dVarHydroH = -9999.0; a2dVarQup = -9999.0;
         a2dVarFlowDeep = -9999.0; a2dVarWTable = -9999.0; 
         a2dVarLST = -9999.0; a3dVarTaKMarked = -9999.0; a3dVarTaK24 = -9999.0; 
         a2iVarAgeS = -9999; a2dVarSWE = -9999.0; a2dVarAlbedoS = -9999.0; a2dVarRhoS = -9999.0;
@@ -449,7 +500,9 @@ contains
         a2dVarWSRunoff = -9999.0
         a2dVarLat = -9999.0; a2dVarLon = -9999.0;
         
-        a1bVarCheck = .false.; a1bVarCheckS = .false.; bCheckRestart = .false.; 
+        bCheckRestart = .false.; 
+        
+        bCheckVar = .true.; bCheckVarS = .true.
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -480,7 +533,7 @@ contains
             call mprintf(.true., iWARN, ' No compressed restart netCDF data found: '//trim(sFileNameData_Restart_Zip) )
             call mprintf(.true., iINFO_Verbose, &
                          ' Get filename (restart gridded): '//trim(sFileNameData_Restart)//' ... FAILED' )
-            a1bVarCheck = .false.
+            bCheckVar = .false.
             !------------------------------------------------------------------------------------------
         else
             !------------------------------------------------------------------------------------------
@@ -503,7 +556,7 @@ contains
                             ' Get filename (restart gridded): '//trim(sFileNameData_Restart)//' ... FAILED' )
                 
                 ! Flag check restart 
-                a1bVarCheck = .false.
+                bCheckVar = .false.
                 !------------------------------------------------------------------------------------------
                             
             else
@@ -516,10 +569,11 @@ contains
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get restart gridded data FAILED! Check restart data for '//sVarName//'!')
                     a2dVarVTot = -9999.0;
-                    a1bVarCheck(1) = .false.
+                    bCheckVar = bCheckVar .and. .false. 
                 else
                     a2dVarVTot = transpose(a2dVar)
-                    a1bVarCheck(1) = .true.
+                    bCheckVar = bCheckVar .and. .true. 
+                    
                 endif
 
                 ! VRet
@@ -528,22 +582,65 @@ contains
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get restart gridded data FAILED! Check restart data for '//sVarName//'!')
                     a2dVarVRet = -9999.0;
-                    a1bVarCheck(2) = .false.
+                    bCheckVar = bCheckVar .and. .false. 
                 else
                     a2dVarVRet = transpose(a2dVar)
-                    a1bVarCheck(2) = .true.
+                    bCheckVar = bCheckVar .and. .true. 
                 endif
+                
+                ! Check channel type
+                if (iFlagCType.eq.2) then
+                    
+                    ! HydroLevel C
+                    sVarName = 'HydroLevelC';
+                    call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .true., iErr)
+                    if(iErr /= 0) then
+                        call mprintf(.true., iWARN, ' Get restart gridded data FAILED! Check restart data for '//sVarName//'!')
+                        a2dVarHydroC = -9999.0;
+                        bCheckVar = bCheckVar .and. .false. 
+                    else
+                        a2dVarHydroC = transpose(a2dVar)
+                        bCheckVar = bCheckVar .and. .true. 
+                    endif
+                    
+                    ! HydroLevel H
+                    sVarName = 'HydroLevelH';
+                    call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .true., iErr)
+                    if(iErr /= 0) then
+                        call mprintf(.true., iWARN, ' Get restart gridded data FAILED! Check restart data for '//sVarName//'!')
+                        a2dVarHydroH = -9999.0;
+                        bCheckVar = bCheckVar .and. .false. 
+                    else
+                        a2dVarHydroH = transpose(a2dVar)
+                        bCheckVar = bCheckVar .and. .true. 
+                    endif
 
-                ! HydroLevel
-                sVarName = 'HydroLevel';
-                call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .true., iErr)
-                if(iErr /= 0) then
-                    call mprintf(.true., iWARN, ' Get restart gridded data FAILED! Check restart data for '//sVarName//'!')
-                    a2dVarHydro = -9999.0;
-                    a1bVarCheck(3) = .false.
+                    ! Q upstream
+                    sVarName = 'Qup';
+                    call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .true., iErr)
+                    if(iErr /= 0) then
+                        call mprintf(.true., iWARN, ' Get restart gridded data FAILED! Check restart data for '//sVarName//'!')
+                        a2dVarQup = -9999.0;
+                        bCheckVar = bCheckVar .and. .false. 
+                    else
+                        a2dVarQup = transpose(a2dVar)
+                        bCheckVar = bCheckVar .and. .true. 
+                    endif
+                    
                 else
-                    a2dVarHydro = transpose(a2dVar)
-                    a1bVarCheck(3) = .true.
+                    
+                    ! HydroLevel
+                    sVarName = 'HydroLevel';
+                    call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .true., iErr)
+                    if(iErr /= 0) then
+                        call mprintf(.true., iWARN, ' Get restart gridded data FAILED! Check restart data for '//sVarName//'!')
+                        a2dVarHydro = -9999.0;
+                        bCheckVar = bCheckVar .and. .false. 
+                    else
+                        a2dVarHydro = transpose(a2dVar)
+                        bCheckVar = bCheckVar .and. .true. 
+                    endif
+                    
                 endif
 
                 ! Routing
@@ -552,10 +649,10 @@ contains
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get restart gridded data FAILED! Check restart data for '//sVarName//'!')
                     a2dVarRouting = -9999.0;
-                    a1bVarCheck(4) = .false.
+                    bCheckVar = bCheckVar .and. .false. 
                 else
                     a2dVarRouting = transpose(a2dVar)
-                    a1bVarCheck(4) = .true.
+                    bCheckVar = bCheckVar .and. .true. 
                 endif
 
                 ! DFE
@@ -564,22 +661,22 @@ contains
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get restart gridded data FAILED! Check restart data for '//sVarName//'!')
                     a2dVarFlowDeep = -9999.0;
-                    a1bVarCheck(5) = .false.
+                    bCheckVar = bCheckVar .and. .false. 
                 else
                     a2dVarFlowDeep = transpose(a2dVar)
-                    a1bVarCheck(5) = .true.
+                    bCheckVar = bCheckVar .and. .true. 
                 endif
-
+                    
                 ! WTLevel
                 sVarName = 'WTLevel';
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .true., iErr)
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get restart gridded data FAILED! Check restart data for '//sVarName//'!')
                     a2dVarWTable = -9999.0;
-                    a1bVarCheck(6) = .false.
+                    bCheckVar = bCheckVar .and. .false. 
                 else
                     a2dVarWTable = transpose(a2dVar)
-                    a1bVarCheck(6) = .true.
+                    bCheckVar = bCheckVar .and. .true. 
                 endif
 
                 ! LST
@@ -588,10 +685,10 @@ contains
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get restart gridded data FAILED! Check restart data for '//sVarName//'!')
                     a2dVarLST = -9999.0;
-                    a1bVarCheck(7) = .false.
+                    bCheckVar = bCheckVar .and. .false. 
                 else
                     a2dVarLST = transpose(a2dVar)
-                    a1bVarCheck(7) = .true.
+                    bCheckVar = bCheckVar .and. .true. 
                 endif
 
                 ! Tmk
@@ -600,10 +697,10 @@ contains
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get restart gridded data FAILED! Check restart data for '//sVarName//'!')
                     a3dVarTaKMarked = -9999.0;
-                    a1bVarCheck(8) = .false.
+                    bCheckVar = bCheckVar .and. .false. 
                 else
                     a3dVarTaKMarked = transpose3Dvar(a3dVar1)
-                    a1bVarCheck(8) = .true.
+                    bCheckVar = bCheckVar .and. .true. 
                 endif
 
                 ! T24
@@ -612,10 +709,10 @@ contains
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get restart gridded data FAILED! Check restart data for '//sVarName//'!')
                     a3dVarTaK24 = -9999.0;
-                    a1bVarCheck(9) = .false.
+                    bCheckVar = bCheckVar .and. .false. 
                 else
                     a3dVarTaK24 = transpose3Dvar(a3dVar2)
-                    a1bVarCheck(9) = .true.
+                    bCheckVar = bCheckVar .and. .true. 
                 endif
                 
                 ! WS
@@ -625,10 +722,10 @@ contains
                     call mprintf(.true., iWARN, ' Get restart gridded data FAILED! '// &
                         'Not in mandatory restart variables! If needed check restart data for '//sVarName//'!')
                     a2dVarWSRunoff = 0.0
-                    a1bVarCheck(10) = .true.
+                    bCheckVar = bCheckVar .and. .true. 
                 else
                     a2dVarWSRunoff = transpose(a2dVar)
-                    a1bVarCheck(10) = .true.
+                    bCheckVar = bCheckVar .and. .true. 
                 endif
 
                 ! Snow variable(s)                
@@ -639,11 +736,11 @@ contains
                     if(iErr /= 0) then
                         call mprintf(.true., iWARN, ' Get restart gridded data FAILED! '// &
                             'Snow physics is activated! If needed check restart data for '//sVarName//'!')
-                        a2dVarSWE = -9999.0;
-                        a1bVarCheckS(1) = .false.
+                        a2dVarSWE = -9999.0;       
+                        bCheckVarS = bCheckVarS .and. .false. 
                     else
                         a2dVarSWE = transpose(a2dVar)
-                        a1bVarCheckS(1) = .true.
+                        bCheckVarS = bCheckVarS .and. .true. 
                     endif
                    
                     ! Snow density
@@ -653,10 +750,10 @@ contains
                         call mprintf(.true., iWARN, ' Get restart gridded data FAILED! '// &
                             'Snow physics is activated! If needed check restart data for '//sVarName//'!')
                         a2dVarRhoS = -9999.0;
-                        a1bVarCheckS(2) = .false.
+                        bCheckVarS = bCheckVarS .and. .false.
                     else
                         a2dVarRhoS = transpose(a2dVar)
-                        a1bVarCheckS(2) = .true.
+                        bCheckVarS = bCheckVarS .and. .true. 
                     endif
                     
                     ! Snow albedo
@@ -666,10 +763,10 @@ contains
                         call mprintf(.true., iWARN, ' Get restart gridded data FAILED! '// &
                             'Snow physics is activated! If needed check restart data for '//sVarName//'!')
                         a2dVarAlbedoS = -9999.0;
-                        a1bVarCheckS(3) = .false.
+                        bCheckVarS = bCheckVarS .and. .false.
                     else
                         a2dVarAlbedoS = transpose(a2dVar)
-                        a1bVarCheckS(3) = .true.
+                        bCheckVarS = bCheckVarS .and. .true. 
                     endif
                     
                     ! Snow age
@@ -679,10 +776,10 @@ contains
                         call mprintf(.true., iWARN, ' Get restart gridded data FAILED! '// &
                             'Snow physics is activated! If needed check restart data for '//sVarName//'!')
                         a2iVarAgeS = -9999;
-                        a1bVarCheckS(4) = .false.
+                        bCheckVarS = bCheckVarS .and. .false.
                     else
                         a2iVarAgeS = int(transpose(a2dVar))
-                        a1bVarCheckS(4) = .true.
+                        bCheckVarS = bCheckVarS .and. .true. 
                     endif
                     
                     ! Air temperature last 1 day(s)
@@ -692,10 +789,10 @@ contains
                         call mprintf(.true., iWARN, ' Get restart gridded data FAILED! '// &
                             'Snow physics is activated! If needed check restart data for '//sVarName//'!')
                         a3dVarTaC_1Days = -9999.0;
-                        a1bVarCheck(5) = .false.
+                        bCheckVarS = bCheckVarS .and. .false.
                     else
                         a3dVarTaC_1Days = transpose3Dvar(a3dVar3)
-                        a1bVarCheck(5) = .true.
+                        bCheckVarS = bCheckVarS .and. .true. 
                     endif
                     
                     ! Air temperature last 5 day(s)
@@ -705,20 +802,22 @@ contains
                         call mprintf(.true., iWARN, ' Get restart gridded data FAILED! '// &
                             'Snow physics is activated! If needed check restart data for '//sVarName//'!')
                         a3dVarTaC_5Days = -9999.0;
-                        a1bVarCheck(6) = .false.
+                        bCheckVarS = bCheckVarS .and. .false.
                     else
                         a3dVarTaC_5Days = transpose3Dvar(a3dVar4)
-                        a1bVarCheck(6) = .true.
+                        bCheckVarS = bCheckVarS .and. .true. 
                     endif
                 
                 else
                     ! Condition snow not activated
-                    a2dVarSWE = -9999.0; a1bVarCheckS(1) = .true.
-                    a2dVarRhoS = -9999.0; a1bVarCheckS(2) = .true.
-                    a2dVarAlbedoS = -9999.0; a1bVarCheckS(3) = .true.
-                    a2iVarAgeS = -9999; a1bVarCheckS(4) = .true.
-                    a3dVarTaC_1Days = -9999; a1bVarCheckS(5) = .true.
-                    a3dVarTaC_5Days = -9999; a1bVarCheckS(6) = .true.
+                    a2dVarSWE = -9999.0; 
+                    a2dVarRhoS = -9999.0; 
+                    a2dVarAlbedoS = -9999.0;
+                    a2iVarAgeS = -9999; 
+                    a3dVarTaC_1Days = -9999; 
+                    a3dVarTaC_5Days = -9999; 
+                    
+                    bCheckVarS = .true. 
                 endif
 
                 ! Closing netcdf file (drops db)
@@ -740,7 +839,7 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Check restart
-        if (all(a1bVarCheck .eqv. .true.) ) then
+        if (bCheckVar .eqv. .true.) then
             call mprintf(.true., iINFO_Basic, ' Data :: Restart gridded :: NetCDF :: All variable(s) are loaded! ' )
             bCheckRestart = .true.
         else
@@ -751,7 +850,7 @@ contains
         endif
         
         ! Check restart snow
-        if (all(a1bVarCheckS .eqv. .true.) ) then
+        if (bCheckVarS .eqv. .true.) then
             call mprintf(.true., iINFO_Verbose, ' Data :: Restart gridded :: NetCDF :: All snow variable(s) are loaded! ' )
             bCheckRestartS = .true.
         else
@@ -791,9 +890,10 @@ contains
                                                sPathData_Restart, &
                                                iRows, iCols, &
                                                iDaySteps, iTMarkedSteps, &
-                                               sTime, iFlagSnow, &
+                                               sTime, iFlagSnow, iFlagCType, &
                                                a2dVarVTot, a2dVarVRet, &
                                                a2dVarHydro, a2dVarRouting, &
+                                               a2dVarHydroC, a2dVarHydroH, a2dVarQup, &
                                                a2dVarFlowDeep, &
                                                a2dVarWTable, &
                                                a2dVarLST, a3dVarTaKMarked, a3dVarTaK24, &
@@ -812,7 +912,7 @@ contains
         character(len = 256)                    :: sVarName
         integer(kind = 4), intent(in)           :: iRows, iCols
         integer(kind = 4), intent(in)           :: iDaySteps, iTMarkedSteps
-        integer(kind = 4), intent(in)           :: iFlagSnow
+        integer(kind = 4), intent(in)           :: iFlagSnow, iFlagCType
         
         integer(kind = 4)                       :: iScaleFactor
         character(len = 19), intent(in)         :: sTime
@@ -826,7 +926,10 @@ contains
         real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarVTot
         real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarVRet
         real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarHydro
-        real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarRouting      
+        real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarRouting   
+        real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarHydroC
+        real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarHydroH
+        real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarQup
         real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarFlowDeep       
         real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarWTable
         real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarLST
@@ -840,20 +943,19 @@ contains
         real(kind = 4), dimension(iRows, iCols, iDaySteps*5),   intent(out)    :: a3dVarTaC_5Days
         real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarWSRunoff
         
-        logical, dimension(10)  :: a1bVarCheck
-        logical, dimension(6)   :: a1bVarCheckS
-        
         character(len = 256)    :: sVarUnits
         integer(kind = 4)       :: iErr
         integer(kind = 4)       :: iFileID
         
         logical                 :: bFileExist, bCheckRestart, bCheckRestartS
+        logical                 :: bCheckVar, bCheckVarS
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
         ! Initialize variable(s)
-        a2dVarVTot = -9999.0; a2dVarVRet = -9999.0; a2dVarHydro = -9999.0; 
-        a2dVarRouting = -9999.0; a2dVarFlowDeep = -9999.0; a2dVarWTable = -9999.0; 
+        a2dVarVTot = -9999.0; a2dVarVRet = -9999.0; a2dVarHydro = -9999.0; a2dVarRouting = -9999.0; 
+        a2dVarHydroC = -9999.0; a2dVarHydroH = -9999.0; a2dVarQup = -9999.0; 
+        a2dVarFlowDeep = -9999.0; a2dVarWTable = -9999.0; 
         a2dVarLST = -9999.0; a3dVarTaKMarked = -9999.0; a3dVarTaK24 = -9999.0; 
         a2iVarAgeS = -9999; a2dVarSWE = -9999.0; a2dVarAlbedoS = -9999.0; a2dVarRhoS = -9999.0;
         a3dVarTaC_1Days = -9999.0; a3dVarTaC_5Days = -9999.0;
@@ -861,7 +963,7 @@ contains
         
         sFileNameData_Restart = ""; sCommandUnzipFile = "";
         
-        a1bVarCheck = .false.
+        bCheckVar = .true.; bCheckVarS = .true.
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -892,7 +994,7 @@ contains
             call mprintf(.true., iWARN, ' Problem opening uncompressed binary file: '// &
                          trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values' )
             a2dVar = -9999.0
-            a1bVarCheck(1) = .false.
+            bCheckVar = bCheckVar .and. .false.
         else
             ! Unzip file
             call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
@@ -901,7 +1003,7 @@ contains
             ! Read binary data
             a2dVar = -9999.0
             call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
-            a1bVarCheck(1) = .true.
+            bCheckVar = bCheckVar .and. .true.
         endif
         a2dVarVTot = a2dVar
         !------------------------------------------------------------------------------------------
@@ -922,7 +1024,7 @@ contains
             call mprintf(.true., iWARN, ' Problem opening uncompressed binary file: '// &
                          trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values' )
             a2dVar = -9999.0
-            a1bVarCheck(2) = .false.
+            bCheckVar = bCheckVar .and. .false.
         else
             ! Unzip file
             call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
@@ -931,41 +1033,142 @@ contains
             ! Read binary data
             a2dVar = -9999.0
             call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
-            a1bVarCheck(2) = .true.
+            bCheckVar = bCheckVar .and. .true.
         endif
         a2dVarVRet = a2dVar
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
-        ! HydroLevel  (example: Wl_201405010000.bin.gz) 
-        iScaleFactor = 100000
-        sFileNameData_Restart = trim(sPathData_Restart)//"Wl_"// &
-            sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
-            sTime(12:13)//sTime(15:16)// &
-            ".bin"  
-        call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
+        ! Check channel type
+        if (iFlagCType.eq.2) then
+        
+            !------------------------------------------------------------------------------------------
+            ! HydroLevel Channel (example: Wlc_201405010000.bin.gz) 
+            iScaleFactor = 100000
+            sFileNameData_Restart = trim(sPathData_Restart)//"Wlc_"// &
+                sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+                sTime(12:13)//sTime(15:16)// &
+                ".bin"  
+            call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
 
-        ! Checking file input availability
-        sFileNameData_Restart_Zip = trim(sFileNameData_Restart)//'.gz'
-        inquire (file = sFileNameData_Restart_Zip, exist = bFileExist)
-        if ( .not. bFileExist ) then
-            call mprintf(.true., iWARN, ' Problem opening uncompressed binary file: '// &
-                         trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values' )
-            a2dVar = -9999.0
-            a1bVarCheck(3) = .false.
+            ! Checking file input availability
+            sFileNameData_Restart_Zip = trim(sFileNameData_Restart)//'.gz'
+            inquire (file = sFileNameData_Restart_Zip, exist = bFileExist)
+            if ( .not. bFileExist ) then
+                call mprintf(.true., iWARN, ' Problem opening uncompressed binary file: '// &
+                             trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values' )
+                a2dVar = -9999.0
+                bCheckVar = bCheckVar .and. .false.
+            else
+                ! Unzip file
+                call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
+                                                 sFileNameData_Restart_Zip, &
+                                                 sFileNameData_Restart, .true.)
+                ! Read binary data
+                a2dVar = -9999.0
+                call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
+                bCheckVar = bCheckVar .and. .true.
+            endif
+            a2dVarHydroC = a2dVar
+            !------------------------------------------------------------------------------------------
+
+
+            !------------------------------------------------------------------------------------------
+            ! HydroLevel Hillslopes (example: Wlh_201405010000.bin.gz) 
+            iScaleFactor = 100000
+            sFileNameData_Restart = trim(sPathData_Restart)//"Wlh_"// &
+                sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+                sTime(12:13)//sTime(15:16)// &
+                ".bin"  
+            call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
+
+            ! Checking file input availability
+            sFileNameData_Restart_Zip = trim(sFileNameData_Restart)//'.gz'
+            inquire (file = sFileNameData_Restart_Zip, exist = bFileExist)
+            if ( .not. bFileExist ) then
+                call mprintf(.true., iWARN, ' Problem opening uncompressed binary file: '// &
+                             trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values' )
+                a2dVar = -9999.0
+                bCheckVar = bCheckVar .and. .false.
+            else
+                ! Unzip file
+                call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
+                                                 sFileNameData_Restart_Zip, &
+                                                 sFileNameData_Restart, .true.)
+                ! Read binary data
+                a2dVar = -9999.0
+                call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
+                bCheckVar = bCheckVar .and. .true.
+            endif
+            a2dVarHydroH = a2dVar
+            !------------------------------------------------------------------------------------------
+
+            !------------------------------------------------------------------------------------------
+            ! Qupstream in channels (example: Qup_201405010000.bin.gz) 
+            iScaleFactor = 10000
+            sFileNameData_Restart = trim(sPathData_Restart)//"Qup_"// &
+                sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+                sTime(12:13)//sTime(15:16)// &
+                ".bin"  
+            call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
+
+            ! Checking file input availability
+            sFileNameData_Restart_Zip = trim(sFileNameData_Restart)//'.gz'
+            inquire (file = sFileNameData_Restart_Zip, exist = bFileExist)
+            if ( .not. bFileExist ) then
+                call mprintf(.true., iWARN, ' Problem opening uncompressed binary file: '// &
+                             trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values' )
+                a2dVar = -9999.0
+                bCheckVar = bCheckVar .and. .false.
+            else
+                ! Unzip file
+                call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
+                                                 sFileNameData_Restart_Zip, &
+                                                 sFileNameData_Restart, .true.)
+                ! Read binary data
+                a2dVar = -9999.0
+                call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
+                bCheckVar = bCheckVar .and. .true.
+            endif
+            a2dVarQup = a2dVar
+            !------------------------------------------------------------------------------------------
+        
+        
         else
-            ! Unzip file
-            call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
-                                             sFileNameData_Restart_Zip, &
-                                             sFileNameData_Restart, .true.)
-            ! Read binary data
-            a2dVar = -9999.0
-            call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
-            a1bVarCheck(3) = .true.
-        endif
-        a2dVarHydro = a2dVar
-        !------------------------------------------------------------------------------------------
+        
+            !------------------------------------------------------------------------------------------
+            ! HydroLevel  (example: Wl_201405010000.bin.gz) 
+            iScaleFactor = 100000
+            sFileNameData_Restart = trim(sPathData_Restart)//"Wl_"// &
+                sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+                sTime(12:13)//sTime(15:16)// &
+                ".bin"  
+            call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
 
+            ! Checking file input availability
+            sFileNameData_Restart_Zip = trim(sFileNameData_Restart)//'.gz'
+            inquire (file = sFileNameData_Restart_Zip, exist = bFileExist)
+            if ( .not. bFileExist ) then
+                call mprintf(.true., iWARN, ' Problem opening uncompressed binary file: '// &
+                             trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values' )
+                a2dVar = -9999.0
+                bCheckVar = bCheckVar .and. .false.
+            else
+                ! Unzip file
+                call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
+                                                 sFileNameData_Restart_Zip, &
+                                                 sFileNameData_Restart, .true.)
+                ! Read binary data
+                a2dVar = -9999.0
+                call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
+                bCheckVar = bCheckVar .and. .true.
+            endif
+            a2dVarHydro = a2dVar
+            !------------------------------------------------------------------------------------------
+        
+        endif
+        !------------------------------------------------------------------------------------------
+        
         !------------------------------------------------------------------------------------------
         ! Routing  (example: Rou_201405010000.bin.gz)
         iScaleFactor = 100000
@@ -982,7 +1185,7 @@ contains
             call mprintf(.true., iWARN, ' Problem opening uncompressed binary file: '// &
                          trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values' )
             a2dVar = -9999.0
-            a1bVarCheck(4) = .false.
+            bCheckVar = bCheckVar .and. .false.
         else
             ! Unzip file
             call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
@@ -991,7 +1194,7 @@ contains
             ! Read binary data
             a2dVar = -9999.0
             call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
-            a1bVarCheck(4) = .true.
+            bCheckVar = bCheckVar .and. .true.
         endif
         a2dVarRouting = a2dVar
         !------------------------------------------------------------------------------------------
@@ -1012,7 +1215,7 @@ contains
             call mprintf(.true., iWARN, ' Problem opening uncompressed binary file: '// &
                          trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values' )
             a2dVar = -9999.0
-            a1bVarCheck(5) = .false.
+            bCheckVar = bCheckVar .and. .false.
         else
             ! Unzip file
             call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
@@ -1021,7 +1224,7 @@ contains
             ! Read binary data
             a2dVar = -9999.0
             call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
-            a1bVarCheck(5) = .true.
+            bCheckVar = bCheckVar .and. .true.
         endif
         a2dVarFlowDeep = a2dVar
         !------------------------------------------------------------------------------------------
@@ -1042,7 +1245,7 @@ contains
             call mprintf(.true., iWARN, ' Problem opening uncompressed binary file: '// &
                          trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values' )
             a2dVar = -9999.0
-            a1bVarCheck(6) = .false.
+            bCheckVar = bCheckVar .and. .false.
         else
             ! Unzip file
             call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
@@ -1051,7 +1254,7 @@ contains
             ! Read binary data
             a2dVar = -9999.0
             call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
-            a1bVarCheck(6) = .true.
+            bCheckVar = bCheckVar .and. .true.
         endif
         a2dVarWTable = a2dVar
         !------------------------------------------------------------------------------------------
@@ -1072,7 +1275,7 @@ contains
             call mprintf(.true., iWARN, ' Problem opening uncompressed binary file: '// &
                          trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values' )
             a2dVar = -9999.0
-            a1bVarCheck(7) = .false.
+            bCheckVar = bCheckVar .and. .false.
         else
             ! Unzip file
             call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
@@ -1081,7 +1284,7 @@ contains
             ! Read binary data
             a2dVar = -9999.0
             call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
-            a1bVarCheck(7) = .true.
+            bCheckVar = bCheckVar .and. .true.
         endif
         a2dVarLST = a2dVar
         !------------------------------------------------------------------------------------------
@@ -1102,7 +1305,7 @@ contains
             call mprintf(.true., iWARN, ' Problem opening uncompressed binary file: '// &
                          trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values' )
             a3dVar1 = -9999.0
-            a1bVarCheck(8) = .false.
+            bCheckVar = bCheckVar .and. .false.
         else
             ! Unzip file
             call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
@@ -1112,7 +1315,7 @@ contains
             a3dVar1 = -9999.0
             call HMC_Tools_IO_Get3d_Binary(sFileNameData_Restart, a3dVar1, &
                                            iRows, iCols, iTMarkedSteps, iScaleFactor, .true., iErr) 
-            a1bVarCheck(8) = .true.
+            bCheckVar = bCheckVar .and. .true.
         endif
         a3dVarTaKMarked = a3dVar1
         !------------------------------------------------------------------------------------------
@@ -1133,7 +1336,7 @@ contains
             call mprintf(.true., iWARN, ' Problem opening uncompressed binary file: '// &
                          trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values' )
             a3dVar2 = -9999.0
-            a1bVarCheck(9) = .false.
+            bCheckVar = bCheckVar .and. .false.
         else
             ! Unzip file
             call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
@@ -1143,7 +1346,7 @@ contains
             a3dVar2 = -9999.0
             call HMC_Tools_IO_Get3d_Binary(sFileNameData_Restart, a3dVar2, &
                                            iRows, iCols, iDaySteps, iScaleFactor, .true., iErr) 
-            a1bVarCheck(9) = .true.
+            bCheckVar = bCheckVar .and. .true.
         endif
         a3dVarTaK24 = a3dVar2
         !------------------------------------------------------------------------------------------
@@ -1164,7 +1367,7 @@ contains
             call mprintf(.true., iWARN, ' Problem opening uncompressed binary file: '// &
                          trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values. Not in mandatory restart variables' )
             a2dVar = 0.0
-            a1bVarCheck(10) = .true.
+            bCheckVar = bCheckVar .and. .true.
         else
             ! Unzip file
             call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
@@ -1173,7 +1376,7 @@ contains
             ! Read binary data
             a2dVar = -9999.0
             call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .false., iErr) 
-            a1bVarCheck(10) = .true.
+            bCheckVar = bCheckVar .and. .true.
         endif
         a2dVarWSRunoff = a2dVar
         !------------------------------------------------------------------------------------------
@@ -1199,7 +1402,7 @@ contains
                              trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values. '// &
                              'Snow physics is activated! If needed check restart data!' )
                 a2dVar = -9999.0
-                a1bVarCheckS(1) = .false.
+                bCheckVarS = bCheckVarS .and. .false.
             else
                 ! Unzip file
                 call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
@@ -1208,7 +1411,7 @@ contains
                 ! Read binary data
                 a2dVar = -9999.0
                 call HMC_Tools_IO_Get2d_Binary_DBL(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
-                a1bVarCheckS(1) = .true.
+                bCheckVarS = bCheckVarS .and. .true.
             endif
             a2dVarSWE = a2dVar
             !------------------------------------------------------------------------------------------
@@ -1230,7 +1433,7 @@ contains
                              trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values. '// &
                              'Snow physics is activated! If needed check restart data!' )
                 a2dVar = -9999.0
-                a1bVarCheckS(2) = .false.
+                bCheckVarS = bCheckVarS .and. .false.
             else
                 ! Unzip file
                 call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
@@ -1239,7 +1442,7 @@ contains
                 ! Read binary data
                 a2dVar = -9999.0
                 call HMC_Tools_IO_Get2d_Binary_DBL(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
-                a1bVarCheckS(2) = .true.
+                bCheckVarS = bCheckVarS .and. .true.
             endif
             a2dVarRhoS = a2dVar
             !------------------------------------------------------------------------------------------
@@ -1261,7 +1464,7 @@ contains
                              trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values. '// &
                              'Snow physics is activated! If needed check restart data!' )
                 a2dVar = -9999.0
-                a1bVarCheckS(3) = .false.
+                bCheckVarS = bCheckVarS .and. .false.
             else
                 ! Unzip file
                 call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
@@ -1270,7 +1473,7 @@ contains
                 ! Read binary data
                 a2dVar = -9999.0
                 call HMC_Tools_IO_Get2d_Binary_DBL(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
-                a1bVarCheckS(3) = .true.
+                bCheckVarS = bCheckVarS .and. .true.
             endif
             a2dVarAlbedoS = a2dVar
             !------------------------------------------------------------------------------------------
@@ -1292,7 +1495,7 @@ contains
                              trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values. '// &
                              'Snow physics is activated! If needed check restart data!' )
                 a2dVar = -9999.0
-                a1bVarCheckS(4) = .false.
+                bCheckVarS = bCheckVarS .and. .false.
             else
                 ! Unzip file
                 call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
@@ -1301,7 +1504,7 @@ contains
                 ! Read binary data
                 a2dVar = -9999.0
                 call HMC_Tools_IO_Get2d_Binary_DBL(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
-                a1bVarCheckS(4) = .true.
+                bCheckVarS = bCheckVarS .and. .true.
             endif
             a2iVarAgeS = int(a2dVar)
             !------------------------------------------------------------------------------------------
@@ -1323,7 +1526,7 @@ contains
                              trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values. '// &
                              'Snow physics is activated! If needed check restart data!' )
                 a3dVar3 = -9999.0
-                a1bVarCheck(5) = .false.
+                bCheckVarS = bCheckVarS .and. .false.
             else
                 ! Unzip file
                 call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
@@ -1333,7 +1536,7 @@ contains
                 a3dVar3 = -9999.0
                 call HMC_Tools_IO_Get3d_Binary(sFileNameData_Restart, a3dVar3, &
                                                iRows, iCols, iDaySteps, iScaleFactor, .true., iErr) 
-                a1bVarCheck(5) = .true.
+                bCheckVarS = bCheckVarS .and. .true.
             endif
             a3dVarTaC_1Days = a3dVar3
             !------------------------------------------------------------------------------------------
@@ -1355,7 +1558,7 @@ contains
                              trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values. '// &
                              'Snow physics is activated! If needed check restart data!' )
                 a3dVar4 = -9999.0
-                a1bVarCheck(6) = .false.
+                bCheckVarS = bCheckVarS .and. .false.
             else
                 ! Unzip file
                 call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
@@ -1365,7 +1568,7 @@ contains
                 a3dVar4 = -9999.0
                 call HMC_Tools_IO_Get3d_Binary(sFileNameData_Restart, a3dVar4, &
                                                iRows, iCols, iDaySteps*5, iScaleFactor, .true., iErr) 
-                a1bVarCheck(6) = .true.
+                bCheckVarS = bCheckVarS .and. .true.
             endif
             a3dVarTaC_5Days = a3dVar4
             !------------------------------------------------------------------------------------------
@@ -1374,12 +1577,14 @@ contains
             
             !------------------------------------------------------------------------------------------
             ! Condition(s) if snow not activated
-            a2dVarSWE = -9999.0; a1bVarCheckS(1) = .true.
-            a2dVarRhoS = -9999.0; a1bVarCheckS(2) = .true.
-            a2dVarAlbedoS = -9999.0; a1bVarCheckS(3) = .true.
-            a2iVarAgeS = -9999; a1bVarCheckS(4) = .true.
-            a3dVarTaC_1Days = -9999.0; a1bVarCheckS(5) = .true.
-            a3dVarTaC_5Days = -9999.0; a1bVarCheckS(6) = .true.
+            a2dVarSWE = -9999.0; 
+            a2dVarRhoS = -9999.0; 
+            a2dVarAlbedoS = -9999.0; 
+            a2iVarAgeS = -9999; 
+            a3dVarTaC_1Days = -9999.0; 
+            a3dVarTaC_5Days = -9999.0; 
+            
+            bCheckVarS = .true.
             !------------------------------------------------------------------------------------------
             
         endif
@@ -1394,7 +1599,7 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Check restart
-        if (all(a1bVarCheck .eqv. .true.) ) then
+        if (bCheckVar .eqv. .true.) then
             call mprintf(.true., iINFO_Basic, ' Data :: Restart gridded :: Binary :: All variable(s) are loaded! ' )
             bCheckRestart = .true.
         else
@@ -1404,7 +1609,7 @@ contains
             bCheckRestart = .false.
         endif
         ! Check restart snow
-        if (all(a1bVarCheckS .eqv. .true.) ) then
+        if (bCheckVarS .eqv. .true.) then
             call mprintf(.true., iINFO_Verbose, ' Data :: Restart gridded :: Binary :: All snow variable(s) are loaded! ' )
             bCheckRestartS = .true.
         else

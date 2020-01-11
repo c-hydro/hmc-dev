@@ -135,7 +135,7 @@ contains
         character(len = 256)        :: sFilePlant
         
         real(kind = 4), dimension(iNData)              :: a1dVar, a1dVarHydro
-        real(kind = 4), dimension(iNPlant, iETime)     :: a2dVarHydro
+        real(kind = 4), dimension(iNPlant, iETime + 1) :: a2dVarHydro
 
         logical                     :: bFileExist
         !------------------------------------------------------------------------------------------
@@ -240,7 +240,7 @@ contains
                         
                         ! No data condition for extra time steps
                         if (iNData .lt. iETime) then
-                            a2dVarHydro(iP, iNData + 1 : iETime) = 0.0 ! Set to zero for value in extra time step(s)
+                            a2dVarHydro(iP, iNData + 1 : iETime + 1) = 0.0 ! Set to zero for value in extra time step(s)
                         endif
                         !------------------------------------------------------------------------------------------
 
@@ -309,8 +309,8 @@ contains
         real(kind = 4), dimension(iNData)                           :: a1dVarHydroR
         real(kind = 4), dimension(iNData)                           :: a1dVarHydroC
        
-        real(kind = 4), dimension(iNRelease, iETime)                :: a2dVarHydroR
-        real(kind = 4), dimension(iNCatch, iETime)                  :: a2dVarHydroC
+        real(kind = 4), dimension(iNRelease, iETime + 1)            :: a2dVarHydroR
+        real(kind = 4), dimension(iNCatch, iETime + 1)              :: a2dVarHydroC
         
         logical, dimension(iNCatch)                                 :: a1bVarCheck
    
@@ -479,7 +479,7 @@ contains
                         
                         ! No data condition for extra time steps
                         if (iNData .lt. iETime) then
-                            a2dVarHydroC(iP, iNData + 1 : iETime) = 0.0   
+                            a2dVarHydroC(iP, iNData + 1 : iETime + 1) = 0.0   
                         endif
 
                         a1bVarCheck(iP) = .true.
@@ -510,7 +510,7 @@ contains
                 
                 ! No data condition for extra time steps
                 if (iNData .lt. iETime) then
-                    a2dVarHydroR(iR, iNData + 1 : iETime) = 0.0  
+                    a2dVarHydroR(iR, iNData + 1 : iETime + 1) = 0.0  
                 endif
                 !------------------------------------------------------------------------------------------
                  

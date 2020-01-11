@@ -1,14 +1,14 @@
 !******************************************************************************************
-!	EUPL
-!	Code Version 1.0
-!	This code is distributed following the European Union Public Licence:
-!	https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
+! EUPL
+! Code Version 1.0
+! This code is distributed following the European Union Public Licence:
+! https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
 !******************************************************************************************
 
 !******************************************************************************************
 ! HYDROLOGICAL MODEL CONTINUUM
-! Version 2.0.7
-! Date: 2018/01/19
+! Version 3.0.0
+! Date: 2019/04/10
 !
 !	- Modified Horton Method for Infiltration
 !	- Runoff Routing;
@@ -24,9 +24,7 @@
 !	Simone Gabellani
 !	Fabio Delogu
 !	Roberto Rudari
-!	Giorgio Boni
 !       Valerio Basso
-!       Daniele Dolia
 !
 !	Developers Team:
 !	Francesco Silvestro

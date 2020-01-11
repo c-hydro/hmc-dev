@@ -3,10 +3,10 @@
 #-----------------------------------------------------------------------------------------
 # Script option(s)
 Script="HMC Model Builder"
-Version="2.0.7"
+Version="3.0.0"
 # Other option(s) for default arguments
-Archive="hmc_model-apps_codes_2.0.7.tar.gz"
-Exec_Default='HMC_Model_V2_$RUN.x'
+Archive="hmc_model-apps_codes_3.0.0.tar.gz"
+Exec_Default='HMC_Model_V3_$RUN.x'
 NC_Dir_Default="/home/fabio/Desktop/Library/netcdf-4.1.2_shared/"
 #-----------------------------------------------------------------------------------------
 
@@ -261,8 +261,15 @@ $Comp_Exec $Comp_Obj HMC_Module_Tools_Time.f90 $Prof_Opt
 $Comp_Exec $Comp_Obj HMC_Module_Vars_Loader.f90 $Prof_Opt
 $Comp_Exec $Comp_Obj HMC_Module_Vars_Manager.f90 $Prof_Opt
 $Comp_Exec $Comp_Obj HMC_Module_Phys_HydraulicStructure.f90 $Prof_Opt
-$Comp_Exec $Comp_Obj HMC_Module_Phys_Convolution_Apps.f90 $Prof_Opt
-$Comp_Exec $Comp_Obj HMC_Module_Phys_Convolution.f90 $Prof_Opt
+$Comp_Exec $Comp_Obj HMC_Module_Phys_Convolution_Apps_DeepFlow.f90 $Prof_Opt
+$Comp_Exec $Comp_Obj HMC_Module_Phys_Convolution_Apps_Discharge.f90 $Prof_Opt
+$Comp_Exec $Comp_Obj HMC_Module_Phys_Convolution_Apps_Horton.f90 $Prof_Opt
+$Comp_Exec $Comp_Obj HMC_Module_Phys_Convolution_Apps_HydraulicStructure.f90 $Prof_Opt
+$Comp_Exec $Comp_Obj HMC_Module_Phys_Convolution_Apps_IntegrationStep $Prof_Opt
+$Comp_Exec $Comp_Obj HMC_Module_Phys_Convolution_Apps_SubFlow.f90 $Prof_Opt
+$Comp_Exec $Comp_Obj HMC_Module_Phys_Convolution_Apps_SurfaceFlow.f90 $Prof_Opt
+$Comp_Exec $Comp_Obj HMC_Module_Phys_Convolution_Type_ChannelFraction.f90 $Prof_Opt
+$Comp_Exec $Comp_Obj HMC_Module_Phys_Convolution_Type_ChannelNetwork.f90 $Prof_Opt
 $Comp_Exec $Comp_Obj HMC_Module_Phys_LSM_Apps.f90 $Prof_Opt
 $Comp_Exec $Comp_Obj HMC_Module_Phys_LSM.f90 $Prof_Opt
 $Comp_Exec $Comp_Obj HMC_Module_Phys_Snow_Apps.f90 $Prof_Opt
@@ -300,7 +307,7 @@ echo "----------------------------------------------------------------"
 echo "Step 4 - Compile ==> Link object(s) and create HMC model executable ... "
 echo ""
 
-$Comp_Exec $Optim_Exec gnufor2.o HMC_Module_Data_Forcing_Gridded.o HMC_Module_Data_Forcing_Point.o HMC_Module_Data_Forcing_TimeSeries.o HMC_Module_Data_Updating_Gridded.o HMC_Module_Data_Output_Gridded.o HMC_Module_Data_Output_Point.o HMC_Module_Data_Output_TimeSeries.o HMC_Module_Data_Restart_Gridded.o HMC_Module_Data_Restart_Point.o HMC_Module_Data_State_Gridded.o HMC_Module_Data_State_Point.o HMC_Module_Data_Static_Gridded.o HMC_Module_Data_Static_Point.o HMC_Module_Info_Gridded.o HMC_Module_Info_Point.o HMC_Module_Info_Time.o HMC_Module_Args.o HMC_Module_Namelist.o HMC_Module_Phys_Convolution_Apps.o HMC_Module_Phys_Convolution.o HMC_Module_Phys_HydraulicStructure.o HMC_Module_Phys_ET.o HMC_Module_Phys.o HMC_Module_Phys_LSM_Apps.o HMC_Module_Phys_LSM.o HMC_Module_Phys_Snow_Apps.o HMC_Module_Phys_Snow.o HMC_Module_Phys_Retention.o HMC_Module_Phys_StateUpdating.o HMC_Module_Tools_Debug.o HMC_Module_Tools_Generic.o HMC_Module_Tools_Interp.o HMC_Module_Tools_IO.o HMC_Module_Tools_Time.o HMC_Module_Vars_Loader.o HMC_Module_Vars_Manager.o HMC_Main.f90 -o $Exec $Prof_Opt -I${NC_Inc} -L${NC_Lib} ${NC_Libs}
+$Comp_Exec $Optim_Exec gnufor2.o HMC_Module_Data_Forcing_Gridded.o HMC_Module_Data_Forcing_Point.o HMC_Module_Data_Forcing_TimeSeries.o HMC_Module_Data_Updating_Gridded.o HMC_Module_Data_Output_Gridded.o HMC_Module_Data_Output_Point.o HMC_Module_Data_Output_TimeSeries.o HMC_Module_Data_Restart_Gridded.o HMC_Module_Data_Restart_Point.o HMC_Module_Data_State_Gridded.o HMC_Module_Data_State_Point.o HMC_Module_Data_Static_Gridded.o HMC_Module_Data_Static_Point.o HMC_Module_Info_Gridded.o HMC_Module_Info_Point.o HMC_Module_Info_Time.o HMC_Module_Args.o HMC_Module_Namelist.o HMC_Module_Phys_Convolution_Type_ChannelNetwork.o HMC_Module_Phys_Convolution_Type_ChannelFraction.o HMC_Module_Phys_Convolution_Apps_SurfaceFlow.o HMC_Module_Phys_Convolution_Apps_SubFlow.o HMC_Module_Phys_Convolution_Apps_IntegrationStep.o HMC_Module_Phys_Convolution_Apps_HydraulicStructure.o HMC_Module_Phys_Convolution_Apps_Horton.o HMC_Module_Phys_Convolution_Apps_Discharge.o HMC_Module_Phys_Convolution_Apps_DeepFlow.o HMC_Module_Phys_HydraulicStructure.o HMC_Module_Phys_ET.o HMC_Module_Phys.o HMC_Module_Phys_LSM_Apps.o HMC_Module_Phys_LSM.o HMC_Module_Phys_Snow_Apps.o HMC_Module_Phys_Snow.o HMC_Module_Phys_Retention.o HMC_Module_Phys_StateUpdating.o HMC_Module_Tools_Debug.o HMC_Module_Tools_Generic.o HMC_Module_Tools_Interp.o HMC_Module_Tools_IO.o HMC_Module_Tools_Time.o HMC_Module_Vars_Loader.o HMC_Module_Vars_Manager.o HMC_Main.f90 -o $Exec $Prof_Opt -I${NC_Inc} -L${NC_Lib} ${NC_Libs}
 
 echo ""
 echo "Step 4 - Compile ==> Link object(s) and create HMC model executable ... DONE!"

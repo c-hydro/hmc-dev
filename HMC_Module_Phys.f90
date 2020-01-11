@@ -1,8 +1,10 @@
 !------------------------------------------------------------------------------------------    
 ! File:   HMC_Module_Phys.f90
-! Author: fabio
+! Author(s): Fabio Delogu, Francesco Silvestro
 !
-! Created on April 2, 2014, 5:19 PM
+! Date: 20190410
+!
+! Coupler for physics subroutine(s)
 !------------------------------------------------------------------------------------------
 
 !------------------------------------------------------------------------------------------
@@ -11,17 +13,19 @@ module HMC_Module_Phys
     
     !------------------------------------------------------------------------------------------
     ! External module(s) for all subroutine in this module
-    use HMC_Module_Namelist,            only:   oHMC_Namelist
-    use HMC_Module_Vars_Loader,         only:   oHMC_Vars
+    use HMC_Module_Namelist,                                only:   oHMC_Namelist
+    use HMC_Module_Vars_Loader,                             only:   oHMC_Vars
     
     use HMC_Module_Tools_Debug
     
-    use HMC_Module_Phys_StateUpdating,  only:   HMC_Phys_StateUpdating_Cpl
-    use HMC_Module_Phys_Snow,           only:   HMC_Phys_Snow_Cpl
-    use HMC_Module_Phys_LSM,            only:   HMC_Phys_LSM_Cpl
-    use HMC_Module_Phys_ET,             only:   HMC_Phys_ET_Cpl
-    use HMC_Module_Phys_Retention,      only:   HMC_Phys_Retention_Cpl
-    use HMC_Module_Phys_Convolution,    only:   HMC_Phys_Convolution_Cpl
+    use HMC_Module_Phys_StateUpdating,                      only:   HMC_Phys_StateUpdating_Cpl
+    use HMC_Module_Phys_Snow,                               only:   HMC_Phys_Snow_Cpl
+    use HMC_Module_Phys_LSM,                                only:   HMC_Phys_LSM_Cpl
+    use HMC_Module_Phys_ET,                                 only:   HMC_Phys_ET_Cpl
+    use HMC_Module_Phys_Retention,                          only:   HMC_Phys_Retention_Cpl
+
+    use HMC_Module_Phys_Convolution_Type_ChannelFraction,   only:   HMC_Phys_Convolution_Cpl_ChannelFraction
+    use HMC_Module_Phys_Convolution_Type_ChannelNetwork,    only:   HMC_Phys_Convolution_Cpl_ChannelNetwork
     
     ! Implicit none for all subroutines in this module
     implicit none
@@ -41,6 +45,7 @@ contains
         !------------------------------------------------------------------------------------------
         ! Variable(s)
         integer(kind = 4)           :: iID
+        integer(kind = 4)           :: iFlagCType
         integer(kind = 4)           :: iRows, iRowsStart, iRowsEnd, iCols, iColsStart, iColsEnd
         integer(kind = 4)           :: iNSection, iNData
         integer(kind = 4)           :: iTime, iNTime, iETime
@@ -51,6 +56,9 @@ contains
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
+        ! Flag for selecting convolution type
+        iFlagCType = oHMC_Namelist(iID)%iFlagCType
+        
         ! Defining iRows and iCols
         iRows = iRowsEnd - iRowsStart + 1
         iCols = iColsEnd - iColsStart + 1
@@ -102,13 +110,26 @@ contains
         !------------------------------------------------------------------------------------------
 
         !------------------------------------------------------------------------------------------
-        ! Subroutine to compute Convolution (for all steps including extra steps
-        call HMC_Phys_Convolution_Cpl(iID, &
+        ! Select convolution type
+        if(iFlagCType .eq. 2)then
+            
+            ! Subroutine to compute convolution for channel fraction (for all steps including extra steps)
+            call HMC_Phys_Convolution_Cpl_ChannelFraction(iID, &
                                       iRows, iCols, &
                                       iTime, iNTime, iETime, &
                                       iNSection, iNData, &
                                       iNLake, iNDam, &
                                       iNPlant, iNCatch, iNRelease, iNJoint)
+        else
+            
+            ! Subroutine to compute convolution for channel network (for all steps including extra steps)
+            call HMC_Phys_Convolution_Cpl_ChannelNetwork(iID, &
+                                      iRows, iCols, &
+                                      iTime, iNTime, iETime, &
+                                      iNSection, iNData, &
+                                      iNLake, iNDam, &
+                                      iNPlant, iNCatch, iNRelease, iNJoint)
+        endif
         !------------------------------------------------------------------------------------------
 
     end subroutine HMC_Phys_Cpl
