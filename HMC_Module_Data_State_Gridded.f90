@@ -57,7 +57,7 @@ contains
         integer(kind = 4)           :: iRowsStart, iRowsEnd, iColsStart, iColsEnd
         integer(kind = 4)           :: iDaySteps, iTMarkedSteps
 
-        integer(kind = 4)           :: iFlagTypeData_State, iFlagSnow
+        integer(kind = 4)           :: iFlagTypeData_State, iFlagSnow, iFlagCType
         integer(kind = 4)           :: iScaleFactor
         
         character(len = 19)         :: sTime
@@ -71,7 +71,10 @@ contains
                                                                                            a2dVarFlowDeep, &
                                                                                            a2dVarWTable, a2dVarLST, &
                                                                                            a2dVarLat, a2dVarLon
-        
+                                                                                           
+        real(kind = 4), dimension(iRowsEnd - iRowsStart + 1, iColsEnd - iColsStart + 1) :: a2dVarHydroC, a2dVarHydroH, & 
+                                                                                           a2dVarQup
+                                                                                                                                                                        
         real(kind = 4), dimension(iRowsEnd - iRowsStart + 1, iColsEnd - iColsStart + 1)  :: a2dVarWSRunoff
     
         integer(kind = 4), dimension(iRowsEnd - iRowsStart + 1, iColsEnd - iColsStart + 1)  :: a2iVarAgeS
@@ -90,11 +93,15 @@ contains
         a2dVarLST = 0.0; a2dVarWTable = 0.0; a3dVarTaKMarked = 0.0; a3dVarTaK24  = 0.0;
         a2dVarLat = 0.0; a2dVarLon = 0.0
         
+        a2dVarHydroC = 0.0; a2dVarHydroH = 0.0; a2dVarQup = 0.0;
+        
         a2iVarAgeS = 0; a2dVarSWE = 0.0; a2dVarAlbedoS = 0.0; a2dVarRhoS = 0.0;
         
         a2dVarWSRunoff = 0.0
         
         a2dVarDEM = 0.0; a2dVarWTableUpd = 0.0;
+        
+        iFlagSnow = -9999; iFlagCType = -9999;
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -110,6 +117,7 @@ contains
         iScaleFactor = oHMC_Namelist(iID)%iScaleFactor
         sCommandCreateFolder = oHMC_Namelist(iID)%sCommandCreateFolder
         iFlagSnow = oHMC_Namelist(iID)%iFlagSnow
+        iFlagCType = oHMC_Namelist(iID)%iFlagCType
         
         ! Info start
         call mprintf(.true., iINFO_Extra, ' Data :: State gridded ... ' )
@@ -139,6 +147,10 @@ contains
         a2dVarLST = oHMC_Vars(iID)%a2dLST
         a2dVarFlowDeep = oHMC_Vars(iID)%a2dFlowDeep
         a2dVarWSRunoff = oHMC_Vars(iID)%a2dWSRunoff 
+        
+        a2dVarHydroC = oHMC_Vars(iID)%a2dHydroC;
+        a2dVarHydroH = oHMC_Vars(iID)%a2dHydroH;
+        a2dVarQup = oHMC_Vars(iID)%a2dQup;
         
         a3dVarTaKMarked = oHMC_Vars(iID)%a3dTaKMarked; a3dVarTaK24 = oHMC_Vars(iID)%a3dTaK24
         a2dVarLat = oHMC_Vars(iID)%a2dLat; a2dVarLon = oHMC_Vars(iID)%a2dLon
@@ -180,9 +192,10 @@ contains
                                     sPathData_State, &
                                     iRows, iCols, &
                                     iDaySteps, iTMarkedSteps, &
-                                    sTime, iFlagSnow,  &
+                                    sTime, iFlagSnow, iFlagCType,  &
                                     a2dVarVTot, a2dVarVRet, &
                                     a2dVarHydro, a2dVarRouting, &
+                                    a2dVarHydroC, a2dVarHydroH, a2dVarQup, &
                                     a2dVarFlowDeep, &
                                     a2dVarWTableUpd, &
                                     a2dVarLST, a3dVarTaKMarked, a3dVarTaK24, &
@@ -212,10 +225,11 @@ contains
                                     sPathData_State, &
                                     iRows, iCols, &
                                     iDaySteps, iTMarkedSteps, &
-                                    sTime, iFlagSnow, &
+                                    sTime, iFlagSnow, iFlagCType, &
                                     iScaleFactor, &
                                     a2dVarVTot, a2dVarVRet, &
                                     a2dVarHydro, a2dVarRouting, &
+                                    a2dVarHydroC, a2dVarHydroH, a2dVarQup, &
                                     a2dVarFlowDeep, &
                                     a2dVarWTableUpd, &
                                     a2dVarLST, a3dVarTaKMarked, a3dVarTaK24, &
@@ -244,9 +258,10 @@ contains
                                            sPathData_State, &
                                            iRows, iCols, &
                                            iDaySteps, iTMarkedSteps, &
-                                           sTime, iFlagSnow, &
+                                           sTime, iFlagSnow, iFlagCType, &
                                            a2dVarVTot, a2dVarVRet, &
                                            a2dVarHydro, a2dVarRouting, &
+                                           a2dVarHydroC, a2dVarHydroH, a2dVarQup, &
                                            a2dVarFlowDeep, &
                                            a2dVarWTableUpd, &
                                            a2dVarLST, a3dVarTaKMarked, a3dVarTaK24, &
@@ -267,7 +282,7 @@ contains
         character(len = 256)                    :: sVarUnits
         integer(kind = 4), intent(in)           :: iRows, iCols
         integer(kind = 4)                       :: iDaySteps, iTMarkedSteps
-        integer(kind = 4)                       :: iFlagSnow
+        integer(kind = 4)                       :: iFlagSnow, iFlagCType
 
         character(len = 19)                     :: sTime, sTimeSave
         
@@ -279,7 +294,10 @@ contains
         real(kind = 4), dimension(iRows, iCols), intent(in)                 :: a2dVarVRet
         real(kind = 4), dimension(iRows, iCols), intent(in)                 :: a2dVarHydro
         real(kind = 4), dimension(iRows, iCols), intent(in)                 :: a2dVarRouting      
-        real(kind = 4), dimension(iRows, iCols), intent(in)                 :: a2dVarFlowDeep       
+        real(kind = 4), dimension(iRows, iCols), intent(in)                 :: a2dVarHydroC
+        real(kind = 4), dimension(iRows, iCols), intent(in)                 :: a2dVarHydroH
+        real(kind = 4), dimension(iRows, iCols), intent(in)                 :: a2dVarQup
+        real(kind = 4), dimension(iRows, iCols), intent(in)                 :: a2dVarFlowDeep
         real(kind = 4), dimension(iRows, iCols), intent(in)                 :: a2dVarWTableUpd 
         real(kind = 4), dimension(iRows, iCols), intent(in)                 :: a2dVarLST 
         real(kind = 4), dimension(iRows, iCols), intent(in)                 :: a2dVarLat
@@ -401,17 +419,49 @@ contains
                              sVarName, sVarNameLong, sVarDescription, &
                              sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
                              iCols, iRows, transpose(a2dVarVRet) )
-        ! Hydro level (Wl)
-        sVarName = 'HydroLevel'; sVarNameLong = 'hydro_level'; sVarDescription = 'hydro level';
-        sVarUnits = ''; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
-        sVarCoords = 'Longitude Latitude';
-        call HMC_Tools_IO_Put2d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, & 
-                             sVarName, sVarNameLong, sVarDescription, &
-                             sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
-                             iCols, iRows, transpose(a2dVarHydro) )
+                             
+        ! Channel type variable(s) 
+        if(iFlagCType.eq.2) then  
+            
+            ! Hydro level (Wlc)
+            sVarName = 'HydroLevelC'; sVarNameLong = 'hydro_level channel'; sVarDescription = 'hydro level';
+            sVarUnits = 'm'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+            sVarCoords = 'Longitude Latitude';
+            call HMC_Tools_IO_Put2d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, & 
+                                 sVarName, sVarNameLong, sVarDescription, &
+                                 sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
+                                 iCols, iRows, transpose(a2dVarHydroC) )
+            ! Hydro level (Wlh)
+            sVarName = 'HydroLevelH'; sVarNameLong = 'hydro_level hillslope'; sVarDescription = 'hydro level';
+            sVarUnits = 'm'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+            sVarCoords = 'Longitude Latitude';
+            call HMC_Tools_IO_Put2d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, & 
+                                 sVarName, sVarNameLong, sVarDescription, &
+                                 sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
+                                 iCols, iRows, transpose(a2dVarHydroH) )
+            ! Q channel upstream (Qup)
+            sVarName = 'Qup'; sVarNameLong = 'Q channel Upstream'; sVarDescription = 'hydro level';
+            sVarUnits = 'm^3/s'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+            sVarCoords = 'Longitude Latitude';
+            call HMC_Tools_IO_Put2d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, & 
+                                 sVarName, sVarNameLong, sVarDescription, &
+                                 sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
+                                 iCols, iRows, transpose(a2dVarQup) )
+        else
+            
+            ! Hydro level (Wl)
+            sVarName = 'HydroLevel'; sVarNameLong = 'hydro_level'; sVarDescription = 'hydro level';
+            sVarUnits = 'm'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+            sVarCoords = 'Longitude Latitude';
+            call HMC_Tools_IO_Put2d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, & 
+                                 sVarName, sVarNameLong, sVarDescription, &
+                                 sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
+                                 iCols, iRows, transpose(a2dVarHydro) )
+        endif
+
         ! Routing (ROU)
         sVarName = 'Routing'; sVarNameLong = 'routing'; sVarDescription = 'routing';
-        sVarUnits = ''; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+        sVarUnits = 'mm'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
         sVarCoords = 'Longitude Latitude';
         call HMC_Tools_IO_Put2d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, & 
                              sVarName, sVarNameLong, sVarDescription, &
@@ -552,10 +602,11 @@ contains
                                                sPathData_State, &
                                                iRows, iCols, &
                                                iDaySteps, iTMarkedSteps, &
-                                               sTime, iFlagSnow, &
+                                               sTime, iFlagSnow, iFlagCType, &
                                                iVarScale, &
                                                a2dVarVTot, a2dVarVRet, &
                                                a2dVarHydro, a2dVarRouting, &
+                                               a2dVarHydroC, a2dVarHydroH, a2dVarQup, &
                                                a2dVarFlowDeep, &
                                                a2dVarWTableUpd, &
                                                a2dVarLST, a3dVarTaKMarked, a3dVarTaK24, &
@@ -573,7 +624,7 @@ contains
         character(len = 256)                    :: sVarName
         integer(kind = 4), intent(in)           :: iRows, iCols
         integer(kind = 4)                       :: iDaySteps, iTMarkedSteps
-        integer(kind = 4)                       :: iVarScale, iFlagSnow
+        integer(kind = 4)                       :: iVarScale, iFlagSnow, iFlagCType
 
         character(len = 19), intent(in)         :: sTime
 
@@ -583,7 +634,10 @@ contains
         real(kind = 4), dimension(iRows, iCols)                  :: a2dVarVRet
         real(kind = 4), dimension(iRows, iCols)                  :: a2dVarHydro
         real(kind = 4), dimension(iRows, iCols)                  :: a2dVarRouting      
-        real(kind = 4), dimension(iRows, iCols)                  :: a2dVarFlowDeep       
+        real(kind = 4), dimension(iRows, iCols)                  :: a2dVarHydroC
+        real(kind = 4), dimension(iRows, iCols)                  :: a2dVarHydroH
+        real(kind = 4), dimension(iRows, iCols)                  :: a2dVarQup
+        real(kind = 4), dimension(iRows, iCols)                  :: a2dVarFlowDeep
         real(kind = 4), dimension(iRows, iCols)                  :: a2dVarWTableUpd 
         real(kind = 4), dimension(iRows, iCols)                  :: a2dVarLST 
         real(kind = 4), dimension(iRows, iCols)                  :: a2dVarLat
@@ -638,16 +692,55 @@ contains
                                        sFileNameData_State//'.gz', sFileNameData_State, .false.)
         call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_State, .false.)
         
-        ! Hydro
-        iVarScale = 100000
-        sFileNameData_State = trim(sPathData_State)//"Wl_"// &
-                           sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
-                           ".bin"            
-        call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_State) )
-        call HMC_Tools_IO_Put2d_Binary_INT(sFileNameData_State, a2dVarHydro, iRows, iCols, iVarScale, .true., iErr)
-        call HMC_Tools_Generic_ZipFile(oHMC_Namelist(iID)%sCommandZipFile, &
-                                       sFileNameData_State//'.gz', sFileNameData_State, .false.)
-        call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_State, .false.)
+        ! Check channel type
+        if(iFlagCType.eq.2) then  
+            
+            ! Hydro C
+            iVarScale = 100000
+            sFileNameData_State = trim(sPathData_State)//"Wlc_"// &
+                               sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
+                               ".bin"            
+            call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_State) )
+            call HMC_Tools_IO_Put2d_Binary_INT(sFileNameData_State, a2dVarHydroC, iRows, iCols, iVarScale, .true., iErr)
+            call HMC_Tools_Generic_ZipFile(oHMC_Namelist(iID)%sCommandZipFile, &
+                                           sFileNameData_State//'.gz', sFileNameData_State, .false.)
+            call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_State, .false.)
+
+            ! Hydro H
+            iVarScale = 100000
+            sFileNameData_State = trim(sPathData_State)//"Wlh_"// &
+                               sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
+                               ".bin"            
+            call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_State) )
+            call HMC_Tools_IO_Put2d_Binary_INT(sFileNameData_State, a2dVarHydroH, iRows, iCols, iVarScale, .true., iErr)
+            call HMC_Tools_Generic_ZipFile(oHMC_Namelist(iID)%sCommandZipFile, &
+                                           sFileNameData_State//'.gz', sFileNameData_State, .false.)
+            call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_State, .false.)
+
+            ! Qup
+            iVarScale = 10000
+            sFileNameData_State = trim(sPathData_State)//"Qup_"// &
+                               sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
+                               ".bin"            
+            call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_State) )
+            call HMC_Tools_IO_Put2d_Binary_INT(sFileNameData_State, a2dVarQup, iRows, iCols, iVarScale, .true., iErr)
+            call HMC_Tools_Generic_ZipFile(oHMC_Namelist(iID)%sCommandZipFile, &
+                                           sFileNameData_State//'.gz', sFileNameData_State, .false.)
+            call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_State, .false.)
+        
+        else
+            ! Hydro level (Wl)
+            iVarScale = 100000
+            sFileNameData_State = trim(sPathData_State)//"Wl_"// &
+                               sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
+                               ".bin"            
+            call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_State) )
+            call HMC_Tools_IO_Put2d_Binary_INT(sFileNameData_State, a2dVarHydro, iRows, iCols, iVarScale, .true., iErr)
+            call HMC_Tools_Generic_ZipFile(oHMC_Namelist(iID)%sCommandZipFile, &
+                                           sFileNameData_State//'.gz', sFileNameData_State, .false.)
+            call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_State, .false.)
+
+        endif
         
         ! Routing
         iVarScale = 100000

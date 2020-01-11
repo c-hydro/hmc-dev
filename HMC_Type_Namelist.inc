@@ -18,6 +18,8 @@ TYPE HMC_Type_Namelist
     integer(kind = 4)       :: iFlagSnow, iFlagSnowAssim, iFlagSMAssim
     integer(kind = 4)       :: iFlagCoeffRes, iFlagWS
     integer(kind = 4)       :: iFlagGrid
+    integer(kind = 4)       :: iFlagCType
+    integer(kind = 4)       :: iFlagFrac
     
     logical                 :: bGridCheck
 

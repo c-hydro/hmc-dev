@@ -1,15 +1,15 @@
  !------------------------------------------------------------------------------------
-! File:   HMC_Module_Phys_Convolution.f90
+! File:   HMC_Module_Phys_Type_Convolution_ChannelNetwork.f90
 !
 ! Author:   Fabio Delogu
-! Date:     20150212
+! Date:     20190410
 !
 ! Physics convolution subroutine(s) for HMC model
 !------------------------------------------------------------------------------------
 
 !------------------------------------------------------------------------------------
 ! Module Header
-module HMC_Module_Phys_Convolution
+module HMC_Module_Phys_Convolution_Type_ChannelNetwork
 
     !------------------------------------------------------------------------------------
     ! External module(s) 
@@ -20,14 +20,15 @@ module HMC_Module_Phys_Convolution
     
     use HMC_Module_Tools_Generic,               only:   max2Dvar, min2Dvar
     
-    use HMC_Module_Phys_Convolution_Apps,       only:   HMC_Phys_Convolution_Apps_IntegrationStep, &
-                                                        HMC_Phys_Convolution_Apps_Horton, &
-                                                        HMC_Phys_Convolution_Apps_SubFlow, &
-                                                        HMC_Phys_Convolution_Apps_SurfaceFlow, &
-                                                        HMC_Phys_Convolution_Apps_Discharge, &
-                                                        HMC_Phys_Convolution_Apps_DeepFlow, &
-                                                        HMC_Phys_Convolution_Apps_HydraulicStructure
-   
+    use HMC_Module_Phys_Convolution_Apps_SubFlow,               only: HMC_Phys_Convolution_Apps_SubFlow
+    use HMC_Module_Phys_Convolution_Apps_HydraulicStructure,    only: HMC_Phys_Convolution_Apps_HydraulicStructure
+    
+    use HMC_Module_Phys_Convolution_Apps_Discharge,             only: HMC_Phys_Convolution_Apps_Discharge_ChannelNetwork   
+    use HMC_Module_Phys_Convolution_Apps_IntegrationStep,       only: HMC_Phys_Convolution_Apps_IntegrationStep_ChannelNetwork 
+    use HMC_Module_Phys_Convolution_Apps_Horton,                only: HMC_Phys_Convolution_Apps_Horton_ChannelNetwork  
+    use HMC_Module_Phys_Convolution_Apps_SurfaceFlow,           only: HMC_Phys_Convolution_Apps_SurfaceFlow_ChannelNetwork 
+    use HMC_Module_Phys_Convolution_Apps_DeepFlow,              only: HMC_Phys_Convolution_Apps_DeepFlow_ChannelNetwork 
+
     ! Implicit none for all subroutines in this module
     implicit none
     !------------------------------------------------------------------------------------------
@@ -36,7 +37,7 @@ contains
     
     !------------------------------------------------------------------------------------------
     ! Subroutine for calculating convolution
-    subroutine HMC_Phys_Convolution_Cpl(iID,  &
+    subroutine HMC_Phys_Convolution_Cpl_ChannelNetwork(iID,  &
                                         iRows, iCols, &
                                         iTime, iNTime, iETime, &
                                         iNSection, iNData, &
@@ -81,7 +82,7 @@ contains
         ! Actual model step 
         iTAct = iTime
         ! Info start
-        call mprintf(.true., iINFO_Verbose, ' Phys :: Convolution ... ' )
+        call mprintf(.true., iINFO_Verbose, ' Phys :: Convolution [channel network] ... ' )
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -100,7 +101,7 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Call subroutine to calcolate temporal integration step
-        call HMC_Phys_Convolution_Apps_IntegrationStep(iID, iRows, iCols, dDtDataForcing, dDtIntegrAct)
+        call HMC_Phys_Convolution_Apps_IntegrationStep_ChannelNetwork(iID, iRows, iCols, dDtDataForcing, dDtIntegrAct)
         !------------------------------------------------------------------------------------------
 
         !------------------------------------------------------------------------------------------
@@ -142,22 +143,22 @@ contains
                 write(sTInt, *) iTInt; call mprintf(.true., iINFO_Extra, ' Phys :: Convolution :: IntStep: '//sTInt//' START' ) 
                 
                 ! Call infiltration/runoff routine using modified Horton method          
-                call HMC_Phys_Convolution_Apps_Horton(iID, iRows, iCols, dDtDataForcing, dDtIntegrAct, &
+                call HMC_Phys_Convolution_Apps_Horton_ChannelNetwork(iID, iRows, iCols, dDtDataForcing, dDtIntegrAct, &
                                                       iTq, iTime, iNTime)  
                                                                                        
-                ! Call hypodermic flow routine
+                ! Call sub-flow routine
                 call HMC_Phys_Convolution_Apps_SubFlow(iID, iRows, iCols, dDtDataForcing, dDtIntegrAct, iNDam)
 
                 ! Call surface routing routine using a tank model
                 oHMC_Vars(iID)%a2dQVolOut = 0.0
-                call HMC_Phys_Convolution_Apps_SurfaceFlow(iID, iRows, iCols, &
+                call HMC_Phys_Convolution_Apps_SurfaceFlow_ChannelNetwork(iID, iRows, iCols, &
                                                            dDtDataForcing, dDtIntegrAct, iTAct, iTq, iDtMax, &
                                                            iNData, iNDam, iNLake, & 
                                                            iNPlant, iNCatch, iNRelease, iNJoint, &
                                                            iTime, iNTime, iETime)
 
                 ! Call discharge routine     
-                call HMC_Phys_Convolution_Apps_Discharge(iID, iRows, iCols, iNSection, &
+                call HMC_Phys_Convolution_Apps_Discharge_ChannelNetwork(iID, iRows, iCols, iNSection, &
                                                          dDtDataForcing, dDtIntegrAct, iNTime, iTq, dDtMax)
                                                          
                 ! Discharge temporal counter
@@ -169,7 +170,7 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Call deep flow routine
-        call HMC_Phys_Convolution_Apps_DeepFlow(iID, iRows, iCols, dDtDataForcing)
+        call HMC_Phys_Convolution_Apps_DeepFlow_ChannelNetwork(iID, iRows, iCols, dDtDataForcing)
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -203,11 +204,11 @@ contains
                                             
         !------------------------------------------------------------------------------------------
         ! Info end
-        call mprintf(.true., iINFO_Verbose, ' Phys :: Convolution ... OK' )
+        call mprintf(.true., iINFO_Verbose, ' Phys :: Convolution [channel network] ... OK' )
         !------------------------------------------------------------------------------------------
         
-    end subroutine HMC_Phys_Convolution_Cpl
+    end subroutine HMC_Phys_Convolution_Cpl_ChannelNetwork
     !------------------------------------------------------------------------------------------
     
-end module HMC_Module_Phys_Convolution
+end module HMC_Module_Phys_Convolution_Type_ChannelNetwork
 !------------------------------------------------------------------------------------------

@@ -55,6 +55,7 @@ contains
         allocate( oHMC_Vars(iID)%a2dCN              (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a1dFCN             (100)   )
         allocate( oHMC_Vars(iID)%a2iPNT             (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2iArea            (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2iChoice          (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2iMask            (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dAreaCell        (iRows, iCols) )
@@ -205,7 +206,7 @@ contains
         allocate( oHMC_Vars(iID)%a2dET              (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dETCum           (iRows, iCols) )
         
-        ! Dynamic Convolution variable(s)
+        ! Dynamic Convolution variable(s) with channel network
         allocate( oHMC_Vars(iID)%a2dHydro           (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dHydroPrev       (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dRouting         (iRows, iCols) )
@@ -238,16 +239,36 @@ contains
         allocate( oHMC_Vars(iID)%a1dVDamObs         (iNDam) )
         
         ! Dynamic plant variable(s)
-        !allocate( oHMC_Vars(iID)%a2dHydroPlant      (iNPlant, iNData) )
-        allocate( oHMC_Vars(iID)%a2dHydroPlant      (iNPlant, iETime) )
+        allocate( oHMC_Vars(iID)%a2dHydroPlant      (iNPlant, iETime + 1) )
         
         ! Dynamic catch variable(s)
-        !allocate( oHMC_Vars(iID)%a2dHydroCatch      (iNCatch, iNData) )
-        allocate( oHMC_Vars(iID)%a2dHydroCatch      (iNCatch, iETime) )
+        allocate( oHMC_Vars(iID)%a2dHydroCatch      (iNCatch, iETime + 1) )
         
         ! Dynamic release variable(s)
-        !allocate( oHMC_Vars(iID)%a2dHydroRelease    (iNRelease, iNData) )
-        allocate( oHMC_Vars(iID)%a2dHydroRelease    (iNRelease, iETime) )
+        allocate( oHMC_Vars(iID)%a2dHydroRelease    (iNRelease, iETime + 1) )
+        
+        ! Dynamic Convolution variable(s) with channel fraction
+        allocate( oHMC_Vars(iID)%a2dQC              (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dQH              (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dHydroC          (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dHydroH          (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dWidthC          (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dWidthH          (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dRunoffC         (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dRunoffH         (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dQup             (iRows, iCols) )
+        
+        ! Dynamic fracturation variable(s)
+        allocate( oHMC_Vars(iID)%a2dFrac            (iRows, iCols) )        
+                
+        ! Dynamic flooding variable(s)        
+        allocate( oHMC_Vars(iID)%a2dLevBankL        (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dLevBankR        (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dFirst           (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dQfloodIL        (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dQfloodCL        (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dQfloodIR        (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dQfloodCR        (iRows, iCols) )
         
         ! Finish to allocate dynamic variable(s)
         call mprintf(.true., iINFO_Main, ' Allocating dynamic variable(s) ... OK')
@@ -296,6 +317,7 @@ contains
         oHMC_Vars(iID)%a2dDEM = 0.0
         oHMC_Vars(iID)%a2dCN = 0.0
         oHMC_Vars(iID)%a2iPNT = 0
+        oHMC_Vars(iID)%a2iArea = 0
         oHMC_Vars(iID)%a1dFCN = 0.0
         oHMC_Vars(iID)%a2dS = 500.0 
         oHMC_Vars(iID)%a2dAreaCell = 0.0
@@ -456,7 +478,7 @@ contains
         oHMC_Vars(iID)%a2dAE = 0.0
         oHMC_Vars(iID)%a2dETCum = 0.0
         
-        ! Dynamic convolution variable(s)
+        ! Dynamic convolution variable(s) for channel network
         oHMC_Vars(iID)%a2dHydro = 0.000001    
         oHMC_Vars(iID)%a2dHydroPrev = 0.000001
         oHMC_Vars(iID)%a2dRouting = 0.0     
@@ -486,7 +508,7 @@ contains
         oHMC_Vars(iID)%a1dVDam = 0.0            ! to store dynamic volume dam 
         oHMC_Vars(iID)%a1dLDam = 0.0            ! to store dynamic length dam
         oHMC_Vars(iID)%a1dHDam = 0.0            ! to store dynamic water heigth dam
-        oHMC_Vars(iID)%a1dVDamObs  = -9999.0    ! to store dynamic volume dam observation(s)
+        oHMC_Vars(iID)%a1dVDamObs = -9999.0    ! to store dynamic volume dam observation(s)
         
         ! Dynamic plant variable(s)
         oHMC_Vars(iID)%a2dHydroPlant = 0.0
@@ -496,6 +518,30 @@ contains
 
         ! Dynamic release variable(s)
         oHMC_Vars(iID)%a2dHydroRelease = 0.0
+        
+        ! Dynamic convolution variable(s) for channel fraction
+        oHMC_Vars(iID)%a2dQC = 0.0
+        oHMC_Vars(iID)%a2dQH = 0.0
+        oHMC_Vars(iID)%a2dHydroC = 0.0
+        oHMC_Vars(iID)%a2dHydroH = 0.0
+        oHMC_Vars(iID)%a2dWidthC = -9999.0
+        oHMC_Vars(iID)%a2dWidthH = -9999.0
+        oHMC_Vars(iID)%a2dRunoffC = 0.0
+        oHMC_Vars(iID)%a2dRunoffH = 0.0
+        oHMC_Vars(iID)%a2dQup = 0.0
+        
+        ! Dynamic Fracturation variable(s)
+        oHMC_Vars(iID)%a2dFrac = 0.0        
+
+        ! Dynamic Flooding variable(s)
+        oHMC_Vars(iID)%dFlagFlood = 0.0
+        oHMC_Vars(iID)%a2dLevBankL = -9999.0
+        oHMC_Vars(iID)%a2dLevBankR = -9999.0
+        oHMC_Vars(iID)%a2dFirst = -9999.0
+        oHMC_Vars(iID)%a2dQfloodIL = 0.0
+        oHMC_Vars(iID)%a2dQfloodCL = 0.0
+        oHMC_Vars(iID)%a2dQfloodIR = 0.0
+        oHMC_Vars(iID)%a2dQfloodCR = 0.0
         
         ! Finish to initialize dynamic variable(s)
         call mprintf(.true., iINFO_Main, ' Initialize dynamic variable(s) ... OK ')

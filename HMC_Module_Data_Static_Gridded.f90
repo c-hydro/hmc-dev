@@ -68,6 +68,11 @@ contains
         !------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------
+        ! Calling subroutine to compute channel fraction 
+        call HMC_Data_Static_Gridded_ChannelFraction(iID, iRows, iCols)
+        !------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------
         ! Info end
         call mprintf(.true., iINFO_Verbose, ' Data :: Static gridded ... OK' )
         !------------------------------------------------------------------------------------
@@ -274,6 +279,136 @@ contains
     !------------------------------------------------------------------------------------ 
     
     !------------------------------------------------------------------------------------
+    ! Subroutine for loading and initializing channel fraction parameter(s)
+    subroutine HMC_Data_Static_Gridded_ChannelFraction(iID, iRows, iCols)
+        
+        !------------------------------------------------------------------------------------
+        ! Variable(s)
+        integer(kind = 4)       :: iID, iRows, iCols
+
+        real(kind = 4)          :: dMaxW, dMinW
+        real(kind = 4)          :: dMinW_Thr    ! Min fraction of cellsize devoted to Channel width
+        real(kind = 4)          :: dMaxW_Thr    ! Max fraction of cellsize devoted to Channel width
+        
+        integer(kind = 4),  dimension (iRows, iCols)    :: a2iVarMask
+        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarSizeCell, a2dVarArea
+        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarWidthC, a2dVarWidthH
+        !------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------
+        ! Variable(s) initialization
+        dMaxW = 0.0; dMinW = 0.0; ! [m]
+        dMinW_Thr = 0.005  ! [-]
+        dMaxW_Thr = 0.8   ! [-]
+        a2iVarMask = 0;
+        a2dVarWidthC = -9999.0; a2dVarWidthH = -9999.0
+        a2dVarSizeCell = 0.0
+        !------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------
+        ! Info start
+        call mprintf(.true., iINFO_Verbose, ' Data :: Static gridded :: Get channel fraction information ... ' )
+        
+        ! Check channel type
+        if (oHMC_Namelist(iID)%iFlagCType .eq. 2) then
+        
+            !------------------------------------------------------------------------------------ 
+            ! Extracting parameters
+            a2dVarArea = float(oHMC_Vars(iID)%a2iArea)
+            a2dVarSizeCell = (oHMC_Vars(iID)%a2dAreaCell)**0.5
+
+            a2dVarWidthC = oHMC_Vars(iID)%a2dWidthC
+            a2dVarWidthH = oHMC_Vars(iID)%a2dWidthH
+            !------------------------------------------------------------------------------------
+
+            !------------------------------------------------------------------------------------ 
+            ! Debug
+            if (iDEBUG.gt.0) then
+                call mprintf(.true., iINFO_Extra, ' ========= STATIC GRIDDED CHANNEL FRACTION BEGIN =========== ')   
+                call mprintf(.true., iINFO_Extra, checkvar(a2dVarWidthC, a2iVarMask, 'WIDTHC ') )
+                call mprintf(.true., iINFO_Extra, checkvar(a2dVarWidthH, a2iVarMask, 'WIDTHH ') )
+                call mprintf(.true., iINFO_Extra, ' ')
+            endif
+            !------------------------------------------------------------------------------------ 
+
+            !------------------------------------------------------------------------------------
+            ! Channel width
+            dMaxW = MAXVAL(MAXVAL(a2dVarWidthC, dim=1, & 
+                                  mask=oHMC_Vars(iID)%a2iChoice.ge.0 .and. oHMC_Vars(iID)%a2dDem.gt.0))
+            dMinW = MINVAL(MINVAL(a2dVarWidthC, dim=1, &
+                                  mask=oHMC_Vars(iID)%a2iChoice.ge.0 .and. oHMC_Vars(iID)%a2dDem.gt.0))
+                                  
+            ! Build channel width with area function
+            where( (oHMC_Vars(iID)%a2iChoice.ge.0.0) .and. (oHMC_Vars(iID)%a2dDem.gt.0.0) .and. (a2dVarWidthC.lt.0.0) )
+                a2dVarWidthC = 0.005*(a2dVarArea*oHMC_Vars(iID)%a2dAreaCell/1000000)**0.4*1000 ! width in m                    
+            endwhere
+            
+            ! Check max and min of witdhc
+            dMaxW = MAXVAL(MAXVAL(a2dVarWidthC, dim=1, &
+                                  mask=oHMC_Vars(iID)%a2iChoice.ge.0 .and. oHMC_Vars(iID)%a2dDem.gt.0))
+            dMinW = MINVAL(MINVAL(a2dVarWidthC, dim=1, &
+                                  mask=oHMC_Vars(iID)%a2iChoice.ge.0 .and. oHMC_Vars(iID)%a2dDem.gt.0))
+            !------------------------------------------------------------------------------------
+                                  
+            !------------------------------------------------------------------------------------
+            ! Verify maximum values for numerical stability
+            where(a2dVarWidthC .ge. dMaxW_Thr*a2dVarSizeCell)
+                a2dVarWidthC = dMaxW_Thr*a2dVarSizeCell
+            endwhere
+            where(a2dVarWidthC .lt. dMinW_Thr*a2dVarSizeCell)
+                a2dVarWidthC = dMinW_Thr*a2dVarSizeCell
+            endwhere
+            ! Check max and min of witdhc
+            dMaxW = MAXVAL(MAXVAL(a2dVarWidthC, dim=1, &
+                                  mask=oHMC_Vars(iID)%a2iChoice.ge.0 .and. oHMC_Vars(iID)%a2dDem.gt.0))
+            dMinW = MINVAL(MINVAL(a2dVarWidthC, dim=1, &
+                                  mask=oHMC_Vars(iID)%a2iChoice.ge.0 .and. oHMC_Vars(iID)%a2dDem.gt.0))
+            !------------------------------------------------------------------------------------
+                                  
+            !------------------------------------------------------------------------------------
+            ! Hillslope width
+            where(oHMC_Vars(iID)%a2iChoice.ge.0 .and. oHMC_Vars(iID)%a2dDem.gt.0)
+                a2dVarWidthH = a2dVarSizeCell - a2dVarWidthC
+            endwhere
+            !------------------------------------------------------------------------------------ 
+
+            !------------------------------------------------------------------------------------ 
+            ! Debug
+            if (iDEBUG.gt.0) then
+                call mprintf(.true., iINFO_Extra, ' ')
+                call mprintf(.true., iINFO_Extra, checkvar(a2dVarWidthC, a2iVarMask, 'WIDTHC ') )
+                call mprintf(.true., iINFO_Extra, checkvar(a2dVarWidthH, a2iVarMask, 'WIDTHH ') )
+                call mprintf(.true., iINFO_Extra, ' ========= STATIC GRIDDED CHANNEL FRACTION END =========== ') 
+            endif
+            !------------------------------------------------------------------------------------ 
+
+            !------------------------------------------------------------------------------------
+            ! Passing parameter(s) to global declaration
+            oHMC_Vars(iID)%a2dWidthC = a2dVarWidthC
+            oHMC_Vars(iID)%a2dWidthH = a2dVarWidthH
+
+            ! Info end
+            call mprintf(.true., iINFO_Verbose, ' Data :: Static gridded :: Get channel fraction information ... OK' )
+            !------------------------------------------------------------------------------------
+        
+        else
+            
+            !------------------------------------------------------------------------------------
+            ! Initialize with undefined values
+            oHMC_Vars(iID)%a2dWidthC = -9999.0
+            oHMC_Vars(iID)%a2dWidthH = -9999.0
+            
+            ! Info end
+            call mprintf(.true., iINFO_Verbose, ' Data :: Static gridded :: Get channel fraction information ... SKIPPED' )
+            !------------------------------------------------------------------------------------
+            
+        endif
+        !------------------------------------------------------------------------------------
+        
+    end subroutine HMC_Data_Static_Gridded_ChannelFraction
+    !------------------------------------------------------------------------------------
+    
+    !------------------------------------------------------------------------------------
     ! Subroutine for loading and initializing land variable(s)
     subroutine HMC_Data_Static_Gridded_Land(iID, iRows, iCols)
         
@@ -288,8 +423,8 @@ contains
         integer(kind = 4)       :: iFileID, iErr
         
         integer(kind = 4)       :: iDomainPixels, iTc, iTcSeconds, iTcMax, iETime, iNTime
-        integer(kind = 4)       :: iFlagCoeffRes, iFlagWS
-        real(kind = 4)          :: dDxM, dDyM, dDEMMax, dDEMMin, dDEMStepMean
+        integer(kind = 4)       :: iFlagCoeffRes, iFlagWS, iFlagFrac, iFlagCType
+        real(kind = 4)          :: dAmeanM, dDxM, dDyM, dDEMMax, dDEMMin, dDEMStepMean
         real(kind = 4)          :: dDomainArea
         
         real(kind = 4)          :: dUc, dUh, dCt, dCf
@@ -314,10 +449,12 @@ contains
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarCoeffResol, a2dVarCoeffWS
         real(kind = 4),     dimension (100)             :: a1dVarFCN
         
+        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarWidthC, a2dVarFrac
+        
         logical                                         :: bFileExist
         
         character(len = 256)                            :: sStrDomPix, sStrDomArea, sStrTc, sStrDemMax
-        character(len = 256)                            :: sPixCount, sParDefault
+        character(len = 256)                            :: sPixCount, sParDefault, sAmeanM
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -326,7 +463,7 @@ contains
         sVarName = ''; sVarUnits = ''; iNTime = 0;
         sDomainName = ''; sPathData = ''; sFileName = '';
         iTypeData = 0; iI = 0; iJ = 0; iFileID = 0; iErr = 0; iDomainPixels = 0; iTc = 0; iTcMax = 0;
-        dDxM = 0.0; dDyM = 0.0; dDEMMax = 0.0; dDEMMin = 0.0; dDEMStepMean = 0.0; dDomainArea = 0.0;
+        dAmeanM = 0.0; dDxM = 0.0; dDyM = 0.0; dDEMMax = 0.0; dDEMMin = 0.0; dDEMStepMean = 0.0; dDomainArea = 0.0;
        
         a2dVarCon = 0.0; a1dVar = 0.0; a2dVar = 0.0
         
@@ -339,6 +476,9 @@ contains
         a2dVarCt = 0.0; a2dVarCf = 0.0; a2dVarUc = 0.0; a2dVarUh = 0.0;  
         a2dVarCoeffResol = 0.0; a2dVarCoeffWS = 0.0;
         a1dVarFCN = 0.0
+        a2dVarFrac = 0.0; a2dVarWidthC = -9999.0;
+        
+        iFlagCoeffRes = -9999; iFlagWS = -9999; iFlagFrac = -9999; iFlagCType = -9999;
         
         iPixCount = 0
         !------------------------------------------------------------------------------------------
@@ -361,6 +501,10 @@ contains
         iFlagCoeffRes = oHMC_Namelist(iID)%iFlagCoeffRes
         ! Flag to activate/deactivate water sources map
         iFlagWS = oHMC_Namelist(iID)%iFlagWS
+        ! Flag to activate/deactivate groundwater bedrock fracturation map
+        iFlagFrac = oHMC_Namelist(iID)%iFlagFrac
+        ! Flag to activate/deactivate channel fraction map
+        iFlagCType = oHMC_Namelist(iID)%iFlagCType
         
         ! Get Initialized variable(s)
         a2dVarS = oHMC_Vars(iID)%a2dS
@@ -457,9 +601,9 @@ contains
                 
                 !------------------------------------------------------------------------------------------
                 ! AREA
-                !sVarName = 'Drainage_Area'
-                !call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .true., iErr)
-                !a2iVarArea = transpose(int(a2dVar))
+                sVarName = 'Drainage_Area'
+                call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .true., iErr)
+                a2iVarArea = transpose(int(a2dVar))
                 !------------------------------------------------------------------------------------------
                 
                 !------------------------------------------------------------------------------------------
@@ -574,6 +718,40 @@ contains
                     call mprintf(.true., iWARN, ' WaterSources not activated. CoeffWS is null.')
                     a2dVarCoeffWS = 0.0
                 endif   
+                !------------------------------------------------------------------------------------------
+                
+                !------------------------------------------------------------------------------------------
+                ! Section width map
+                sVarName = 'SectionWidth'
+                if (iFlagCType .eq. 2) then
+                    call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
+                    if (iErr /= 0) then
+                         call mprintf(.true., iWARN, ' SectionWidth data not found. Use morphologic function') 
+                        a2dVarWidthC = -9999.0
+                    else
+                        a2dVarWidthC = transpose(a2dVar)
+                    endif
+                else
+                    call mprintf(.true., iWARN, ' Channel Network activated. Initializing SectionWidth with undefined values')
+                    a2dVarWidthC = -9999.0
+                endif   
+                !------------------------------------------------------------------------------------------
+                
+                !------------------------------------------------------------------------------------------
+                ! fracturation map
+                sVarName = 'Fracturation'
+                if (iFlagFrac .eq. 1) then
+                    call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
+                    if (iErr /= 0) then
+                        call mprintf(.true., iWARN, ' Fracturation data not found. Initializing Fracturation with zero values')   
+                        a2dVarFrac = 0.0
+                    else
+                        a2dVarFrac = transpose(a2dVar)
+                    endif
+                else
+                    call mprintf(.true., iWARN, ' Fracturation not activated. Initializing Fracturation with zero values')
+                    a2dVarFrac = 0.0
+                endif  
                 !------------------------------------------------------------------------------------------
                 
                 !------------------------------------------------------------------------------------------
@@ -811,6 +989,36 @@ contains
             endif
             !------------------------------------------------------------------------------------------
             
+            !------------------------------------------------------------------------------------------
+            ! Channel Section Width
+            if (iFlagCType .eq. 2) then
+                sFileName = trim(sPathData)//trim(sDomainName)//'.width.txt'
+                call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
+                if (iErr /= 0) then 
+                    call mprintf(.true., iWARN, ' SectionWidth data not found. Use morphologic function')           
+                else
+                    a2dVarWidthC = reshape(a2dVar, (/iRows, iCols/))
+                endif
+            else
+                call mprintf(.true., iWARN, ' Channel Network activated. Initializing SectionWidth with undefined values')
+            endif
+            !------------------------------------------------------------------------------------------
+
+            !------------------------------------------------------------------------------------------
+            ! Fracturation percentage
+            if (iFlagFrac .eq. 1) then
+                sFileName = trim(sPathData)//trim(sDomainName)//'.fr.txt'
+                call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
+                if (iErr /= 0) then 
+                    call mprintf(.true., iWARN, ' Fracturation data not found. Initializing Fracturation with zero values')                  
+                else
+                    a2dVarFrac = reshape(a2dVar, (/iRows, iCols/)) 
+                endif
+            else
+                call mprintf(.true., iWARN, ' Fracturation not activated. Initializing Fracturation with zero values')
+            endif
+            !------------------------------------------------------------------------------------------
+            
         endif
         !------------------------------------------------------------------------------------------
         
@@ -829,6 +1037,8 @@ contains
         a2iVarChoice = int(nullborder2DVar(float(a2iVarChoice), -9999.0))
         a2iVarPNT = int(nullborder2DVar(float(a2iVarPNT), -9999.0))
         a2dVarCoeffWS = nullborder2DVar(a2dVarCoeffWS, -9999.0)
+        a2dVarFrac = nullborder2DVar(a2dVarFrac, -9999.0)
+        a2dVarWidthC = nullborder2DVar(a2dVarWidthC, -9999.0)
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -895,7 +1105,15 @@ contains
         !------------------------------------------------------------------------------------ 
         ! Land data derived fields
         call mprintf(.true., iINFO_Verbose, ' Data :: Static gridded :: Compute derived land information ... ' )
-      
+        
+        ! Check area cell units
+        dAmeanM = sum(a2dVarAreaCell, mask=a2dVarAreaCell.gt.0.0) / count(a2dVarAreaCell.gt.0.0)
+        if (dAmeanM.lt.1) then
+            write(sAmeanM, *) dAmeanM;
+            call mprintf(.true., iWARN, ' Average cell area is equal to '//trim(sAmeanM)//' and less then 1 m^2. '// &
+            'Check units of cellarea map (usually in m^2).')
+        endif
+        
         ! Defining cell area mean value (x and y)
         dDxM = nint(sqrt(sum(a2dVarAreaCell, mask=a2dVarAreaCell.gt.0.0) / count(a2dVarAreaCell.gt.0.0)))
         dDyM = nint(sqrt(sum(a2dVarAreaCell, mask=a2dVarAreaCell.gt.0.0) / count(a2dVarAreaCell.gt.0.0)))
@@ -956,6 +1174,16 @@ contains
         endwhere
         where (a2dVarCoeffWS.gt.0.99)
             a2dVarCoeffWS = 0.0
+        endwhere
+        !------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------
+        ! Check fracturation  coefficient map limit
+        where (a2dVarFrac.gt.1)
+            a2dVarFrac = 1.0
+        endwhere
+        where (a2dVarDEM.gt.0.0.and.a2dVarFrac.lt.0.0)
+            a2dVarFrac = 0.0
         endwhere
         !------------------------------------------------------------------------------------
         
@@ -1027,7 +1255,10 @@ contains
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarCostChFix, a2iVarMask, 'CHFIX ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarC1, a2iVarMask, 'C1 ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarF2, a2iVarMask, 'F2 ') )
-            call mprintf(.true., iINFO_Extra, checkvar(a2dVarCoeffResol, a2iVarMask, 'CRES ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarCoeffResol, a2iVarMask, 'CRES ') )   
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarCoeffWS, a2iVarMask, 'WS ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarWidthC, a2iVarMask, 'WIDTHC ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarFrac, a2iVarMask, 'FRAC ') )
             call mprintf(.true., iINFO_Extra, ' ========= STATIC GRIDDED END =========== ') 
         endif
         !------------------------------------------------------------------------------------
@@ -1050,7 +1281,7 @@ contains
         oHMC_Vars(iID)%a2iMask = a2iVarMask
         oHMC_Vars(iID)%a2iPNT = a2iVarPNT
         oHMC_Vars(iID)%a2iChoice = a2iVarChoice
-        !oHMC_Vars(iID)%a2iArea = a2iVarArea
+        oHMC_Vars(iID)%a2iArea = a2iVarArea
         oHMC_Vars(iID)%a2dAreaCell = a2dVarAreaCell
         oHMC_Vars(iID)%a2iNature = a2iVarNature
         
@@ -1071,6 +1302,9 @@ contains
         
         oHMC_Vars(iID)%a2dCoeffResol = a2dVarCoeffResol
         oHMC_Vars(iID)%a2dCoeffWS = a2dVarCoeffWS
+        
+        oHMC_Vars(iID)%a2dWidthC = a2dVarWidthC
+        oHMC_Vars(iID)%a2dFrac = a2dVarFrac
         !------------------------------------------------------------------------------------ 
         
     end subroutine HMC_Data_Static_Gridded_Land
