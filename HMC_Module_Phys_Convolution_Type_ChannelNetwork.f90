@@ -42,13 +42,13 @@ contains
                                         iTime, iNTime, iETime, &
                                         iNSection, iNData, &
                                         iNLake, iNDam, & 
-                                        iNPlant, iNCatch, iNRelease, iNJoint)
+                                        iNPlant, iNCatch, iNRelease, iNJoint, sTime, iDaySteps)
         
         !------------------------------------------------------------------------------------------
         ! Variable(s) declaration
         integer(kind = 4)           :: iID
         integer(kind = 4)           :: iRows, iCols
-        integer(kind = 4)           :: iTime, iNTime, iETime
+        integer(kind = 4)           :: iTime, iNTime, iETime, iStep, iDaySteps
         integer(kind = 4)           :: iNSection, iNData, iNLake, iNDam
         integer(kind = 4)           :: iNPlant, iNCatch, iNRelease, iNJoint
 
@@ -59,6 +59,7 @@ contains
         real(kind = 4), dimension (iRows, iCols)   :: a2dVarTot
         
         character(len = 20)             :: sTInt
+        character(len = 19)             :: sTime
         
         character (len=8)               :: sCurrenteDate
         character (len=10)              :: sCurrentTime
@@ -81,6 +82,9 @@ contains
         iFlagFlowDeep = oHMC_Namelist(iID)%iFlagFlowDeep
         ! Actual model step 
         iTAct = iTime
+        
+       
+        
         ! Info start
         call mprintf(.true., iINFO_Verbose, ' Phys :: Convolution [channel network] ... ' )
         !------------------------------------------------------------------------------------------
@@ -167,7 +171,45 @@ contains
                 
         enddo TimeIntLoop
         !------------------------------------------------------------------------------------------
-        
+
+        !------------------------------------------------------------------------------------------      
+        ! Initializing and updating discharge 3d field(s)
+        if (all(oHMC_Vars(iID)%a3dQout.lt.0.0))then
+
+            do iStep=1, int(iDaySteps)
+                where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
+                    oHMC_Vars(iID)%a3dQout(:,:,int(iStep)) =  oHMC_Vars(iID)%a2dQout
+                elsewhere
+                    oHMC_Vars(iID)%a3dQout(:,:,int(iStep)) =  0.0
+                endwhere
+            enddo
+            
+            ! Updating with new field
+            where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
+                oHMC_Vars(iID)%a3dQout(:,:,int(iDaySteps)) =  oHMC_Vars(iID)%a2dQout + 100
+            elsewhere
+                oHMC_Vars(iID)%a3dQout(:,:,int(iDaySteps)) = 0.0
+            endwhere
+            
+            call mprintf(.true., iINFO_Extra, ' Phys :: Land surface model :: TDeep :: '// &
+                                              ' First mean temperature 3d field storing step ... OK')
+            
+        else
+            ! Re-initializing 
+            do iStep=2, int(iDaySteps)
+                oHMC_Vars(iID)%a3dQout(:,:,int(iStep-1)) = oHMC_Vars(iID)%a3dQout(:,:,int(iStep))
+            enddo
+            ! Updating with new field
+            where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
+                oHMC_Vars(iID)%a3dQout(:,:,int(iDaySteps)) =  oHMC_Vars(iID)%a2dQout
+            elsewhere
+                oHMC_Vars(iID)%a3dQout(:,:,int(iDaySteps)) = 0.0
+            endwhere
+            
+        endif
+        !------------------------------------------------------------------------------------------
+
+
         !------------------------------------------------------------------------------------------
         ! Call deep flow routine
         call HMC_Phys_Convolution_Apps_DeepFlow_ChannelNetwork(iID, iRows, iCols, dDtDataForcing)

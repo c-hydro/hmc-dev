@@ -22,7 +22,9 @@ module HMC_Module_Info_Gridded
     use HMC_Module_Tools_Debug
     use HMC_Module_Tools_Generic,   only:   HMC_Tools_Generic_ReplaceText, &
                                             HMC_Tools_Generic_CreateIndexGrid, &
-                                            HMC_Tools_Generic_UnzipFile
+                                            HMC_Tools_Generic_UnzipFile, &
+                                            HMC_Tools_Generic_RemoveFile, &
+                                            getProcessID
 #ifdef LIB_NC
     use HMC_Module_Tools_IO,        only:   check
 #endif
@@ -157,19 +159,19 @@ contains
         
         integer(kind = 4)           :: iTypeData
         character(len = 19)         :: sTime
-        character(len = 256)        :: sPathData
-        character(len = 700)        :: sFileName, sFileNameZip
+        character(len = 256)        :: sPathData, sPID
+        character(len = 700)        :: sFileName, sFileNameZip, sFileName_Temp
         character(len = 700)        :: sCommandUnzip
         character(len = 256)        :: sDomainName
         
-        integer(kind = 4)           :: iFileID, iDimId
+        integer(kind = 4)           :: iFileID, iDimId, ppos
 
         logical                     :: bFileExist
         !------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------
         ! Initialize variable(s)
-        sFileName = ""; sFileNameZip = "";
+        sFileName = ""; sFileNameZip = ""; sFileName_Temp ="";
         !------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------
@@ -214,17 +216,25 @@ contains
                 call mprintf(.true., iERROR, ' No compressed forcing file netCDF found '//trim(sFileNameZip) )
             endif
 
+            ! Get unique process ID
+            sPID = adjustl(getProcessID()) 
+
+            ! Create Filename with unique PID number to avoid simultaneously access to the same Forcing file 
+            ! Remove file extension from filename
+            ppos = scan(trim(sFileName),".", BACK= .true.)
+            sFileName_Temp = trim(sFileName(1:ppos)//'_'//trim(sPID)//".nc") 
+
             ! Unzip file
-            call HMC_Tools_Generic_UnzipFile(sCommandUnzip, sFileNameZip, sFileName, .true.)
+            call HMC_Tools_Generic_UnzipFile(sCommandUnzip, sFileNameZip, sFileName_Temp, .true.)
 
             ! Check file availability
-            inquire (file = trim(sFileName), exist = bFileExist)
+            inquire (file = trim(sFileName_Temp), exist = bFileExist)
             if ( .not. bFileExist ) then
-                call mprintf(.true., iERROR, ' No forcing file netCDF found '//trim(sFileName) )
+                call mprintf(.true., iERROR, ' No forcing file netCDF found '//trim(sFileName_Temp) )
             else
 
                 ! Open netCDF file
-                call check( nf90_open(trim(sFileName), NF90_NOWRITE, iFileID) )
+                call check( nf90_open(trim(sFileName_Temp), NF90_NOWRITE, iFileID) )
                 ! Get global attribute(s)
                 call check( nf90_get_att(iFileID, nf90_global, "ncols", iCols) )
                 call check( nf90_get_att(iFileID, nf90_global, "nrows", iRows) )
@@ -232,8 +242,14 @@ contains
                 call check( nf90_close(iFileID) )
                 ! Info
                 call mprintf(.true., iINFO_Main, ' Define forcing data dims ... OK')
-                
-            endif
+
+                ! Remove uncompressed file (to save space on disk)
+                call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, &
+                                                      sFileName_Temp, .false.)
+                !--------------------------------------------------------------------------------
+
+            endif           
+
             !------------------------------------------------------------------------------------
 #else
             !------------------------------------------------------------------------------------ 
@@ -417,8 +433,8 @@ contains
 
         integer(kind = 4)           :: iFlagTypeData
         character(len = 19)         :: sTime
-        character(len = 256)        :: sPathData
-        character(len = 700)        :: sFileName, sFileNameZip
+        character(len = 256)        :: sPathData, sPID
+        character(len = 700)        :: sFileName, sFileNameZip, sFileName_Temp
         character(len = 700)        :: sCommandUnzip
         
         integer(kind = 4)           :: iVarCols, iVarRows
@@ -426,7 +442,7 @@ contains
         real(kind = 4)              :: dVarXCellSize, dVarYCellSize
         real(kind = 4)              :: dVarNoData
         
-        integer(kind = 4)           :: iErr, iFileID
+        integer(kind = 4)           :: iErr, iFileID, ppos
         
         logical                     :: bFileExist
         !------------------------------------------------------------------------------------
@@ -438,7 +454,7 @@ contains
         dVarXCellSize = -9999.0; dVarYCellSize = -9999.0;
         dVarNoData = -9999.0;
         
-        sFileName = ""; sFileNameZip = "";
+        sFileName = ""; sFileNameZip = ""; sFileName_Temp = "";
         !------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------
@@ -494,19 +510,27 @@ contains
                 !------------------------------------------------------------------------------------------
 
                 !------------------------------------------------------------------------------------------
+                ! Get unique porcess ID
+                sPID = adjustl(getProcessID()) 
+
+                ! Create Filename with unique PID number to avoid simultaneously access to the same Forcing file 
+                ! Remove file extension from filename
+                ppos = scan(trim(sFileName),".", BACK= .true.)
+                sFileName_Temp = sFileName(1:ppos-1)//'_'//trim(sPID)//".nc"
+
                 ! Unzip file
-                call HMC_Tools_Generic_UnzipFile(sCommandUnzip, sFileNameZip, sFileName, .true.)
+                call HMC_Tools_Generic_UnzipFile(sCommandUnzip, sFileNameZip, sFileName_Temp, .true.)
                 !------------------------------------------------------------------------------------------
                 
                 !------------------------------------------------------------------------------------------
                 ! Check uncompressed file availability
-                inquire (file = trim(sFileName), exist = bFileExist)
+                inquire (file = trim(sFileName_Temp), exist = bFileExist)
                 if ( .not. bFileExist ) then
-                    call mprintf(.true., iERROR, ' No forcing file netCDF found '//trim(sFileName) )
+                    call mprintf(.true., iERROR, ' No forcing file netCDF found '//trim(sFileName_Temp) )
                 else
                     
                     ! Open nc file
-                    call check( nf90_open(trim(sFileName), NF90_NOWRITE, iFileID) )
+                    call check( nf90_open(trim(sFileName_Temp), NF90_NOWRITE, iFileID) )
                     
                     ! Get global attribute(s)
                     call check( nf90_get_att(iFileID, nf90_global, "xllcorner",    dVarXLLCorner) )
@@ -518,6 +542,11 @@ contains
                     
                     ! Close nc file
                     call check( nf90_close(iFileID) )
+                    
+                    ! Remove uncompressed file (to save space on disk)
+                    call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, &
+                                                      sFileName_Temp, .false.)
+                !--------------------------------------------------------------------------------
                     
                     ! Info
                     call mprintf(.true., iINFO_Main, ' Define forcing geographical data  ... OK ')

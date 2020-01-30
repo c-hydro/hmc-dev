@@ -17,9 +17,8 @@ TYPE HMC_Type_Vars
     ! HMC STATIC VARIABLE(S) - 1D, 2D
     ! Land variable(s)
     integer(kind = 4),      allocatable, dimension (:, :)       :: a2iMask, a2iPNT, a2iChoice
-    integer(kind = 4),      allocatable, dimension (:, :)       :: a2iArea
     integer(kind = 4),      allocatable, dimension (:, :)       :: a2iNature
-    integer(kind = 4),      allocatable, dimension (:, :)       :: a2iXIndex, a2iYIndex
+    integer(kind = 4),      allocatable, dimension (:, :)       :: a2iXIndex, a2iYIndex, a2iArea
     real(kind = 4),         allocatable, dimension (:)          :: a1dFCN
     real(kind = 4),         allocatable, dimension (:, :)       :: a2dLon, a2dLat
     real(kind = 4),         allocatable, dimension (:, :)       :: a2dDem, a2dS, a2dCN, a2dAreaCell
@@ -70,7 +69,7 @@ TYPE HMC_Type_Vars
     ! HMC DYNAMIC VARIABLE(S) - SCALAR 
     ! Time variable(s)
     integer(kind = 4)                   :: iTime
-    character(len = 19)                 :: sTimeStep
+    character(len = 19)                 :: sTimeStep, sTimeMaxLAI, sTimeMaxFC
     
     ! Volume variable(s)
     real(kind = 4)                      :: dVErr, dVarETTot
@@ -78,7 +77,7 @@ TYPE HMC_Type_Vars
     ! HMC DYNAMIC VARIABLE(S) - 1D, 2D, 3D
     ! Forcing variable(s)
     real(kind = 4), allocatable,  	dimension(:, :)         :: a2dRain, a2dTa, a2dK, a2dW, a2dRHum
-    real(kind = 4), allocatable,  	dimension(:, :)         :: a2dPres, a2dLAI, a2dAlbedo
+    real(kind = 4), allocatable,  	dimension(:, :)         :: a2dPres, a2dLAI, a2dFC, a2dAlbedo
     real(kind = 4), allocatable,        dimension(:, :)         :: a2dSHeight, a2dSKernel
 
     ! Updating variable(s)
@@ -99,12 +98,13 @@ TYPE HMC_Type_Vars
     real(kind = 4), allocatable,  	dimension(:, :, :)      :: a3dTaKMarked, a3dTaK24 
     
     ! ET variable(s)
-    real(kind = 4), allocatable,  	dimension(:, :)         :: a2dET, a2dAE
-    real(kind = 4), allocatable,        dimension(:, :)         :: a2dETCum
+    real(kind = 4), allocatable,  	dimension(:, :)         :: a2dET, a2dAE, a2dETpot
+    real(kind = 4), allocatable,  	dimension(:, :, :)      :: a3dET, a3dETpot
     
     ! Convolution variable(s) for channel network
     real(kind = 4), allocatable,  	dimension(:, :)         :: a2dHydro, a2dHydroPrev, a2dRouting, a2dDarcy
     real(kind = 4), allocatable,  	dimension(:, :)         :: a2dQDisOut, a2dQVolOut, a2dQTot, a2dQout
+    real(kind = 4), allocatable,  	dimension(:, :, :)      :: a3dQout, a3dQfloodCR, a3dQfloodCL 
     real(kind = 4), allocatable,  	dimension(:, :)         :: a2dIntensity
     real(kind = 4), allocatable,        dimension(:, :)         :: a2dFlowDeep, a2dFlowExf
     
@@ -129,7 +129,12 @@ TYPE HMC_Type_Vars
     real(kind = 4), allocatable,        dimension (:)          :: a1dVDam, a1dLDam, a1dHDam
     real(kind = 4), allocatable,        dimension (:)          :: a1dQoutDam
     real(kind = 4), allocatable,        dimension (:)          :: a1dVDamObs
+    
+    ! Dynamic Vegetation module variable(s)
+    real(kind = 4), allocatable,  	dimension(:, :)        :: a2dGd, a2dRSmin, a2dHveg, a2dBareSoil
+    real(kind = 4), allocatable,  	dimension(:, :)        :: a2dVTotWP
 
+    
     ! Time-Series variable(s)
     logical                             :: bFileForcingTimeSeries
     integer(kind = 4)                   :: iFileUnitTSQ, iFileUnitTSVDam
@@ -144,7 +149,7 @@ TYPE HMC_Type_Vars
     real(kind = 4), allocatable,        dimension (:, :)       :: a2dFrac
     
     ! Flooding variable (s)
-    real(kind = 4)                      :: dFlagFlood
+    !real(kind = 4)                      :: dFlagFlood
     real(kind = 4), allocatable,        dimension (:, :)       :: a2dLevBankL, a2dLevBankR, a2dFirst
     real(kind = 4), allocatable,        dimension (:, :)       :: a2dQfloodIL, a2dQfloodCL, a2dQfloodIR, a2dQfloodCR
 

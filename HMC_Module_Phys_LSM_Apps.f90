@@ -30,14 +30,14 @@ contains
     ! Subroutine for calculating beta function
     subroutine HMC_Phys_LSM_Apps_BetaFunction(iID, iRows, iCols, &
                                 a2dVarSM, a2dVarDEM, &
-                                a2dVarBF)
+                                a2dVarBF, a2dVarBF_BareSoil)
                                                    
         !------------------------------------------------------------------------------------------
         ! Variable(s)
         integer(kind = 4)       :: iID, iRows, iCols
         real(kind = 4)          :: dBFMin, dBFMax
         real(kind = 4), dimension(iRows, iCols) :: a2dVarSM, a2dVarDEM
-        real(kind = 4), dimension(iRows, iCols) :: a2dVarBF 
+        real(kind = 4), dimension(iRows, iCols) :: a2dVarBF, a2dVarBF_BareSoil 
         real(kind = 4), dimension(iRows, iCols) :: a2dVarCt
         real(kind = 4), dimension(iRows, iCols) :: a2dVarCtWP, a2dVarKb1, a2dVarKc1, a2dVarKb2, a2dVarKc2
         !------------------------------------------------------------------------------------------
@@ -62,10 +62,15 @@ contains
         ! Calculating Beta function values
         where (a2dVarSM.lt.a2dVarCtWP.and.a2dVarDEM.gt.0.0)
                 a2dVarBF = dBFMin
-        elsewhere ((a2dVarSM.ge.a2dVarCtWP).and.(a2dVarSM.le.a2dVarCt).and.(a2dVarDEM.gt.0.))
+        elsewhere ((a2dVarSM.ge.a2dVarCtWP).and.(a2dVarSM.le. (a2dVarCt)).and.(a2dVarDEM.gt.0.))
                 a2dVarBF = a2dVarKb1*a2dVarSM + a2dVarKc1
         elsewhere (a2dVarDEM.gt.0.0)
-                a2dVarBF = a2dVarKb2*a2dVarSM + a2dVarKc2       
+                a2dVarBF = dBFMax       
+        endwhere
+        
+        ! Calculating Beta function values for bare soil
+        where (a2dVarDEM.gt.0.0)
+                a2dVarBF_BareSoil = 1 + 1/(exp(50.0*(a2dVarSM-a2dVarCtWP))/(1000.0*(a2dVarCt-a2dVarCtWP)+1.0))
         endwhere
         !------------------------------------------------------------------------------------------
         
@@ -73,6 +78,10 @@ contains
         ! Check beta limit(s) --> just in case
         where (a2dVarBF.gt.1.0)
             a2dVarBF = 1.0
+            a2dVarBF_BareSoil = 1.0
+        elsewhere (a2dVarBF.le.0.001)
+            a2dVarBF = 0.001
+            a2dVarBF_BareSoil = 0.001
         endwhere
         !------------------------------------------------------------------------------------------
 
@@ -93,7 +102,8 @@ contains
     subroutine HMC_Phys_LSM_Apps_CH(iID, iRows, iCols, sTime, &
                               a2dVarDEM, &
                               a2dVarRb, &
-                              a2dVarCH)
+                              a2dVarBF, a2dVarWind, &
+                              a2dVarRatm, a2dVarRsurf, a2dVarRsurf_pot)
         
         !------------------------------------------------------------------------------------------
         ! Variable(s)
@@ -101,8 +111,8 @@ contains
         
         real(kind = 4)          :: dVarCH, dVarCHn, dVarPSI
         
-        real(kind = 4), dimension(iRows, iCols) :: a2dVarDEM, a2dVarRb, a2dVarPSIstable
-        real(kind = 4), dimension(iRows, iCols) :: a2dVarCH
+        real(kind = 4), dimension(iRows, iCols) :: a2dVarDEM, a2dVarRb, a2dVarPSIstable, a2dVarBF, a2dVarWind
+        real(kind = 4), dimension(iRows, iCols) :: a2dVarCH, a2dVarRatm, a2dVarRsurf, a2dVarRsurf_pot  
         
         character(len = 19)       :: sTime
         character(len = 12)       :: sTimeMonth
@@ -110,7 +120,12 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Initialize variable(s)
-        a2dVarPSIstable = 0.0
+        a2dVarPSIstable = 0.0; a2dVarCH = -9999.0;
+        
+        a2dVarRsurf_pot = -9999.0;          ! Surface resistance without limitation caused by shortage of water in the soils [s/m]
+        a2dVarRatm = -9999.0;               ! Bulk Atmospheric resistance [s/m]
+        a2dVarRsurf = -9999.0;              ! Surface resistance [s/m]
+
         ! Checking date
         write(sTimeMonth,'(A,A,A)') sTime(1:4), sTime(6:7), sTime(9:10)
         !------------------------------------------------------------------------------------------
@@ -143,10 +158,15 @@ contains
         endwhere
         
         ! Calculating CH values
-        where(a2dVarDEM.gt.0.0)
+        where(a2dVarDEM.gt.0.0.and.a2dVarWind.gt.0.0)
             a2dVarCH = dVarCHn*a2dVarPSIstable
-        elsewhere
-            a2dVarCH = 0.0
+            a2dVarRatm = 1.0/(a2dVarCH*a2dVarWind)
+            a2dVarRsurf = a2dVarRatm/a2dVarBF
+            a2dVarRsurf_pot = a2dVarRatm
+        elsewhere(a2dVarDEM.gt.0.0)
+            a2dVarRatm = 10000.0 ! set resistances to extremely high values to interrupt ET when wind speed is zero
+            a2dVarRsurf = 10000.0      
+            a2dVarRsurf_pot = 10000.0
         endwhere
         !------------------------------------------------------------------------------------------
         
@@ -168,7 +188,7 @@ contains
     subroutine HMC_Phys_LSM_Apps_RK4(iID, iRows, iCols, & 
                             dTRef, &
                             dIntStep, iIntDelta, &
-                            a2dVarTDeep, a2dVarPit, a2dVarCH, a2dVarBF, &
+                            a2dVarTDeep, a2dVarPit, a2dVarRatm, a2dVarRsurf, &
                             a2dVarRn, &
                             a2dVarRelHum, a2dVarWind, a2dVarTaK, a2dVarPa, & 
                             a2dVarLambda, a2dVarEA, a2dVarRhoA, &
@@ -184,7 +204,7 @@ contains
         real(kind = 4)          :: dKDeltaMax               ! Delta max for applying Runge-Kutta
         
         real(kind = 4), dimension(iRows, iCols) :: a2dVarDEM
-        real(kind = 4), dimension(iRows, iCols) :: a2dVarTDeep, a2dVarPit, a2dVarCH, a2dVarBF
+        real(kind = 4), dimension(iRows, iCols) :: a2dVarTDeep, a2dVarPit, a2dVarRatm, a2dVarRsurf
         real(kind = 4), dimension(iRows, iCols) :: a2dVarRn
         real(kind = 4), dimension(iRows, iCols) :: a2dVarRelHum, a2dVarWind, a2dVarTaK, a2dVarPa
         real(kind = 4), dimension(iRows, iCols) :: a2dVarLambda, a2dVarEA, a2dVarRhoA
@@ -208,7 +228,7 @@ contains
         ! Debug
         !call mprintf(.true., iINFO_Extra, checkvar(a2dVarLSTPStep, int(a2dVarDEM), 'LST INT START') )
         !------------------------------------------------------------------------------------------
-       
+        
         !------------------------------------------------------------------------------------------
         ! Updating land surface temperature using Runge-Kutta (fourth order)
         a2dVarLSTUpd = 0.0
@@ -220,9 +240,9 @@ contains
             a2dVarLSTUpd = a2dVarLSTPStep
             
             a2dVarK1 = iIntDelta *(2*sqrt(dPiGreco*dOmega)/a2dVarPit*(a2dVarRn - &
-            a2dVarRhoA*dCp*a2dVarCH*a2dVarWind*(a2dVarLSTUpd - a2dVarTaK) - &
-            a2dVarRhoA*a2dVarLambda*a2dVarCH*a2dVarWind*a2dVarBF*(0.611*exp(17.3*(a2dVarLSTUpd - dTRef)/ &
-            (237.3 + a2dVarLSTUpd - dTRef)) - a2dVarEA)/a2dVarPa*0.622) - &
+            a2dVarRhoA*dCp*(a2dVarLSTUpd - a2dVarTaK)/a2dVarRatm - &
+            a2dVarRhoA*a2dVarLambda*(0.611*exp(17.3*(a2dVarLSTUpd - dTRef)/ &
+            (237.3 + a2dVarLSTUpd - dTRef)) - a2dVarEA)/(a2dVarPa*a2dVarRsurf)*0.622) - &
             2*dPiGreco*dOmega*(a2dVarLSTUpd - a2dVarTDeep))
 
             ! Check K1 RK argument with K maximum delta 
@@ -236,9 +256,9 @@ contains
             !------------------------------------------------------------------------------------------
             ! Compute K2 argument
             a2dVarK2 = iIntDelta *( 2*sqrt(dPiGreco*dOmega)/a2dVarPit*(a2dVarRn - &
-            a2dVarRhoA*dCp*a2dVarCH*a2dVarWind*(a2dVarLSTUpd - a2dVarTaK) - &
-            a2dVarRhoA*a2dVarLambda*a2dVarCH*a2dVarWind*a2dVarBF*(0.611*exp(17.3*(a2dVarLSTUpd - dTRef)/ &
-            (237.3 + a2dVarLSTUpd - dTRef)) - a2dVarEA)/a2dVarPa*0.622) - &
+            a2dVarRhoA*dCp*(a2dVarLSTUpd - a2dVarTaK)/a2dVarRatm - &
+            a2dVarRhoA*a2dVarLambda*(0.611*exp(17.3*(a2dVarLSTUpd - dTRef)/ &
+            (237.3 + a2dVarLSTUpd - dTRef)) - a2dVarEA)/(a2dVarPa*a2dVarRsurf)*0.622) - &
             2*dPiGreco*dOmega*(a2dVarLSTUpd - a2dVarTDeep))
             
             ! Check K2 RK argument with K maximum delta 
@@ -252,9 +272,9 @@ contains
             !------------------------------------------------------------------------------------------
             ! Compute K3 RK argument 
             a2dVarK3 = iIntDelta *( 2*sqrt(dPiGreco*dOmega)/a2dVarPit*(a2dVarRn - &
-            a2dVarRhoA*dCp*a2dVarCH*a2dVarWind*(a2dVarLSTUpd - a2dVarTaK) - &
-            a2dVarRhoA*a2dVarLambda*a2dVarCH*a2dVarWind*a2dVarBF*(0.611*exp(17.3*(a2dVarLSTUpd - dTRef)/ &
-            (237.3 + a2dVarLSTUpd - dTRef)) - a2dVarEA)/a2dVarPa*0.622) - &
+            a2dVarRhoA*dCp*(a2dVarLSTUpd - a2dVarTaK)/a2dVarRatm - &
+            a2dVarRhoA*a2dVarLambda*(0.611*exp(17.3*(a2dVarLSTUpd - dTRef)/ &
+            (237.3 + a2dVarLSTUpd - dTRef)) - a2dVarEA)/(a2dVarPa*a2dVarRsurf)*0.622) - &
             2*dPiGreco*dOmega*(a2dVarLSTUpd - a2dVarTDeep))
             
             ! Check K3 RK argument with K maximum delta
@@ -268,9 +288,9 @@ contains
             !------------------------------------------------------------------------------------------
             ! Compute K4 RK argument 
             a2dVarK4 = iIntDelta *( 2*sqrt(dPiGreco*dOmega)/a2dVarPit*(a2dVarRn - &
-            a2dVarRhoA*dCp*a2dVarCH*a2dVarWind*(a2dVarLSTUpd - a2dVarTaK) - &
-            a2dVarRhoA*a2dVarLambda*a2dVarCH*a2dVarWind*a2dVarBF*(0.611*exp(17.3*(a2dVarLSTUpd - dTRef)/ &
-            (237.3 + a2dVarLSTUpd - dTRef)) - a2dVarEA)/a2dVarPa*0.622) - &
+            a2dVarRhoA*dCp*(a2dVarLSTUpd - a2dVarTaK)/a2dVarRatm - &
+            a2dVarRhoA*a2dVarLambda*(0.611*exp(17.3*(a2dVarLSTUpd - dTRef)/ &
+            (237.3 + a2dVarLSTUpd - dTRef)) - a2dVarEA)/(a2dVarPa*a2dVarRsurf)*0.622) - &
             2*dPiGreco*dOmega*(a2dVarLSTUpd - a2dVarTDeep))
 
             ! Check K4 RK argument with K maximum delta
@@ -594,6 +614,183 @@ contains
         
     end subroutine HMC_Phys_LSM_Apps_Richardson
     !------------------------------------------------------------------------------------------
+    
+    !------------------------------------------------------------------------------------------
+    ! Subroutine for calculating canopy resistance by Jarvis-type formualtion 
+    ! (source: LSA-SAF DMET Algorithm Theoretical Basis Document)
+    subroutine HMC_Phys_LSM_Apps_Rsurf_Jarvis(iID, iRows, iCols, sTime, & 
+                                        a2dVarDEM, a2dVarBareSoil, a2dVarRb, a2dVarBF, a2dVarBF_BareSoil, &
+                                        a2dVarWind, a2dVarEA, &
+                                        a2dVarEAsat, a2dVarSM, & 
+                                        a2dVarIncRad, a2dVarPa, dTRef, &
+                                        a2dVarRatm, a2dVarRsurf, a2dVarRsurf_pot)
+                                        
+        !------------------------------------------------------------------------------------------
+        ! Variable(s)
+        integer(kind = 4) :: iID, iRows, iCols
+
+        real(kind = 4) :: dTRef, dCO2atm, dNPP_An_ratio, dD0, dG0, dPatm0, dPVKconst, dMc
+        real(kind = 4) :: dVarCH, dVarCHn, dTfreeze, dMolConv
+        
+        real(kind = 4) :: dA, dB, dC, dVarPSI, dRSmin_BareSoil, dSMsat
+        
+        real(kind = 4), dimension(iRows, iCols) :: a2dVarDEM, a2dVarIncRad, a2dVarLAI, a2dVarPa
+        real(kind = 4), dimension(iRows, iCols) :: a2dVarWind, a2dVarBF, a2dVarEA, a2dVarEAsat, a2dVarSM
+        real(kind = 4), dimension(iRows, iCols) :: a2dVarPSIstableLE, a2dVarPSIstableM, a2dVarPSIstableF, a2dVarRb
+        real(kind = 4), dimension(iRows, iCols) :: a2dVarRSmin, a2dVarGd, a2dVarHveg, a2dVarBareSoil, a2dVarBF_BareSoil
+        real(kind = 4), dimension(iRows, iCols) :: a2dVarZmeas, a2dVarZdisp, a2dVarZroughM, a2dVarZroughLE
+        real(kind = 4), dimension(iRows, iCols) :: a2dVarfS, a2dVarfDa, a2dVarCtWP
+        real(kind = 4), dimension(iRows, iCols) :: a2dVarCatm, a2dVarRatm, a2dVarRsurf, a2dVarRsurf_pot, a2dVarRcan, a2dVarRcan_pot       
+        real(kind = 4), dimension(iRows, iCols) :: a2dVarFC
+        
+        character(len = 19)       :: sTime
+        character(len = 12)       :: sTimeMonth      
+        !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------    
+        ! Static parameters(s)
+        dVarPSI = log(2.0)
+        dPVKconst = 0.4;                     ! Prandtl-von Karman constant for turbulent flows velocity distribution [-]
+        dTfreeze = 273.2;                    ! Freezing temperature [°K]
+        dA = 0.85;                           ! empirical parameter for solar radiation factor (Jarvis-type parameters)
+        dB = 0.004;                          ! empirical parameter for solar radiation factor (Jarvis-type parameters)
+        dC = 0.05;                           ! empirical parameter for solar radiation factor (Jarvis-type parameters)
+        dRSmin_BareSoil = 250.0;             ! [s/m] minimum 'stomatal' resistance for bare soil as in DMET - LSASAF product manual 
+        dSMsat = 1.0;                        ! soil moisture content at saturation [-]
+        !------------------------------------------------------------------------------------------  
+        
+        !------------------------------------------------------------------------------------------
+        ! Initialization variable(s)
+        a2dVarZmeas = 0.0;                  ! height of the measurement of wind speed [m]
+        a2dVarZdisp = 0.0;                  ! zero-plane displacement height [m]
+        a2dVarZroughM = 0.0;                ! roughness height for Momentum transfer[m]
+        a2dVarZroughLE = 0.0;               ! roughness height for Latent Heat transfer[m]
+        a2dVarCatm = -9999.0;               ! Bulk Canopy conductance [m/s]
+        a2dVarRcan = -9999.0;               ! Bulk Canopy resistance [s/m]
+        a2dVarRcan_pot = -9999.0;           ! Bulk Canopy resistance without limitation caused by shortage of water in the soils [s/m]
+        a2dVarRatm = -9999.0;               ! Bulk Atmospheric resistance [s/m]
+        a2dVarRsurf = -9999.0;              ! Surface resistance [s/m]
+        a2dVarRsurf_pot = -9999.0;          ! Surface resistance without limitation caused by shortage of water in the soils [s/m]
+        a2dVarPSIstableLE = -9999.0;        ! stability factor for Water vapor transfer[-] computed by Richardson number
+        a2dVarPSIstableM = -9999.0;         ! stability factor for Momentum transfer[-] computed by Richardson number
+        a2dVarPSIstableF = 1.0;             ! final stability factor [-]
+        a2dVarfS = 1.0;                     ! limitation factor due to not optimal solar radiation (Jarvis type parameter)
+        a2dVarfDa = 1.0;                    ! limitation factor due to water vapour deficit in the atmosphere (for tree only - Jarvis type parameter)
+        a2dVarFC = 1.0;                     ! Fractional Vegetation Cover
+               
+        ! Load Static variable(s) --> mandatory
+        a2dVarRSmin = oHMC_Vars(iID)%a2dRSmin   ! Minimum stomatal resistance [s/m]
+        a2dVarGd = oHMC_Vars(iID)%a2dGd         ! Vegetation-dependant parameters for computing limitation due to water vapor deficit [-]
+        a2dVarHveg = oHMC_Vars(iID)%a2dHveg     ! Vegetation height [m]
+        ! Load Static variable(s) --> not mandatory (if gridded data does not exist --> 0.4*Ct)
+        a2dVarCtWP = oHMC_Vars(iID)%a2dCtWP     ! Soil water permanent wilting point [-]
+
+        ! Load dynamic variable(s) --> mandatory [LSA-SAF --> LAI --> MDLAI (1 day) ]
+        a2dVarLAI = oHMC_Vars(iID)%a2dLAI
+        ! Load Static variable(s) --> not mandatory (if gridded data does not exist FC = f(LAI) )
+        a2dVarFC = oHMC_Vars(iID)%a2dFC
+        !------------------------------------------------------------------------------------------
+
+        !------------------------------------------------------------------------------------------
+        ! Calculating PSI stable values for LE and Momentum tranfert (source Dingman book pag. 599)
+        where (a2dVarRb.lt.-0.03 .and. a2dVarDEM.gt.0.0)
+            a2dVarPSIstableLE = 1.3 * (1-18*a2dVarRb)**(-1/4.0)
+            a2dVarPSIstableM = (1 - 18*a2dVarRb)**(-1/4.0)
+        elsewhere (a2dVarRb.ge.-0.03 .and. a2dVarRb.le.0.0 .and. a2dVarDEM.gt.0.0)
+            a2dVarPSIstableLE = (1 - 18*a2dVarRb)**(-1/4.0)
+            a2dVarPSIstableM = (1 - 18*a2dVarRb)**(-1/4.0)
+        elsewhere (a2dVarRb.gt.0.0 .and. a2dVarRb.lt.0.19 .and. a2dVarDEM.gt.0.0)
+            a2dVarPSIstableLE = (1 - 5.2*a2dVarRb)**(-1)
+            a2dVarPSIstableM = (1 - 5.2*a2dVarRb)**(-1)
+        endwhere
+        !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
+        ! Calculating final PSI stable values (source Dingman book pag. 599)
+        a2dVarPSIstableF = 1/(a2dVarPSIstableM*a2dVarPSIstableLE)
+
+        where (a2dVarPSIstableF.gt.3.0 .and. a2dVarDEM.gt.0.0)
+            a2dVarPSIstableF = 3.0
+        elsewhere (a2dVarPSIstableF.lt.0.0 .and. a2dVarDEM.gt.0.0)
+            a2dVarPSIstableF = 0.0
+        endwhere    
+
+        ! Vegetation derived heights [m] (source Dingman book pag. 296 and pag. 595)
+        where ((a2dVarDEM.gt.0.0) .and. (a2dVarHveg.gt.0.0)) 
+            a2dVarZdisp = 0.67*a2dVarHveg       ! zero-plane displacement [2/3 of Hveg]
+            a2dVarZroughM = 0.1*a2dVarHveg      ! roughness height for momentum
+            a2dVarZroughLE = 0.1*a2dVarZroughM  ! roughness height for LE 
+            a2dVarZmeas = 2.0 + a2dVarHveg      ! measurement(s) height
+        elsewhere (a2dVarDEM.gt.0.0) ! open water, snow
+            a2dVarZdisp = 0.0
+            a2dVarZroughM = 0.00023
+            a2dVarZroughLE = 0.1*a2dVarZroughM
+            a2dVarZmeas = 2.0 + a2dVarHveg                
+        endwhere
+        
+        ! Atmospheric Conductance [m/s] (source Dingman book pag. 296)
+        where (a2dVarDEM.gt.0.0)
+            a2dVarCatm = a2dVarPSIstableF * a2dVarWind*(dPVKconst**2)/(log((a2dVarZmeas-a2dVarZdisp)/a2dVarZroughM)* &
+                        log((a2dVarZmeas-a2dVarZdisp)/a2dVarZroughLE))   
+        endwhere
+        
+        ! Atmospheric Resistance [s/m] (source Dingman book pag. 296)
+        where (a2dVarDEM.ge.0.0 .and. a2dVarCatm.le.0.0001)
+            a2dVarCatm = 0.0001
+        endwhere
+        
+        where (a2dVarDEM.ge.0.0)
+            a2dVarRatm = 1.0 / a2dVarCatm
+        endwhere
+        !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
+        ! Canopy Resistance [s/m] - Jarvis-type 
+        ! Limitation due to not optimal solar radiation
+        where (a2dVarDEM.ge.0.0 .and. a2dVarIncRad.ge.0.0)
+            a2dVarfS = ((dB * a2dVarIncRad) + dC)/(dA * ((dB * a2dVarIncRad) + 1))
+        endwhere       
+
+        !check upper limit to be maximum 1
+        where (a2dVarDEM.ge.0.0 .and. a2dVarfS.gt.1.0)
+            a2dVarfS = 1.0
+        endwhere
+
+        ! Limitation for trees due to vapour deficit in the atmosphere 
+        where (a2dVarDEM.ge.0.0 .and. a2dVarGd.ge.0.0)
+            a2dVarfDa = exp(-a2dVarGd * (a2dVarEAsat - a2dVarEA))
+        endwhere
+
+        ! Computation of canopy resistance
+        where ((a2dVarDEM.ge.0.0) .and. (a2dVarBareSoil.gt.0.0)) ! bare soil
+            ! Approach proposed by Sellers et al. 1992 for soil surface resistance 
+            ! (Sellers, P. J., A.Berry, J., Collatz, G. J., Field, C. B., Hall, F. G. (1992) Canopy reflectance,....)
+            a2dVarRcan = exp(8.206-4.255*(a2dVarSM - a2dVarCtWP) / (dSMsat - a2dVarCtWP))
+            a2dVarRcan_pot = exp(8.206-4.255)
+        elsewhere ((a2dVarDEM.gt.0.0) .and. (a2dVarGd.lt.0.0)) ! rocks, urban, open water
+            a2dVarRcan = a2dVarRSmin 
+            a2dVarRcan_pot = a2dVarRSmin
+        elsewhere ((a2dVarDEM.gt.0.0) .and. (a2dVarLAI.lt.0.0)) ! LAI not valid - assumed urban
+            a2dVarRcan = a2dVarRSmin 
+            a2dVarRcan_pot = a2dVarRSmin      
+        elsewhere (a2dVarDEM.gt.0.0) ! all vegetated pixels according to land cover map
+            a2dVarRcan = a2dVarFC * a2dVarRSmin / (a2dVarfS * a2dVarfDa * a2dVarBF * a2dVarLAI) + &
+                        (1-a2dVarFC)*exp(8.206-4.255*(a2dVarSM - a2dVarCtWP) / (dSMsat - a2dVarCtWP))
+            a2dVarRcan_pot = a2dVarFC * a2dVarRSmin / (a2dVarfS * a2dVarfDa * a2dVarLAI) + &
+                        (1-a2dVarFC)*exp(8.206-4.255)
+        endwhere            
+        !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
+        ! Surface Resistance [s/m]
+        where (a2dVarDEM.ge.0.0)
+            a2dVarRsurf = a2dVarRcan + a2dVarRatm
+            a2dVarRsurf_pot = a2dVarRcan_pot + a2dVarRatm 
+        endwhere
+        !------------------------------------------------------------------------------------------
+       
+    end subroutine HMC_Phys_LSM_Apps_Rsurf_Jarvis
+   !------------------------------------------------------------------------------------------
 
 end module HMC_Module_Phys_LSM_Apps
 !------------------------------------------------------------------------------------

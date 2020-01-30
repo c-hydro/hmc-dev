@@ -258,26 +258,26 @@ contains
                 ! Initialize hydro variable(s) according with channel type
                 if (iFlagCType.eq.2) then
                 
-                    ! Check hydro c initialization [m]
-                    where (a2dVarHydroC .lt. 0.0)
+                    ! Check hydro c initialization
+                    where (a2dVarHydroC .lt. 0.0000001)
                         a2dVarHydroC = 0.0000001
                     endwhere
-                    where (a2dVarHydroC .gt. 200.0)
+                    where (a2dVarHydroC .gt. 100000.0)
                         a2dVarHydroC = 0.0000001
                     endwhere
 
-                    ! Check hydro h initialization [m]
-                    where (a2dVarHydroH .lt. 0.0)
+                    ! Check hydro h initialization
+                    where (a2dVarHydroH .lt. 0.0000001)
                         a2dVarHydroH = 0.0000001
                     endwhere
-                    where (a2dVarHydroH .gt. 200.0)
+                    where (a2dVarHydroH .gt. 100000.0)
                         a2dVarHydroH = 0.0000001
                     endwhere
                 
                 else
                 
-                    ! Check hydro initialization [mm]
-                    where (a2dVarHydro .lt. 0.0)
+                    ! Check hydro initialization
+                    where (a2dVarHydro .lt. 0.0000001)
                         a2dVarHydro = 0.0000001
                     endwhere
                     where (a2dVarHydro .gt. 100000.0)
@@ -437,12 +437,12 @@ contains
                                       
         !------------------------------------------------------------------------------------------
         ! Variable(s)
-        integer(kind = 4)                       :: iID                  
+        integer(kind = 4)                        :: iID                  
                                   
         character(len = 256), intent(in)        :: sPathData_Restart
-        character(len = 700)                    :: sFileNameData_Restart, sFileNameData_Restart_Zip
-        character(len = 700)                    :: sCommandUnzipFile
-        character(len = 256)                    :: sVarName
+        character(len = 700)                     :: sFileNameData_Restart, sFileNameData_Restart_Zip
+        character(len = 700)                     :: sCommandUnzipFile
+        character(len = 256)                     :: sVarName
         integer(kind = 4), intent(in)           :: iRows, iCols
         integer(kind = 4), intent(in)           :: iDaySteps, iTMarkedSteps
         integer(kind = 4), intent(in)           :: iFlagSnow, iFlagCType
@@ -481,6 +481,7 @@ contains
         character(len = 256)    :: sVarUnits
         integer(kind = 4)       :: iErr
         integer(kind = 4)       :: iFileID
+        real(kind = 4)          :: dScaleFactor
         
         logical                 :: bFileExist
         
@@ -499,6 +500,8 @@ contains
         a3dVarTaC_1Days = -9999.0; a3dVarTaC_5Days = -9999.0;
         a2dVarWSRunoff = -9999.0
         a2dVarLat = -9999.0; a2dVarLon = -9999.0;
+        
+        dScaleFactor = 0.0
         
         bCheckRestart = .false.; 
         
@@ -693,28 +696,35 @@ contains
 
                 ! Tmk
                 sVarName = 'Tmk';
-                call HMC_Tools_IO_Get3d_NC((sVarName), iFileID, a3dVar1, sVarUnits, iTMarkedSteps, iCols, iRows, .true., iErr)
+                call HMC_Tools_IO_Get3d_NC((sVarName), iFileID, a3dVar1, sVarUnits, dScaleFactor, &
+                                            iTMarkedSteps, iCols, iRows, .true., iErr)
+!                call HMC_Tools_IO_Get3d_NC((sVarName), iFileID, a3dVar1, sVarUnits, iTMarkedSteps, iCols, iRows, .true., iErr)
+
+                
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get restart gridded data FAILED! Check restart data for '//sVarName//'!')
                     a3dVarTaKMarked = -9999.0;
                     bCheckVar = bCheckVar .and. .false. 
                 else
-                    a3dVarTaKMarked = transpose3Dvar(a3dVar1)
+                    a3dVarTaKMarked = transpose3Dvar(a3dVar1 * dScaleFactor)
                     bCheckVar = bCheckVar .and. .true. 
                 endif
 
                 ! T24
                 sVarName = 'T24';
-                call HMC_Tools_IO_Get3d_NC((sVarName), iFileID, a3dVar2, sVarUnits, iDaySteps, iCols, iRows, .true., iErr)
+                call HMC_Tools_IO_Get3d_NC((sVarName), iFileID, a3dVar2, sVarUnits, dScaleFactor, &
+                                            iDaySteps, iCols, iRows, .true., iErr)
+!                call HMC_Tools_IO_Get3d_NC((sVarName), iFileID, a3dVar2, sVarUnits, iDaySteps, iCols, iRows, .true., iErr)
+
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get restart gridded data FAILED! Check restart data for '//sVarName//'!')
                     a3dVarTaK24 = -9999.0;
                     bCheckVar = bCheckVar .and. .false. 
                 else
-                    a3dVarTaK24 = transpose3Dvar(a3dVar2)
+                    a3dVarTaK24 = transpose3Dvar(a3dVar2 * dScaleFactor)
                     bCheckVar = bCheckVar .and. .true. 
                 endif
-                
+
                 ! WS
                 sVarName = 'WS';
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
@@ -784,27 +794,33 @@ contains
                     
                     ! Air temperature last 1 day(s)
                     sVarName = 'T_1Days';
-                    call HMC_Tools_IO_Get3d_NC((sVarName), iFileID, a3dVar3, sVarUnits, iDaySteps, iCols, iRows, .true., iErr)
+                    call HMC_Tools_IO_Get3d_NC((sVarName), iFileID, a3dVar3, sVarUnits, dScaleFactor, &
+                                                iDaySteps, iCols, iRows, .true., iErr)
+!                    call HMC_Tools_IO_Get3d_NC((sVarName), iFileID, a3dVar3, sVarUnits, iDaySteps, iCols, iRows, .true., iErr)
+
                     if(iErr /= 0) then
                         call mprintf(.true., iWARN, ' Get restart gridded data FAILED! '// &
                             'Snow physics is activated! If needed check restart data for '//sVarName//'!')
                         a3dVarTaC_1Days = -9999.0;
                         bCheckVarS = bCheckVarS .and. .false.
                     else
-                        a3dVarTaC_1Days = transpose3Dvar(a3dVar3)
+                        a3dVarTaC_1Days = transpose3Dvar(a3dVar3 * dScaleFactor)
                         bCheckVarS = bCheckVarS .and. .true. 
                     endif
                     
                     ! Air temperature last 5 day(s)
                     sVarName = 'T_5Days';
-                    call HMC_Tools_IO_Get3d_NC((sVarName), iFileID, a3dVar4, sVarUnits, iDaySteps*5, iCols, iRows, .true., iErr)
+                    call HMC_Tools_IO_Get3d_NC((sVarName), iFileID, a3dVar4, sVarUnits, dScaleFactor, &
+                                                iDaySteps*5, iCols, iRows, .true., iErr)
+!                    call HMC_Tools_IO_Get3d_NC((sVarName), iFileID, a3dVar4, sVarUnits, iDaySteps*5, iCols, iRows, .true., iErr)
+
                     if(iErr /= 0) then
                         call mprintf(.true., iWARN, ' Get restart gridded data FAILED! '// &
                             'Snow physics is activated! If needed check restart data for '//sVarName//'!')
                         a3dVarTaC_5Days = -9999.0;
                         bCheckVarS = bCheckVarS .and. .false.
                     else
-                        a3dVarTaC_5Days = transpose3Dvar(a3dVar4)
+                        a3dVarTaC_5Days = transpose3Dvar(a3dVar4 * dScaleFactor)
                         bCheckVarS = bCheckVarS .and. .true. 
                     endif
                 
@@ -1071,7 +1087,6 @@ contains
             endif
             a2dVarHydroC = a2dVar
             !------------------------------------------------------------------------------------------
-
 
             !------------------------------------------------------------------------------------------
             ! HydroLevel Hillslopes (example: Wlh_201405010000.bin.gz) 
