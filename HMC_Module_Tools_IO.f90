@@ -137,8 +137,9 @@ contains
         endif
  
         ! Algorithm conclusion
-        iErr = 0;
-        !------------------------------------------------------------------------------------
+        !iErr = 0;
+        iErr = iRet
+    !------------------------------------------------------------------------------------
 
     end subroutine HMC_Tools_IO_Get2d_NC
 #endif
@@ -147,7 +148,7 @@ contains
     !------------------------------------------------------------------------------------
     ! Subroutine to get 3d variable
 #ifdef LIB_NC
-    subroutine HMC_Tools_IO_Get3d_NC(sVarName, iFileID, a3dVar, sVarUnits, iT, iX, iY, &
+    subroutine HMC_Tools_IO_Get3d_NC(sVarName, iFileID, a3dVar, sVarUnits, dScaleFactor, iT, iX, iY, &
                                      bFatalError, iErr) 
 
         !------------------------------------------------------------------------------------
@@ -157,10 +158,13 @@ contains
 
         character(len = 256) :: sVarName
         character(len = 256), intent(out)                   :: sVarUnits
-        real(kind = 4), dimension(iX, iY, iT), intent(out)  :: a3dVar 
+        real(kind = 4), dimension(iX, iY, iT), intent(out) :: a3dVar 
+        real(kind = 4), intent(out)                         :: dScaleFactor
 
         logical, intent(in) :: bFatalError
         integer(kind = 4)   :: iErr, iRet
+        
+        integer(kind = 4)   :: iValidLength
         !------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------
@@ -183,6 +187,17 @@ contains
             call mprintf(.true., iINFO_Extra, ' INQUIRE OK :: Get3d_NC ---> nf90_inq_varid (varname: '//trim(sVarName)//')')
         endif
 
+        ! Extracting attributes
+        iRet = nf90_inquire_attribute(iFileID, iVarID, "scale_factor", len = iValidLength)
+        if (iRet /= 0) then
+            dScaleFactor = 1
+            call mprintf(.true., iWARN, ' READ ATTRIBUTE FAILED ::  Get3d_NC ---> nf90_get_att (attrname: scale_factor)')
+            call mprintf(.true., iWARN, ' READ ATTRIBUTE FAILED ::  Get3d_NC ---> nf90_get_att --> scale_factor = 1')
+        else 
+            call check( nf90_get_att(iFileID, iVarID, 'scale_factor', dScaleFactor) )
+            call mprintf(.true., iINFO_Extra, ' READ ATTRIBUTE OK :: Get3d_NC ---> nf90_get_att (varname: '//trim(sVarName)//')')
+        endif
+        
         ! Extracting 3d variable
         iRet = nf90_get_var(iFileID, iVarID, a3dVar) 
         if (iRet /= 0) then
@@ -355,7 +370,7 @@ contains
                                      sVarName, sVarNameLong, sVarDescription, &
                                      sVarUnits, &
                                      sVarCoords, sVarGridMap, &
-                                     dVarMissingValue, &
+                                     dVarMissingValue, dScale_Factor, &
                                      iVarX, iVarY, iVarT, a3dVar) 
                         
         !------------------------------------------------------------------------------------
@@ -367,7 +382,7 @@ contains
         character(len = 256)    :: sVarUnits
         character(len = 256)    :: sVarCoords, sVarGridMap
         
-        real(kind = 4)          :: dVarMissingValue
+        real(kind = 4)          :: dVarMissingValue, dScale_Factor
         
         integer(kind = 4)       :: iT, iVarID, iVarX, iVarY, iVarT
         real(kind = 4), dimension (iVarX, iVarY, iVarT)   :: a3dVar
@@ -385,10 +400,10 @@ contains
         
         !------------------------------------------------------------------------------------
         ! Allocating variable 
-        call check( nf90_def_var(iFileID, trim(sVarName), nf90_float, &
+        call check( nf90_def_var(iFileID, trim(sVarName), nf90_int, &
                                  (/iID_DimX, iID_DimY, iID_DimT/), iVarID, &
-                                 deflate_level = iDeflateLevelNC) )
-        
+                                 shuffle = .true., deflate_level = iDeflateLevelNC) )
+                          
         !  Writing variable attribute(s)
         call check( nf90_put_att(iFileID, iVarID, 'long_name'     , trim(sVarNameLong)) )
         call check( nf90_put_att(iFileID, iVarID, 'description'   , trim(sVarDescription)) )
@@ -396,6 +411,7 @@ contains
         call check( nf90_put_att(iFileID, iVarID, 'coordinates'   , trim(sVarCoords)) )
         call check( nf90_put_att(iFileID, iVarID, 'grid_mapping'  , trim(sVarGridMap)) )
         call check( nf90_put_att(iFileID, iVarID, 'missing_value' , real(dVarMissingValue)) )
+        call check( nf90_put_att(iFileID, iVarID, 'scale_factor'  , real(1.0/dScale_Factor)) )
         
         ! Writing variable value(s)
         call check( nf90_inq_varid(iFileID, trim(sVarName), iVarID) )

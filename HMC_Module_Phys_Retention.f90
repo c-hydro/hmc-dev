@@ -98,7 +98,7 @@ contains
         elseif (iFlagLAI .eq. 1) then
             
             ! With LAI data
-            where (a2dVarDEM.gt.0.0)
+            where (a2dVarDEM.gt.0.0.and.a2dVarLAI.gt.0.0)
                 a2dVarVRetMax = 0.95 + 0.5*a2dVarLAI-0.006*a2dVarLAI**2
             elsewhere
                 a2dVarVRetMax = 0.0

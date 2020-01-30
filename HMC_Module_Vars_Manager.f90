@@ -41,6 +41,7 @@ contains
         integer(kind = 4)    :: iDaySteps, iTMarkedSteps 
         integer(kind = 4)    :: iNData
         integer(kind = 4)    :: iETime
+
         !------------------------------------------------------------------------------------ 
         
         !------------------------------------------------------------------------------------ 
@@ -139,7 +140,14 @@ contains
         ! Release array(s)
         allocate( oHMC_Vars(iID)%a2iXYRelease       (iNRelease, 2) )
         allocate( oHMC_Vars(iID)%a1sNameRelease     (iNRelease) )
-        allocate( oHMC_Vars(iID)%a1dQMaxRelease     (iNRelease) ) 
+        allocate( oHMC_Vars(iID)%a1dQMaxRelease     (iNRelease) )
+        
+        !Static variables for vegetation dynamic module
+        allocate( oHMC_Vars(iID)%a2dGd              (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dRSmin           (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dHveg            (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dBareSoil        (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dVTotWP          (iRows, iCols) ) 
         
         ! Finish to allocate static variable(s)
         call mprintf(.true., iINFO_Main, ' Allocating static variable(s) ... OK')
@@ -174,6 +182,7 @@ contains
                 
         ! Dynamic (monthly) Vegetation variable(s)
         allocate( oHMC_Vars(iID)%a2dLAI             (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dFC             (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dAlbedo          (iRows, iCols) )
         
         ! Dynamic snow variable(s)
@@ -204,14 +213,19 @@ contains
         ! Dynamic ET variable(s)
         allocate( oHMC_Vars(iID)%a2dAE              (iRows, iCols) ) 
         allocate( oHMC_Vars(iID)%a2dET              (iRows, iCols) )
-        allocate( oHMC_Vars(iID)%a2dETCum           (iRows, iCols) )
-        
+        allocate( oHMC_Vars(iID)%a2dETpot           (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a3dET              (iRows, iCols, iDaySteps) )
+        allocate( oHMC_Vars(iID)%a3dETpot           (iRows, iCols, iDaySteps) )
+
         ! Dynamic Convolution variable(s) with channel network
         allocate( oHMC_Vars(iID)%a2dHydro           (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dHydroPrev       (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dRouting         (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dDarcy           (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dQout            (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a3dQout            (iRows, iCols, iDaySteps) )
+        allocate( oHMC_Vars(iID)%a3dQfloodCR        (iRows, iCols, iDaySteps) )
+        allocate( oHMC_Vars(iID)%a3dQfloodCL        (iRows, iCols, iDaySteps) )
         allocate( oHMC_Vars(iID)%a2dQDisOut         (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dQVolOut         (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dQTot            (iRows, iCols) )
@@ -408,6 +422,14 @@ contains
         oHMC_Vars(iID)%a1sNameRelease = ""
         oHMC_Vars(iID)%a1dQMaxRelease = 0.0
         
+        ! Static variables for Dynamic Vegetation module
+        oHMC_Vars(iID)%a2dGd = -9999.0
+        oHMC_Vars(iID)%a2dRSmin = -9999.0
+        oHMC_Vars(iID)%a2dHveg = -9999.0
+        oHMC_Vars(iID)%a2dBareSoil = -9999.0
+        
+        oHMC_Vars(iID)%a2dVTotWP = -9999.0        
+          
         ! Finish to initialize static variable(s)
         call mprintf(.true., iINFO_Main, ' Initialize static variable(s) ... OK ')
         !------------------------------------------------------------------------------------
@@ -419,6 +441,9 @@ contains
         ! Time information
         oHMC_Vars(iID)%sTimeStep = ''
         oHMC_Vars(iID)%iTime = -1
+        oHMC_Vars(iID)%sTimeMaxLAI = oHMC_Namelist(iID)%sTimeStart
+        oHMC_Vars(iID)%sTimeMaxFC = oHMC_Namelist(iID)%sTimeStart
+
         
         ! Dynamic forcing variable(s)
         oHMC_Vars(iID)%a2dRain = 0.0            ! Rain                  [mm]        --> Forcing
@@ -445,7 +470,8 @@ contains
         oHMC_Vars(iID)%a2dVErr = 0.0
         
         ! Dynamic (monthly) vegetation and albedo variable(s)
-        oHMC_Vars(iID)%a2dLAI = 0.0
+        oHMC_Vars(iID)%a2dLAI = -9999.0
+        oHMC_Vars(iID)%a2dFC = -9999.0
         oHMC_Vars(iID)%a2dAlbedo = 0.0
         
         ! Dynamic snow variable(s)
@@ -475,15 +501,20 @@ contains
         
         ! Dynamic ET variable(s)
         oHMC_Vars(iID)%a2dET = 0.0
+        oHMC_Vars(iID)%a2dETpot = 0.0
         oHMC_Vars(iID)%a2dAE = 0.0
-        oHMC_Vars(iID)%a2dETCum = 0.0
-        
+        oHMC_Vars(iID)%a3dET = -9999.0
+        oHMC_Vars(iID)%a3dETpot = -9999.0
+
         ! Dynamic convolution variable(s) for channel network
         oHMC_Vars(iID)%a2dHydro = 0.000001    
         oHMC_Vars(iID)%a2dHydroPrev = 0.000001
         oHMC_Vars(iID)%a2dRouting = 0.0     
         oHMC_Vars(iID)%a2dDarcy = 0.0     
-        oHMC_Vars(iID)%a2dQout = 0.0     
+        oHMC_Vars(iID)%a2dQout = 0.0    
+        oHMC_Vars(iID)%a3dQout = -9999.0   
+        oHMC_Vars(iID)%a3dQfloodCR = -9999.0   
+        oHMC_Vars(iID)%a3dQfloodCL = -9999.0   
         oHMC_Vars(iID)%a2dQDisOut = 0.0     
         oHMC_Vars(iID)%a2dQVolOut = 0.0     
         oHMC_Vars(iID)%a2dQTot = 0.0     
@@ -534,7 +565,6 @@ contains
         oHMC_Vars(iID)%a2dFrac = 0.0        
 
         ! Dynamic Flooding variable(s)
-        oHMC_Vars(iID)%dFlagFlood = 0.0
         oHMC_Vars(iID)%a2dLevBankL = -9999.0
         oHMC_Vars(iID)%a2dLevBankR = -9999.0
         oHMC_Vars(iID)%a2dFirst = -9999.0

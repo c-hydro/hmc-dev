@@ -22,6 +22,20 @@ module HMC_Module_Tools_Generic
 contains     
     
     !------------------------------------------------------------------------------------
+    ! Subroutine 
+    function getProcessID() result(str)
+        implicit none
+   
+        character(len=256)               :: str
+        integer(kind = 4)               ::  pid
+
+        ! Get Process ID
+        pid = getpid() 
+        write (str, "(I10)") pid !length of PID number to be checked!!if different from I5 does not work
+            
+    endfunction getProcessID
+
+    !------------------------------------------------------------------------------------
     ! Subroutine to get integration boundaries
     subroutine getIntRange(a1dDemStep, a1dIntStep, dDEMStepMean, dDemDelta, iIndexStart, iIndexEnd)
         

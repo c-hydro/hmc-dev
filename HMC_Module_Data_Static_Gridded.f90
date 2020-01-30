@@ -71,6 +71,7 @@ contains
         ! Calling subroutine to compute channel fraction 
         call HMC_Data_Static_Gridded_ChannelFraction(iID, iRows, iCols)
         !------------------------------------------------------------------------------------
+
         
         !------------------------------------------------------------------------------------
         ! Info end
@@ -136,6 +137,8 @@ contains
         a2iVarMask = oHMC_Vars(iID)%a2iMask
      
         a2dVarCt = oHMC_Vars(iID)%a2dCt
+        a2dVarCtWP = oHMC_Vars(iID)%a2dCtWP
+
         a2dVarCf = oHMC_Vars(iID)%a2dCf
         a2dVarUh = oHMC_Vars(iID)%a2dUh
         a2dVarUc = oHMC_Vars(iID)%a2dUc
@@ -215,9 +218,6 @@ contains
         ! Define Beta Function parameters
         where(a2dVarDEM.gt.0.0)
             
-            ! CT Welting point
-            a2dVarCtWP = 0.4*a2dVarCt
-
             ! Calculate parameters (straight line slopes)
             a2dVarKb1 = (dBFMax - dBFMin)/(a2dVarCt - a2dVarCtWP)    
             a2dVarKc1 = dBFMin - (dBFMax - dBFMin)/(a2dVarCt - a2dVarCtWP)*a2dVarCtWP
@@ -315,6 +315,8 @@ contains
             !------------------------------------------------------------------------------------ 
             ! Extracting parameters
             a2dVarArea = float(oHMC_Vars(iID)%a2iArea)
+!            a2dVarArea = oHMC_Vars(iID)%a2dArea
+
             a2dVarSizeCell = (oHMC_Vars(iID)%a2dAreaCell)**0.5
 
             a2dVarWidthC = oHMC_Vars(iID)%a2dWidthC
@@ -386,7 +388,7 @@ contains
             ! Passing parameter(s) to global declaration
             oHMC_Vars(iID)%a2dWidthC = a2dVarWidthC
             oHMC_Vars(iID)%a2dWidthH = a2dVarWidthH
-
+                 
             ! Info end
             call mprintf(.true., iINFO_Verbose, ' Data :: Static gridded :: Get channel fraction information ... OK' )
             !------------------------------------------------------------------------------------
@@ -423,8 +425,8 @@ contains
         integer(kind = 4)       :: iFileID, iErr
         
         integer(kind = 4)       :: iDomainPixels, iTc, iTcSeconds, iTcMax, iETime, iNTime
-        integer(kind = 4)       :: iFlagCoeffRes, iFlagWS, iFlagFrac, iFlagCType
-        real(kind = 4)          :: dAmeanM, dDxM, dDyM, dDEMMax, dDEMMin, dDEMStepMean
+        integer(kind = 4)       :: iFlagCoeffRes, iFlagWS, iFlagFrac, iFlagCType, iFlagDynVeg, iFlagFlood
+        real(kind = 4)          :: dDxM, dDyM, dDEMMax, dDEMMin, dDEMStepMean
         real(kind = 4)          :: dDomainArea
         
         real(kind = 4)          :: dUc, dUh, dCt, dCf
@@ -441,35 +443,41 @@ contains
         integer(kind = 4),  dimension (iRows, iCols)    :: a2iVarNature
          
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarLon, a2dVarLat 
-        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarDEM, a2dVarCN, a2dVarS
+        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarDEM, a2dVarCN, a2dVarS, a2dVarVTotWP
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarAreaCell, a2dVarAlpha, a2dVarBeta
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarC1, a2dVarF2 
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarCostF, a2dVarCostF1, a2dVarCostChFix
-        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarCt, a2dVarCf, a2dVarUc, a2dVarUh 
+        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarCt, a2dVarCtWP, a2dVarCf, a2dVarUc, a2dVarUh 
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarCoeffResol, a2dVarCoeffWS
         real(kind = 4),     dimension (100)             :: a1dVarFCN
         
-        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarWidthC, a2dVarFrac
+        !vegetation static parameters
+        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarGd, a2dVarRSmin, a2dVarHveg, a2dVarBareSoil
+
+        !flooding static parameters
+        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarLevBankR, a2dVarLevBankL, a2dVarFirst
         
+        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarWidthC, a2dVarFrac
+               
         logical                                         :: bFileExist
         
         character(len = 256)                            :: sStrDomPix, sStrDomArea, sStrTc, sStrDemMax
-        character(len = 256)                            :: sPixCount, sParDefault, sAmeanM
+        character(len = 256)                            :: sPixCount, sParDefault
         !------------------------------------------------------------------------------------------
-        
+
         !------------------------------------------------------------------------------------------
         ! Variable(s) initialization
         bFileExist = .false.
         sVarName = ''; sVarUnits = ''; iNTime = 0;
         sDomainName = ''; sPathData = ''; sFileName = '';
         iTypeData = 0; iI = 0; iJ = 0; iFileID = 0; iErr = 0; iDomainPixels = 0; iTc = 0; iTcMax = 0;
-        dAmeanM = 0.0; dDxM = 0.0; dDyM = 0.0; dDEMMax = 0.0; dDEMMin = 0.0; dDEMStepMean = 0.0; dDomainArea = 0.0;
+        dDxM = 0.0; dDyM = 0.0; dDEMMax = 0.0; dDEMMin = 0.0; dDEMStepMean = 0.0; dDomainArea = 0.0;
        
         a2dVarCon = 0.0; a1dVar = 0.0; a2dVar = 0.0
         
         a2iVarPNT = 0; a2iVarMask = 0; a2iVarChoice = 0; a2iVarArea = 0;
         a2dVarLon = 0.0; a2dVarLat = 0.0; 
-        a2dVarDEM = 0.0; a2dVarCN = 0.0; a2dVarS = 0.0;
+        a2dVarDEM = 0.0; a2dVarCN = 0.0; a2dVarS = 0.0; a2dVarVTotWP = 0.0;
         a2dVarAreaCell = 0.0; a2dVarAlpha = 0.0; a2dVarBeta = 0.0;
         a2dVarC1 = 0.0; a2dVarF2 = 0.0; 
         a2dVarCostF = 0.0; a2dVarCostF1 = 0.0; a2dVarCostChFix = 0.0;
@@ -477,8 +485,11 @@ contains
         a2dVarCoeffResol = 0.0; a2dVarCoeffWS = 0.0;
         a1dVarFCN = 0.0
         a2dVarFrac = 0.0; a2dVarWidthC = -9999.0;
+        a2dVarCtWP = 0.0; a2dVarGd = 0.0; a2dVarRSmin = 0.0; a2dVarHveg = 0.0; a2dVarBareSoil = 0.0;
+        a2dVarLevBankR = -9999.0; a2dVarLevBankL = -9999.0; a2dVarFirst = -9999.0;
         
-        iFlagCoeffRes = -9999; iFlagWS = -9999; iFlagFrac = -9999; iFlagCType = -9999;
+        
+        iFlagCoeffRes = -9999; iFlagWS = -9999; iFlagFrac = -9999; iFlagCType = -9999; iFlagDynVeg = -9999; iFlagFlood = -9999;
         
         iPixCount = 0
         !------------------------------------------------------------------------------------------
@@ -505,6 +516,10 @@ contains
         iFlagFrac = oHMC_Namelist(iID)%iFlagFrac
         ! Flag to activate/deactivate channel fraction map
         iFlagCType = oHMC_Namelist(iID)%iFlagCType
+        ! Flag to activate/deactivate dynamic vegetation for ET computation
+        iFlagDynVeg = oHMC_Namelist(iID)%iFlagDynVeg
+        !Flooding flag
+        iFlagFlood = oHMC_Namelist(iID)%iFlagFlood  
         
         ! Get Initialized variable(s)
         a2dVarS = oHMC_Vars(iID)%a2dS
@@ -519,7 +534,7 @@ contains
 #ifdef LIB_NC
             !------------------------------------------------------------------------------------------
             ! Info
-            call mprintf(.true., iINFO_Extra, ' Data static gridded in netCDF format' )
+            call mprintf(.true., iINFO_Extra, ' Data static gridded in netCDF format.' )
             !------------------------------------------------------------------------------------------
             
             !------------------------------------------------------------------------------------------
@@ -588,7 +603,7 @@ contains
                 call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 
                 if (iErr /= 0) then 
-                    call mprintf(.true., iWARN, ' Mask data not found. Initializing Mask with default values')
+                    call mprintf(.true., iWARN, ' Mask data not found. Initializing Mask with default values.')
                     where(a2dVarDEM.gt.0.0)
                         a2iVarMask = 1 
                     elsewhere
@@ -604,6 +619,8 @@ contains
                 sVarName = 'Drainage_Area'
                 call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .true., iErr)
                 a2iVarArea = transpose(int(a2dVar))
+!                a2dVarArea = transpose(a2dVar)
+
                 !------------------------------------------------------------------------------------------
                 
                 !------------------------------------------------------------------------------------------
@@ -635,6 +652,18 @@ contains
                 !------------------------------------------------------------------------------------------
                 
                 !------------------------------------------------------------------------------------------
+                ! CT_WP - soil moisture wilting point
+                sVarName = 'Ct_wp'
+                call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
+                if (iErr /= 0) then
+                    call mprintf(.true., iWARN, 'Soil Moisture Wilting Point data not found. Initializing with default values.')   
+                    a2dVarCtWP = 0.4*a2dVarCt
+                else
+                    a2dVarCtWP = transpose(a2dVar)
+                endif
+                !------------------------------------------------------------------------------------------
+                
+                !------------------------------------------------------------------------------------------
                 ! CF
                 sVarName = 'Cf'
                 call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
@@ -661,7 +690,7 @@ contains
                 call HMC_Tools_IO_Get1D_NC(sVarName, iFileID, a1dVar, sVarUnits, 100, .false., iErr)
                 
                 if (iErr /= 0) then
-                    call mprintf(.true., iWARN, ' VegIA data not found. Initializing VegIA with default values')
+                    call mprintf(.true., iWARN, ' VegIA data not found. Initializing VegIA with default values.')
                     a1dVarFCN = (/603.3,572.9,543.8,515.9,489.2,463.6,439.2,415.9,393.6,372.3, &
                                 352.0,332.7,314.3,296.8,280.2,264.4,249.4,235.2,221.8,209.1,197.1, &
                                 185.8,175.1,165.1,155.6,146.8,138.4,130.7,123.4,116.6,110.3,104.4, &
@@ -680,7 +709,7 @@ contains
                 sVarName = 'Coeff_Resol_Map'
                 call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if (iErr /= 0) then
-                    call mprintf(.true., iWARN, ' CoeffRes data not found. Initializing CoeffRes with namelist flag condition')
+                    call mprintf(.true., iWARN, ' CoeffRes data not found. Initializing CoeffRes with namelist flag condition.')
                     where(a2dVarDEM.gt.0.0)
                         a2dVarCoeffResol = iFlagCoeffRes
                     elsewhere
@@ -696,7 +725,7 @@ contains
                 sVarName = 'Nature'
                 call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if (iErr /= 0) then
-                    call mprintf(.true., iWARN, ' Nature data not found. Initializing Nature with default values')
+                    call mprintf(.true., iWARN, ' Nature data not found. Initializing Nature with default values.')
                     a2iVarNature = -9999
                 else
                     a2iVarNature = int(transpose(a2dVar))
@@ -709,7 +738,7 @@ contains
                 if (iFlagWS .eq. 1) then
                     call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                     if (iErr /= 0) then
-                        call mprintf(.true., iWARN, ' CoeffWS data not found. Initializing CoeffWS with zero values')
+                        call mprintf(.true., iWARN, ' CoeffWS data not found. Initializing CoeffWS with zero values.')
                         a2dVarCoeffWS = 0.0
                     else
                         a2dVarCoeffWS = int(transpose(a2dVar))
@@ -726,33 +755,121 @@ contains
                 if (iFlagCType .eq. 2) then
                     call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                     if (iErr /= 0) then
-                         call mprintf(.true., iWARN, ' SectionWidth data not found. Use morphologic function') 
+                         call mprintf(.true., iWARN, ' SectionWidth data not found. Use morphologic function.') 
                         a2dVarWidthC = -9999.0
                     else
                         a2dVarWidthC = transpose(a2dVar)
                     endif
                 else
-                    call mprintf(.true., iWARN, ' Channel Network activated. Initializing SectionWidth with undefined values')
+                    call mprintf(.true., iWARN, ' Channel Network activated. Initializing SectionWidth with undefined values.')
                     a2dVarWidthC = -9999.0
                 endif   
                 !------------------------------------------------------------------------------------------
                 
                 !------------------------------------------------------------------------------------------
-                ! fracturation map
+                ! Fracturing map
                 sVarName = 'Fracturation'
                 if (iFlagFrac .eq. 1) then
                     call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                     if (iErr /= 0) then
-                        call mprintf(.true., iWARN, ' Fracturation data not found. Initializing Fracturation with zero values')   
+                        call mprintf(.true., iWARN, ' Fracturing data not found. Initializing Fracturing with zero values.')   
                         a2dVarFrac = 0.0
                     else
                         a2dVarFrac = transpose(a2dVar)
                     endif
                 else
-                    call mprintf(.true., iWARN, ' Fracturation not activated. Initializing Fracturation with zero values')
+                    call mprintf(.true., iWARN, ' Fracturing not activated. Initializing Fracturing with zero values.')
                     a2dVarFrac = 0.0
                 endif  
                 !------------------------------------------------------------------------------------------
+
+                !------------------------------------------------------------------------------------------
+                ! Left and Right bank depths needed to compute flooding discharges
+                if (iFlagFlood.eq.1) then
+                
+                    sVarName = 'LeftBankDepth'
+                    call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
+                    if (iErr /= 0) then
+                        call mprintf(.true., iWARN, ' Left Bank depths data not found. Flooding not activated.')   
+                        a2dVarLevBankL = -9999.0
+                        a2dVarLevBankR = -9999.0
+                        iFlagFlood = 0
+                    else
+                        a2dVarLevBankL = transpose(a2dVar)
+                        sVarName = 'RightBankDepth'
+                        call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
+                        if (iErr /= 0) then
+                            call mprintf(.true., iWARN, ' Right Bank depths data not found. Flooding not activated.')   
+                            a2dVarLevBankR = -9999.0
+                            a2dVarLevBankL = -9999.0
+                            iFlagFlood = 0
+                        else
+                            a2dVarLevBankR = transpose(a2dVar)
+                        endif
+                        
+                    endif
+                else
+                    call mprintf(.true., iWARN, ' Flooding not activated.')
+                    a2dVarLevBankR = -9999.0
+                    a2dVarLevBankL = -9999.0
+                    iFlagFlood = 0
+                endif  
+                !------------------------------------------------------------------------------------------
+
+                
+                !------------------------------------------------------------------------------------------  
+                ! Define dynamic vegetation static variable(s)
+                if (iFlagDynVeg.eq.1) then
+
+                    !------------------------------------------------------------------------------------------
+                    ! Minimum Stomata resistance [s/m]
+                    sVarName = 'RSmin'
+                    call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
+                    if (iErr /= 0) then
+                        call mprintf(.true., iERROR,'Minimum stomatal resistance not found.' // &
+                        'Dynamic vegetation module not applicable. Program stopped!')
+                    else
+                        a2dVarRSmin = transpose(a2dVar)
+                    endif
+                    !------------------------------------------------------------------------------------------
+                    
+                    !------------------------------------------------------------------------------------------
+                    ! Vegetation height [m]
+                    sVarName = 'Hveg'
+                    call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
+                    if (iErr /= 0) then
+                        call mprintf(.true., iERROR, 'Vegetation Height not found. Dynamic vegetation module not applicable.' // &
+                                            'Program stopped!')
+                    else
+                        a2dVarHveg = transpose(a2dVar)
+                    endif
+                    !------------------------------------------------------------------------------------------
+                    
+                    !------------------------------------------------------------------------------------------
+                    ! coefficient for the dependency of canopy resistance on water vapor deficit [hPa-1]
+                    sVarName = 'Gd'
+                    call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
+                    if (iErr /= 0) then
+                        call mprintf(.true., iERROR,'Vapor deficit coefficient not found.'  // &
+                        'Dynamic vegetation module not applicable. Program stopped!')
+                    else
+                        a2dVarGd = transpose(a2dVar)
+                    endif        
+                    !------------------------------------------------------------------------------------------
+                    
+                    !------------------------------------------------------------------------------------------
+                    ! Bare soil mask layer 
+                    sVarName = 'BareSoil'
+                    call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
+                    if (iErr /= 0) then
+                        call mprintf(.true., iERROR, 'Bare Soil mask not found. Dynamic vegetation module not applicable.' // &
+                                            'Program stopped!')
+                    else
+                        a2dVarBareSoil = transpose(a2dVar)
+                    endif    
+                    !------------------------------------------------------------------------------------------
+                    
+                endif  
                 
                 !------------------------------------------------------------------------------------------
                 ! Closing netcdf file
@@ -787,6 +904,7 @@ contains
             sFileName = trim(sPathData)//trim(sDomainName)//'.dem.txt'
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .true., iErr)
             a2dVarDEM = reshape(a2dVar, (/iRows, iCols/))
+            
             !------------------------------------------------------------------------------------------
             
             !------------------------------------------------------------------------------------------
@@ -829,6 +947,7 @@ contains
             sFileName = trim(sPathData)//trim(sDomainName)//'.area.txt'
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .true., iErr)
             a2iVarArea = int(reshape(a2dVar, (/iRows, iCols/)))
+!            a2dVarArea = reshape(a2dVar, (/iRows, iCols/))
             !------------------------------------------------------------------------------------------
             
             !------------------------------------------------------------------------------------------
@@ -857,12 +976,20 @@ contains
             sFileName = trim(sPathData)//trim(sDomainName)//'.ct.txt'
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
             if (iErr /= 0) then 
-                call mprintf(.true., iWARN, ' Ct data not found. Initializing Ct with average values')
-                where(a2dVarDEM.gt.0.0)
-                    a2dVarCt = dCt
-                endwhere
+                call mprintf(.true., iWARN, ' Ct data not found. Initializing Ct with average values.')
             else
                 a2dVarCt = reshape(a2dVar, (/iRows, iCols/))
+            endif
+            !------------------------------------------------------------------------------------------
+
+            !------------------------------------------------------------------------------------------
+            ! CT_WP - soil moisture wilting point
+            sFileName = trim(sPathData)//trim(sDomainName)//'.ct_wp.txt'
+            call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
+            if (iErr /= 0) then 
+                call mprintf(.true., iWARN, ' Permanent wilting point data not found. Initializing with average values.')
+            else
+                a2dVarCtWP = reshape(a2dVar, (/iRows, iCols/))
             endif
             !------------------------------------------------------------------------------------------
 
@@ -871,7 +998,7 @@ contains
             sFileName = trim(sPathData)//trim(sDomainName)//'.cf.txt'
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
             if (iErr /= 0) then 
-                call mprintf(.true., iWARN, ' Cf data not found. Initializing Cf with average values')
+                call mprintf(.true., iWARN, ' Cf data not found. Initializing Cf with average values.')
                 where(a2dVarDEM.gt.0.0)
                     a2dVarCf = dCf
                 endwhere
@@ -885,7 +1012,7 @@ contains
             sFileName = trim(sPathData)//trim(sDomainName)//'.uc.txt'
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
             if (iErr /= 0) then 
-                call mprintf(.true., iWARN, ' Uc data not found. Initializing Uc with average values')
+                call mprintf(.true., iWARN, ' Uc data not found. Initializing Uc with average values.')
                 where(a2dVarDEM.gt.0.0)
                     a2dVarUc = dUc
                 endwhere
@@ -899,7 +1026,7 @@ contains
             sFileName = trim(sPathData)//trim(sDomainName)//'.uh.txt'
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
             if (iErr /= 0) then 
-                call mprintf(.true., iWARN, ' Uh data not found. Initializing Uh with average values')
+                call mprintf(.true., iWARN, ' Uh data not found. Initializing Uh with average values.')
                 where(a2dVarDEM.gt.0.0)
                     a2dVarUh = dUh
                 endwhere
@@ -913,7 +1040,7 @@ contains
             sFileName = trim(sPathData)//trim(sDomainName)//'.mask.txt'
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
             if (iErr /= 0) then 
-                call mprintf(.true., iWARN, ' Mask data not found. Initializing Mask with default values')
+                call mprintf(.true., iWARN, ' Mask data not found. Initializing Mask with default values.')
                 where(a2dVarDEM.gt.0.0)
                     a2iVarMask = 1 
                 endwhere
@@ -927,7 +1054,7 @@ contains
             sFileName = trim(sPathData)//trim(sDomainName)//'.ia.txt'
             call HMC_Tools_IO_Get1d_ASCII(sFileName, a1dVar, 100, .false., iErr)
             if (iErr /= 0) then
-                call mprintf(.true., iWARN, ' VegIA data not found. Initializing VegIA with default values')
+                call mprintf(.true., iWARN, ' VegIA data not found. Initializing VegIA with default values.')
                 a1dVarFCN = (/603.3,572.9,543.8,515.9,489.2,463.6,439.2,415.9,393.6,372.3, &
                             352.0,332.7,314.3,296.8,280.2,264.4,249.4,235.2,221.8,209.1,197.1, &
                             185.8,175.1,165.1,155.6,146.8,138.4,130.7,123.4,116.6,110.3,104.4, &
@@ -953,7 +1080,7 @@ contains
             sFileName = trim(sPathData)//trim(sDomainName)//'.coeffres.txt'
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
             if (iErr /= 0) then 
-                call mprintf(.true., iWARN, ' CoeffRes data not found. Initializing CoeffRes with namelist flag condition')
+                call mprintf(.true., iWARN, ' CoeffRes data not found. Initializing CoeffRes with namelist flag condition.')
                 a2dVarCoeffResol = iFlagCoeffRes
             else
                 a2dVarCoeffResol = reshape(a2dVar, (/iRows, iCols/))
@@ -965,7 +1092,7 @@ contains
             sFileName = trim(sPathData)//trim(sDomainName)//'.nature.txt'
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
             if (iErr /= 0) then 
-                call mprintf(.true., iWARN, ' Nature data not found. Initializing Nature with default values')
+                call mprintf(.true., iWARN, ' Nature data not found. Initializing Nature with default values.')
                 a2iVarNature = -9999
             else
                 a2iVarNature = int(reshape(a2dVar, (/iRows, iCols/)))
@@ -978,7 +1105,7 @@ contains
                 sFileName = trim(sPathData)//trim(sDomainName)//'.ws.txt'
                 call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
                 if (iErr /= 0) then 
-                    call mprintf(.true., iWARN, ' CoeffWS data not found. Initializing CoeffWS with default values')
+                    call mprintf(.true., iWARN, ' CoeffWS data not found. Initializing CoeffWS with default values.')
                     a2dVarCoeffWS = 0.0
                 else
                     a2dVarCoeffWS = reshape(a2dVar, (/iRows, iCols/))
@@ -995,12 +1122,12 @@ contains
                 sFileName = trim(sPathData)//trim(sDomainName)//'.width.txt'
                 call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
                 if (iErr /= 0) then 
-                    call mprintf(.true., iWARN, ' SectionWidth data not found. Use morphologic function')           
+                    call mprintf(.true., iWARN, ' SectionWidth data not found. Use morphologic function.')           
                 else
                     a2dVarWidthC = reshape(a2dVar, (/iRows, iCols/))
                 endif
             else
-                call mprintf(.true., iWARN, ' Channel Network activated. Initializing SectionWidth with undefined values')
+                call mprintf(.true., iWARN, ' Channel Network activated. Initializing SectionWidth with undefined values.')
             endif
             !------------------------------------------------------------------------------------------
 
@@ -1010,24 +1137,112 @@ contains
                 sFileName = trim(sPathData)//trim(sDomainName)//'.fr.txt'
                 call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
                 if (iErr /= 0) then 
-                    call mprintf(.true., iWARN, ' Fracturation data not found. Initializing Fracturation with zero values')                  
+                    call mprintf(.true., iWARN, ' Fracturing data not found. Initializing Fracturing with zero values.')                  
                 else
                     a2dVarFrac = reshape(a2dVar, (/iRows, iCols/)) 
                 endif
             else
-                call mprintf(.true., iWARN, ' Fracturation not activated. Initializing Fracturation with zero values')
+                call mprintf(.true., iWARN, ' Fracturing not activated. Initializing Fracturing with zero values.')
+            endif
+            !------------------------------------------------------------------------------------------  
+
+            !------------------------------------------------------------------------------------------
+            ! Left and Right bank depths
+            if (iFlagFlood.eq.1) then
+                sFileName = trim(sPathData)//trim(sDomainName)//'.lfl.txt'
+                call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
+                if (iErr /= 0) then
+                    call mprintf(.true., iWARN, ' Left Bank depths data not found. Flooding not activated.')   
+                    a2dVarLevBankL = -9999.0
+                    a2dVarLevBankR = -9999.0
+                    iFlagFlood = 0
+                else
+                    a2dVarLevBankL = reshape(a2dVar, (/iRows, iCols/)) 
+                    sFileName = trim(sPathData)//trim(sDomainName)//'.rfl.txt'
+                    call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
+                    if (iErr /= 0) then
+                        call mprintf(.true., iWARN, ' Right Bank depths data not found. Flooding not activated.')   
+                        a2dVarLevBankR = -9999.0
+                        a2dVarLevBankL = -9999.0
+                        iFlagFlood = 0
+                    else
+                        a2dVarLevBankR = reshape(a2dVar, (/iRows, iCols/)) 
+                    endif
+
+                endif
+            else
+                call mprintf(.true., iWARN, ' Flooding not activated.')
+                a2dVarLevBankR = -9999.0
+                a2dVarLevBankL = -9999.0
+                iFlagFlood = 0
+            endif  
+            !------------------------------------------------------------------------------------------
+
+            !------------------------------------------------------------------------------------------  
+            ! Define dynamic vegetation static variable(s)
+            if (iFlagDynVeg.eq.1) then
+               
+                !------------------------------------------------------------------------------------------
+                ! Minimum Stomata resistance [s/m]
+                !------------------------------------------------------------------------------------
+                sFileName = trim(sPathData)//trim(sDomainName)//'.RSmin.txt'
+                call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .true., iErr)
+                if (iErr /= 0) then 
+                    call mprintf(.true., iERROR, 'Minimum stomatal resistance not found.'// & 
+                    'Dynamic vegetation module not applicable. Program stopped!')
+                else
+                    a2dVarRSmin = reshape(a2dVar, (/iRows, iCols/))
+                endif            
+
+                !------------------------------------------------------------------------------------------
+                ! Vegetation height [m]
+                sFileName = trim(sPathData)//trim(sDomainName)//'.Hveg.txt'
+                call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .true., iErr)
+                if (iErr /= 0) then 
+                    call mprintf(.true., iERROR, 'Vegetation Height not found. Dynamic vegetation module not applicable.' // &
+                                                  'Program stopped!')
+                else
+                    a2dVarHveg = reshape(a2dVar, (/iRows, iCols/))
+                endif
+                !------------------------------------------------------------------------------------------
+
+                !------------------------------------------------------------------------------------------
+                ! coefficient for the dependancy of canopy resistance on water vapor deficit [hPa-1]
+                sFileName = trim(sPathData)//trim(sDomainName)//'.Gd.txt'
+                call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .true., iErr)
+                if (iErr /= 0) then 
+                    call mprintf(.true., iERROR, 'Vapor deficit coefficient not found.'// & 
+                    'Dynamic vegetation module not applicable. Program stopped!')
+                else
+                    a2dVarGd = reshape(a2dVar, (/iRows, iCols/))
+                endif
+                !------------------------------------------------------------------------------------------
+
+                !------------------------------------------------------------------------------------------
+                ! Bare soil mask layer 
+                sFileName = trim(sPathData)//trim(sDomainName)//'.BareSoil.txt'
+                call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .true., iErr)
+                if (iErr /= 0) then 
+                    call mprintf(.true., iERROR, 'Vapor deficit coefficient not found.'// & 
+                    'Dynamic vegetation module not applicable. Program stopped!')
+                else
+                    a2dVarBareSoil = reshape(a2dVar, (/iRows, iCols/))
+                endif
+                !------------------------------------------------------------------------------------------                     
+                
             endif
             !------------------------------------------------------------------------------------------
             
         endif
         !------------------------------------------------------------------------------------------
-        
+
         !------------------------------------------------------------------------------------------
         ! Nullify map boundary
         a2dVarDEM = nullborder2DVar(a2dVarDEM, -9999.0)
         a2dVarAreaCell = nullborder2DVar(a2dVarAreaCell, -9999.0)
         a2dVarCN = nullborder2DVar(a2dVarCN, -9999.0)
         a2dVarCt = nullborder2DVar(a2dVarCt, -9999.0)
+        a2dVarCtWP = nullborder2DVar(a2dVarCtWP, -9999.0)
         a2dVarCf = nullborder2DVar(a2dVarCf, -9999.0)
         a2dVarUh = nullborder2DVar(a2dVarUh, -9999.0)
         a2dVarUc = nullborder2DVar(a2dVarUc, -9999.0)
@@ -1039,8 +1254,14 @@ contains
         a2dVarCoeffWS = nullborder2DVar(a2dVarCoeffWS, -9999.0)
         a2dVarFrac = nullborder2DVar(a2dVarFrac, -9999.0)
         a2dVarWidthC = nullborder2DVar(a2dVarWidthC, -9999.0)
+        a2dVarLevBankR = nullborder2DVar(a2dVarLevBankR, -9999.0)
+        a2dVarLevBankL = nullborder2DVar(a2dVarLevBankL, -9999.0)
+        a2dVarRSmin = nullborder2DVar(a2dVarRSmin, -9999.0)
+        a2dVarGd = nullborder2DVar(a2dVarGd, -9999.0)
+        a2dVarHveg = nullborder2DVar(a2dVarHveg, -9999.0)
+        a2dVarBareSoil = nullborder2DVar(a2dVarBareSoil, -9999.0)   
         !------------------------------------------------------------------------------------------
-        
+
         !------------------------------------------------------------------------------------------
         ! Check Ct values over domain
         iPixCount = count((a2dVarCt.eq.0.0 .and. a2dVarDEM.gt.0.0))
@@ -1050,8 +1271,20 @@ contains
             call mprintf(.true., iWARN, ' Ct values are equal to 0.0 in '//trim(sPixCount)//' pixels over domain. '// &
             'Initialize with default value: '//trim(sParDefault)//'.')
         endif
-        where (a2dVarCt.le.0.0 .and. a2iVarMask.gt.0)
+        where (a2dVarCt.le.0.0 .and. a2dVarDEM.gt.0)
             a2dVarCt = dCt
+        endwhere
+
+        ! Check CtWP values over domain
+        iPixCount = count((a2dVarCtWP.eq.0.0 .and. a2dVarDEM.gt.0.0))
+        if (iPixCount.gt.0) then
+            write(sPixCount, *) iPixCount;
+            write(sParDefault, *) dCt;
+            call mprintf(.true., iWARN, ' Ct values are equal to 0.0 in '//trim(sPixCount)//' pixels over domain. '// &
+            'Initialize with default value: '//trim(sParDefault)//'.')
+        endif
+        where (a2dVarCtWP.le.0.0 .and. a2dVarDEM.gt.0)
+            a2dVarCtWP = 0.4*dCt
         endwhere
         
         ! Check Cf values over domain
@@ -1105,15 +1338,7 @@ contains
         !------------------------------------------------------------------------------------ 
         ! Land data derived fields
         call mprintf(.true., iINFO_Verbose, ' Data :: Static gridded :: Compute derived land information ... ' )
-        
-        ! Check area cell units
-        dAmeanM = sum(a2dVarAreaCell, mask=a2dVarAreaCell.gt.0.0) / count(a2dVarAreaCell.gt.0.0)
-        if (dAmeanM.lt.1) then
-            write(sAmeanM, *) dAmeanM;
-            call mprintf(.true., iWARN, ' Average cell area is equal to '//trim(sAmeanM)//' and less then 1 m^2. '// &
-            'Check units of cellarea map (usually in m^2).')
-        endif
-        
+      
         ! Defining cell area mean value (x and y)
         dDxM = nint(sqrt(sum(a2dVarAreaCell, mask=a2dVarAreaCell.gt.0.0) / count(a2dVarAreaCell.gt.0.0)))
         dDyM = nint(sqrt(sum(a2dVarAreaCell, mask=a2dVarAreaCell.gt.0.0) / count(a2dVarAreaCell.gt.0.0)))
@@ -1186,6 +1411,15 @@ contains
             a2dVarFrac = 0.0
         endwhere
         !------------------------------------------------------------------------------------
+
+        !------------------------------------------------------------------------------------
+        ! Check minimum stomatal resistance when dynamic vegetation is active
+        if (iFlagDynVeg.eq.1) then
+            where (a2dVarDEM.gt.0.0 .and. a2dVarRSmin.lt.0.0)
+                a2dVarRSmin = 0.0
+            endwhere     
+        endif
+        !------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------ 
         ! Defining S and CON
@@ -1204,6 +1438,13 @@ contains
         
         where (a2dVarDEM.lt.0.0)
             a2dVarS = 0.0
+        endwhere
+        !------------------------------------------------------------------------------------ 
+        
+        !------------------------------------------------------------------------------------ 
+        ! Defining Soil Water Content at Wilting Point
+        where ( a2dVarDem.gt.0.0 ) 
+            a2dVarVTotWP = a2dVarS * a2dVarCtWP
         endwhere
         !------------------------------------------------------------------------------------ 
         
@@ -1228,6 +1469,25 @@ contains
             ! Horton Ct correction term 2 ( a2dF2=a2dCostF1/(1-dCt) )
             a2dVarF2 = a2dVarCostF1/(1 - a2dVarCt)
         endwhere
+        !------------------------------------------------------------------------------------ 
+        
+        !------------------------------------------------------------------------------------ 
+        ! Define priority side of flooding
+        ! Initialize the matrix with 0 Same Overbanking level, 1 Right first, 2 Left first
+        if(iFlagFlood.eq.1)then
+            where (a2dVarDEM.GT.0.0.and.a2dVarLevBankR.gt.a2dVarLevBankL)
+                a2dVarFirst = 2
+            endwhere
+            where (a2dVarDEM.GT.0.0.and.a2dVarLevBankL.gt.a2dVarLevBankR)
+                a2dVarFirst = 1
+            endwhere
+            where (a2dVarDEM.GT.0.0.and.a2dVarLevBankR.eq.a2dVarLevBankL)
+                a2dVarFirst = 0
+            endwhere
+            where (a2dVarDEM.GT.0.0.and.a2dVarLevBankR.le.0.0)
+                a2dVarFirst = -9999.0
+            endwhere
+        endif        
         
         ! Info end
         call mprintf(.true., iINFO_Verbose, ' Data :: Static gridded :: Compute derived land information ... OK' )
@@ -1242,7 +1502,9 @@ contains
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarLat, a2iVarMask, 'LAT ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarCN, a2iVarMask, 'CN ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarS, a2iVarMask, 'S ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarVTotWP, a2iVarMask, 'Vtot_WP ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarCt, a2iVarMask, 'CT ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarCtWP, a2iVarMask, 'CTWP ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarCf, a2iVarMask, 'CF ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarUc, a2iVarMask, 'UC ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarUh, a2iVarMask, 'UH ') )
@@ -1259,10 +1521,17 @@ contains
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarCoeffWS, a2iVarMask, 'WS ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarWidthC, a2iVarMask, 'WIDTHC ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarFrac, a2iVarMask, 'FRAC ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarLevBankL, a2iVarMask, 'LEFT BANKS ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarLevBankR, a2iVarMask, 'RIGHT BANKS ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarFirst, a2iVarMask, 'FLOOODING SIDE PRIORITY ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarRSmin, a2iVarMask, 'RSmin ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarGd, a2iVarMask, 'Gd ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarHveg, a2iVarMask, 'Hveg ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarBareSoil, a2iVarMask, 'BareSoil ') )
             call mprintf(.true., iINFO_Extra, ' ========= STATIC GRIDDED END =========== ') 
         endif
         !------------------------------------------------------------------------------------
-        
+       
         !------------------------------------------------------------------------------------
         ! Pass local variable(s) to global workspace
         oHMC_Vars(iID)%iDomainPixels = iDomainPixels
@@ -1274,6 +1543,7 @@ contains
         oHMC_Vars(iID)%dDomainArea = dDomainArea
         
         oHMC_Vars(iID)%a2dCt = a2dVarCt
+        oHMC_Vars(iID)%a2dCtWP = a2dVarCtWP
         oHMC_Vars(iID)%a2dCf = a2dVarCf
         oHMC_Vars(iID)%a2dUc = a2dVarUc
         oHMC_Vars(iID)%a2dUh = a2dVarUh
@@ -1293,6 +1563,7 @@ contains
         oHMC_Vars(iID)%a2dBeta = a2dVarBeta
         
         oHMC_Vars(iID)%a2dS = a2dVarS
+        oHMC_Vars(iID)%a2dVTotWP = a2dVarVTotWP
         
         oHMC_Vars(iID)%a2dC1 = a2dVarC1
         oHMC_Vars(iID)%a2dF2 = a2dVarF2
@@ -1305,6 +1576,15 @@ contains
         
         oHMC_Vars(iID)%a2dWidthC = a2dVarWidthC
         oHMC_Vars(iID)%a2dFrac = a2dVarFrac
+        
+        oHMC_Vars(iID)%a2dLevBankL = a2dVarLevBankL
+        oHMC_Vars(iID)%a2dLevBankR = a2dVarLevBankR
+        oHMC_Vars(iID)%a2dFirst = a2dVarFirst
+
+        oHMC_Vars(iID)%a2dRSmin = a2dVarRSmin
+        oHMC_Vars(iID)%a2dHveg = a2dVarHveg
+        oHMC_Vars(iID)%a2dGd = a2dVarGd
+        oHMC_Vars(iID)%a2dBareSoil = a2dVarBareSoil
         !------------------------------------------------------------------------------------ 
         
     end subroutine HMC_Data_Static_Gridded_Land
@@ -1446,6 +1726,6 @@ contains
         
     end subroutine HMC_Data_Static_Gridded_WTable
     !------------------------------------------------------------------------------------ 
-        
+      
 end module HMC_Module_Data_Static_Gridded
 !------------------------------------------------------------------------------------

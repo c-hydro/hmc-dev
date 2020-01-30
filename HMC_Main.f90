@@ -7,8 +7,8 @@
 
 !******************************************************************************************
 ! HYDROLOGICAL MODEL CONTINUUM
-! Version 3.0.0
-! Date: 2019/04/10
+! Version 3.1.0
+! Date: 2020/01/30
 !
 !	- Modified Horton Method for Infiltration
 !	- Runoff Routing;
@@ -95,13 +95,13 @@ program HMC_Main
     use HMC_Module_Namelist,                only:   oHMC_Namelist, HMC_Namelist_Read
     
     use HMC_Module_Info_Gridded,            only:   HMC_Info_Gridded_GetDims_Static, &
-                                                    HMC_Info_Gridded_GetDims_Forcing, &
-                                                    HMC_Info_Gridded_GetGeo_Static, &
-                                                    HMC_Info_Gridded_GetGeo_Forcing
+                                                     HMC_Info_Gridded_GetDims_Forcing, &
+                                                     HMC_Info_Gridded_GetGeo_Static, &
+                                                     HMC_Info_Gridded_GetGeo_Forcing
                                                     
     use HMC_Module_Info_Point,              only:   HMC_Info_Point_Section_GetDims, &
-                                                    HMC_Info_Point_WaterBody_GetDims, &  
-                                                    HMC_Info_Point_HydraulicStructure_GetDims
+                                                     HMC_Info_Point_WaterBody_GetDims, &  
+                                                     HMC_Info_Point_HydraulicStructure_GetDims
     
     use HMC_Module_Info_Time
 
@@ -109,7 +109,7 @@ program HMC_Main
     use HMC_Module_Vars_Manager,            only:   HMC_Vars_InitDefault, HMC_Vars_Allocate
   
     use HMC_Module_Tools_Time,              only:   HMC_Tools_Time_GetNewDate, &
-                                                    HMC_Tools_Time_Printer
+                                                     HMC_Tools_Time_Printer
     use HMC_Module_Tools_Debug
     
     use HMC_Module_Data_Static_Gridded,     only:   HMC_Data_Static_Gridded_Cpl
@@ -127,6 +127,7 @@ program HMC_Main
     use HMC_Module_Data_Updating_Gridded,   only:   HMC_Data_Updating_Gridded_Cpl
     
     use HMC_Module_Phys,                    only:   HMC_Phys_Cpl
+    use HMC_Module_Tools_Generic,           only:   getProcessID
 
     implicit none
     !------------------------------------------------------------------------------------------
@@ -153,8 +154,11 @@ program HMC_Main
     
     character(len = 19)             :: sTimeOld, sTimeForcing, sTimeUpdating, sTimeRestart, sTimeNew
     character(len = 19)             :: sTimeOutput_Gridded, sTimeOutput_Point
-    character(len = 19)             :: sTimeState_Gridded, sTimeState_Point
+    character(len = 19)             :: sTimeState_Gridded, sTimeState_Point 
+    character(len = 19)             :: sTimeEndLAI, sTimeEndFC
     character(len = 256)            :: sTime, sNTime, sDtModel
+    character(len = 256)            :: sPID
+
     
     character(len=10)               :: sDateRunStart, sDateRunStep, sDateRunEnd
     character(len=12)               :: sTimeRunStart, sTimeRunStep, sTimeRunEnd
@@ -165,7 +169,7 @@ program HMC_Main
     sFileInfo = ""; iArgsType = -9999;
     iID = 1
     iColsL = -9999; iRowsL = -9999; iColsF = -9999; iRowsF = -9999; iTime = -9999;
-    iDaySteps = -9999; iTMarkedSteps = -9999; iSimLength = 0;
+    iDaySteps = 0; iTMarkedSteps = -9999; iSimLength = 0;
     iNTime = -9999; iT = -9999;
     iNSection = -9999; iNLake = -9999; iNDam = -9999; 
     iNPlant = -9999; iNJoint = -9999; iNCatch = -9999; iNRelease = -9999;
@@ -173,7 +177,13 @@ program HMC_Main
     dWTableHbr = 0.0; dKSatRatio = 0.0; dSlopeMax = 0.0; sDomainName = ""; 
     sTimeOld = ""; sTimeForcing = ""; sTimeUpdating = ""; sTimeRestart = ""; sTimeNew = ""; 
     sTimeOutput_Gridded = ""; sTimeOutput_Point = ""; 
-    sTimeState_Gridded = "";  sTimeState_Point = "";
+    sTimeState_Gridded = "";  sTimeState_Point = ""; 
+    sTimeEndLAI = ""; sTimeEndFC = "";
+    !------------------------------------------------------------------------------------------
+    
+    !------------------------------------------------------------------------------------------
+    ! Get unique process ID
+    sPID = adjustl(getProcessID())
     !------------------------------------------------------------------------------------------
     
     !------------------------------------------------------------------------------------------
@@ -225,7 +235,7 @@ program HMC_Main
     iDtData_State_Point = oHMC_Namelist(iID)%iDtData_State_Point
     iDtPhysConv = oHMC_Namelist(iID)%iDtPhysConv
     iSimLength = oHMC_Namelist(iID)%iSimLength
-    
+
     ! Simulation step(s)
     iNTime = oHMC_Namelist(iID)%iNTime
     ! Data step(s)
@@ -364,7 +374,7 @@ program HMC_Main
             ! Save output gridded data
             call HMC_Data_Output_Gridded_Cpl( iID, sTimeOutput_Gridded, &
                                               1, iRowsL, 1, iColsL, &
-                                              iTime)
+                                              iTime, iDaySteps)
                                                           
             ! Update data output time
             call HMC_Tools_Time_GetNewDate(sTimeNew, sTimeOutput_Gridded, nint(real(iDtData_Output_Gridded)))

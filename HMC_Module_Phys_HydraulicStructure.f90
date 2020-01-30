@@ -25,7 +25,7 @@ contains
     !------------------------------------------------------------------------------------------
     ! Subroutine for calculating dam volume spilling
     subroutine HMC_Phys_Dam_Spilling(iID, iNDam, dDt, &
-                                        a1dVarVDam, a1dVarQoutDam, a1dVarCoeffDam)
+                                      a1dVarVDam, a1dVarQoutDam, a1dVarCoeffDam, a1dVarLDam)
                                                     
         !------------------------------------------------------------------------------------------
         ! Variable(s)
@@ -83,7 +83,6 @@ contains
                     if (a1dVarLDam(iD) .le. 0) then
                         a1dVarLDam(iD) = 40; ! [m]
                     endif
-
                     !------------------------------------------------------------------------------------------
 
                     !------------------------------------------------------------------------------------------
@@ -162,7 +161,7 @@ contains
                         if ( a1dVarHDam(iD) .gt. oHMC_Vars(iID)%a1dHMaxDam(iD) ) then
 
                             ! Exceeded volume used for outgoing dam discharge [m^3/s]
-                            a1dVarQoutDam(iD) = (a1dVarVDam(iD) - oHMC_Vars(iID)%a1dVMaxDam(iD))/3600
+                            a1dVarQoutDam(iD) = (a1dVarVDam(iD) - oHMC_Vars(iID)%a1dVMaxDam(iD))/dDt
 
                             ! Check max between a1dVarQoutDam(iD) and max outgoing dam flow
                             a1dVarQoutDam(iD) = max(a1dVarQoutDam(iD), oHMC_Vars(iID)%a1dQcSLDam(iD));
