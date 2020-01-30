@@ -65,8 +65,10 @@ contains
         integer(kind = 4)       :: iFlagCoeffRes, iFlagWS
         integer(kind = 4)       :: iFlagCType
         integer(kind = 4)       :: iFlagFrac
+        integer(kind = 4)       :: iFlagDynVeg
+        integer(kind = 4)       :: iFlagFlood
         
-        logical                 :: bGridCheck
+        logical                  :: bGridCheck
 
         integer(kind = 4)       :: iSimLength, iDtModel, iDtPhysConv
         integer(kind = 4)       :: iDtData_Forcing
@@ -77,7 +79,7 @@ contains
         integer(kind = 4)       :: iDtPhysPrev
         integer(kind = 4)       :: iDtPhysMethod
         
-        integer(kind = 4)       :: iScaleFactor, iTcMax, iTc
+        integer(kind = 4)       :: iScaleFactor, iTcMax, iTc, iTVeg
 
         integer(kind = 4)       :: iRowsL, iColsL
         real(kind = 4)          :: dXLLCornerL, dYLLCornerL, dXCellSizeL, dYCellSizeL, dNoDataL
@@ -123,12 +125,10 @@ contains
         
         character(len = 12)     :: sTimeStart
         character(len = 12)     :: sTimeRestart
-        !character(len = 12)     :: sTimeStatus
-        
+
         character(len = 19)     :: sTimeStartLong
         character(len = 19)     :: sTimeRestartLong
-        !character(len = 19)     :: sTimeStatusLong
-        
+ 
         character(len = 256)    :: sPathData_Static_Gridded
         character(len = 256)    :: sPathData_Static_Point
         character(len = 256)    :: sPathData_Forcing_Gridded
@@ -153,21 +153,21 @@ contains
         character(len = 700)    :: sAuthorNames
         character(len = 5)      :: sReleaseVersion
         
-        real(kind = 4)          :: dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax
+        real(kind = 4)           :: dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax
         character(len = 256)    :: sDomainName
         
-        real(kind = 4)          :: dUcF, dUhF, dCtF, dCfF, dCPIF, dWTableHbrF, dKSatRatioF, dSlopeMaxF
+        real(kind = 4)           :: dUcF, dUhF, dCtF, dCfF, dCPIF, dWTableHbrF, dKSatRatioF, dSlopeMaxF
         character(len = 256)    :: sDomainNameF
         
         character(len = 256)    :: sStrCf, sStrCt, sStrUh, sStrUc
         !--------------------------------------------------------------------------------
 
-        !-------------------------------------------iDtPhysMethod-------------------------------------
+        !--------------------------------------------------------------------------------
         ! Read namelist(s)
-        namelist /HMC_Parameters/       dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax, &
+        namelist /HMC_Parameters/      dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax, &
                                         sDomainName
         
-        namelist /HMC_Namelist/         iFlagTypeData_Static, &
+        namelist /HMC_Namelist/        iFlagTypeData_Static, &
                                         iFlagTypeData_Forcing_Gridded, iFlagTypeData_Forcing_Point, & 
                                         iFlagTypeData_Forcing_TimeSeries, &
                                         iFlagTypeData_Updating_Gridded, &
@@ -184,8 +184,10 @@ contains
                                         iFlagCoeffRes, iFlagWS, &
                                         iFlagCType, &
                                         iFlagFrac, &
+                                        iFlagDynVeg, &
+                                        iFlagFlood, &                                        
                                         a1dGeoForcing, a1dResForcing, a1iDimsForcing, &
-                                        iScaleFactor, iTcMax, &
+                                        iScaleFactor, iTcMax, iTVeg, &
                                         iSimLength, iDtModel, &
                                         iDtPhysMethod, iDtPhysConv, &
                                         a1dDemStep, a1dIntStep, a1dDtStep, a1dDtRatioStep, &
@@ -194,7 +196,6 @@ contains
                                         iDtData_Output_Gridded, iDtData_Output_Point, &
                                         iDtData_State_Gridded, iDtData_State_Point, &
                                         sTimeStart, sTimeRestart, &
-                                        ! sTimeStatus, &
                                         sPathData_Static_Gridded, sPathData_Static_Point, &
                                         sPathData_Forcing_Gridded, sPathData_Forcing_Point, sPathData_Forcing_TimeSeries, &
                                         sPathData_Updating_Gridded, &
@@ -202,11 +203,11 @@ contains
                                         sPathData_State_Gridded, sPathData_State_Point, &
                                         sPathData_Restart_Gridded, sPathData_Restart_Point
                                         
-        namelist /HMC_Snow/             a1dArctUp, a1dExpRhoLow, a1dExpRhoHigh, a1dAltRange, &
+        namelist /HMC_Snow/            a1dArctUp, a1dExpRhoLow, a1dExpRhoHigh, a1dAltRange, &
                                         iGlacierValue, dRhoSnowFresh, dRhoSnowMax, dSnowQualityThr, &
                                         dMeltingTRef
                                         
-        namelist /HMC_Constants/        a1dAlbedoMonthly, a1dLAIMonthly, a1dCHMonthly, &
+        namelist /HMC_Constants/       a1dAlbedoMonthly, a1dLAIMonthly, a1dCHMonthly, &
                                         dWTableHMin, dWTableHUSoil, dWTableHUChannel, dWTableSlopeBM, dWTableHOBedRock, &
                                         dRateMin, dBc, &
                                         dTRef, iTdeepShift, dEpsS, dSigma, dBFMin, dBFMax, &
@@ -215,12 +216,12 @@ contains
                                         dTV, dDamSpillH, &
                                         dSMGain
                                         
-        namelist /HMC_Command/          sCommandZipFile, &
+        namelist /HMC_Command/         sCommandZipFile, &
                                         sCommandUnzipFile, &
                                         sCommandRemoveFile, &
                                         sCommandCreateFolder
         
-        namelist /HMC_Info/             sReleaseDate, &
+        namelist /HMC_Info/            sReleaseDate, &
                                         sAuthorNames, &
                                         sReleaseVersion
         !--------------------------------------------------------------------------------
@@ -241,16 +242,18 @@ contains
         iFlagCoeffRes = -9999; iFlagWS = -9999;
         iFlagCType = -9999;
         iFlagFrac = -9999;
+        iFlagDynVeg = -9999;
+        iFlagFlood = -9999;
         a1dGeoForcing = -9999.0; a1dResForcing = -9999.0; a1iDimsForcing = -9999; 
-        iScaleFactor = -9999; iTcMax = -9999; iTc = -9999
+        iScaleFactor = -9999; iTcMax = -9999; iTVeg = -9999; iTc = -9999; 
         iSimLength = -9999; iDtModel = -9999; 
         iDtPhysMethod = -9999; iDtPhysConv = -9999; 
         a1dDemStep = -9999.0; a1dIntStep = -9999.0; a1dDtStep = -9999.0; a1dDtRatioStep = -9999.0;
         iDtData_Forcing = -9999; 
         iDtData_Updating = -9999; 
         iDtData_Output_Gridded = -9999; iDtData_Output_Point = -9999; 
-        iDtData_State_Gridded = -9999; iDtData_State_Point = -9999; 
-        sTimeStart = ""; sTimeRestart = "";  !sTimeStatus = "";
+        iDtData_State_Gridded = -9999; iDtData_State_Point = -9999;
+        sTimeStart = ""; sTimeRestart = ""; 
         sPathData_Static_Gridded = ""; sPathData_Static_Point = ""; 
         sPathData_Forcing_Gridded = ""; sPathData_Forcing_Point = ""; sPathData_Forcing_TimeSeries = "";
         sPathData_Updating_Gridded = "";
@@ -329,9 +332,6 @@ contains
         
         sTimeRestartLong = sTimeRestart(1:4)//"-"//sTimeRestart(5:6)//"-"//sTimeRestart(7:8)//"_" &
                            //sTimeRestart(9:10)//":"//sTimeRestart(11:12)//":"//"00"
-        
-        !sTimeStatusLong = sTimeStatus(1:4)//"-"//sTimeStatus(5:6)//"-"//sTimeStatus(7:8)//"_" &
-        !                   //sTimeStatus(9:10)//":"//sTimeStatus(11:12)//":"//"00"
         !--------------------------------------------------------------------------------
                                    
         !--------------------------------------------------------------------------------
@@ -457,6 +457,18 @@ contains
         else
             oHMC_Namelist_Init%iFlagCType = iFlagCType      ! channel network/fraction
         endif
+
+        if (iFlagDynVeg .eq. -9999) then  ! backward compatibility with older version of info file (without Vegtype flag)
+            oHMC_Namelist_Init%iFlagDynVeg = 0               ! dynamic vegetation module not activated
+        else
+            oHMC_Namelist_Init%iFlagDynVeg = iFlagDynVeg      ! dynamic vegetation module
+        endif
+
+        if (iFlagFlood .eq. -9999) then  ! backward compatibility with older version of info file (without Flooding flag)
+            oHMC_Namelist_Init%iFlagFlood = 0               ! flooding module not activated
+        else
+            oHMC_Namelist_Init%iFlagFlood = iFlagFlood      ! flooding vegetation module
+        endif
         
         ! Geographical land and forcing info
         oHMC_Namelist_Init%bGridCheck = .false.
@@ -502,6 +514,12 @@ contains
         oHMC_Namelist_Init%iTc = 0
         oHMC_Namelist_Init%iSimLength = iSimLength
         
+        if (iTVeg .le. 0) then                      
+            oHMC_Namelist_Init%iTVeg = 1 !minimum duration (in model time step) of observed LAI
+        else
+            oHMC_Namelist_Init%iTVeg = iTVeg
+        endif        
+        
         oHMC_Namelist_Init%iDtModel = iDtModel
         oHMC_Namelist_Init%iDtPhysConv = iDtPhysConv
         oHMC_Namelist_Init%iDtPhysConvPrevious = iDtPhysConv
@@ -546,7 +564,6 @@ contains
         
         ! Time reference info
         oHMC_Namelist_Init%sTimeStart = sTimeStartLong
-        !oHMC_Namelist_Init%sTimeStatus = sTimeStatusLong
         oHMC_Namelist_Init%sTimeRestart = sTimeRestartLong
         
         ! Data info

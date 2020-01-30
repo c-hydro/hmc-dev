@@ -32,10 +32,13 @@ module HMC_Module_Data_Forcing_Gridded
                                             HMC_Tools_Generic_SwitchGrid, &
                                             HMC_Tools_Generic_UnzipFile, &
                                             HMC_Tools_Generic_RemoveFile, &
-                                            check2Dvar
+                                            check2Dvar, getProcessID
                                             
-    use HMC_Module_Tools_Time,      only:   HMC_Tools_Time_MonthVal
-                             
+    use HMC_Module_Tools_Time,      only:   HMC_Tools_Time_MonthVal, &
+                                            HMC_Tools_Time_GetNewDate
+
+    
+    
     ! Implicit none for all subroutines in this module
     implicit none
     !------------------------------------------------------------------------------------------
@@ -56,9 +59,10 @@ contains
         integer(kind = 4)           :: iRowsStartF, iRowsEndF, iColsStartF, iColsEndF
         integer(kind = 4)           :: iRowsL, iColsL, iRowsF, iColsF
         integer(kind = 4)           :: iFlagTypeData_Forcing
-        integer(kind = 4)           :: iScaleFactor
+        integer(kind = 4)           :: iScaleFactor, iFlagDynVeg
         
         character(len = 19)         :: sTime
+
         character(len = 12)         :: sTimeMonth
         
         character(len = 256)        :: sPathData_Forcing
@@ -69,13 +73,13 @@ contains
                                   iColsEndL - iColsStartL + 1) ::   a2dVarRainL, a2dVarTaL, &
                                                                     a2dVarIncRadL, a2dVarWindL, & 
                                                                     a2dVarRelHumL, a2dVarPaL, &
-                                                                    a2dVarAlbedoL, a2dVarLAIL
+                                                                    a2dVarAlbedoL, a2dVarLAIL, a2dVarFCL
                                                                     
         real(kind = 4), dimension(iRowsEndF - iRowsStartF + 1, &
                                   iColsEndF - iColsStartF + 1) ::   a2dVarRainF, a2dVarTaF, &
                                                                     a2dVarIncRadF, a2dVarWindF, & 
                                                                     a2dVarRelHumF, a2dVarPaF, &
-                                                                    a2dVarAlbedoF, a2dVarLAIF
+                                                                    a2dVarAlbedoF, a2dVarLAIF, a2dVarFCF
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -96,11 +100,11 @@ contains
         ! Initialize variable(s)
         a2dVarRainF = -9999.0; a2dVarTaF = -9999.0; a2dVarIncRadF = -9999.0;  
         a2dVarWindF = -9999.0; a2dVarRelHumF = -9999.0;  a2dVarPaF = -9999.0; 
-        a2dVarAlbedoF = -9999.0; a2dVarLAIF = -9999.0;
+        a2dVarAlbedoF = -9999.0; a2dVarLAIF = -9999.0; a2dVarFCF = -9999.0;
         
         a2dVarRainL = -9999.0; a2dVarTaL = -9999.0; a2dVarIncRadL = -9999.0;
         a2dVarWindL = -9999.0; a2dVarRelHumL = -9999.0; a2dVarPaL = -9999.0;
-        a2dVarAlbedoL = -9999.0; a2dVarLAIL = -9999.0;
+        a2dVarAlbedoL = -9999.0; a2dVarLAIL = -9999.0; a2dVarFCL = -9999.0;
         !------------------------------------------------------------------------------------------
                                                                                                 
         !------------------------------------------------------------------------------------------
@@ -117,6 +121,8 @@ contains
         sPathData_Forcing = oHMC_Namelist(iID)%sPathData_Forcing_Gridded
         iFlagTypeData_Forcing = oHMC_Namelist(iID)%iFlagTypeData_Forcing_Gridded
         iScaleFactor = oHMC_Namelist(iID)%iScaleFactor
+        iFlagDynVeg = oHMC_Namelist(iID)%iFlagDynVeg
+
                
         ! Info start
         call mprintf(.true., iINFO_Extra, ' Data :: Forcing gridded ... ' )
@@ -133,7 +139,7 @@ contains
         ! Checking date
         write(sTimeMonth,'(A,A,A)') sTime(1:4), sTime(6:7), sTime(9:10)
         !------------------------------------------------------------------------------------------
-
+        
         !------------------------------------------------------------------------------------------
         ! Check time step (iT)
         if (oHMC_Vars(iID)%iTime .lt. oHMC_Namelist(iID)%iNTime) then
@@ -151,7 +157,7 @@ contains
                                         sTime, &
                                         a2dVarRainF, a2dVarTaF, a2dVarIncRadF, &
                                         a2dVarWindF, a2dVarRelHumF, a2dVarPaF, &
-                                        a2dVarAlbedoF, a2dVarLAIF)
+                                        a2dVarAlbedoF, a2dVarLAIF, a2dVarFCF)
 #else   
                 ! Redefinition of forcing data flag (if netCDF library is not linked)
                 iFlagTypeData_Forcing = 1 
@@ -176,7 +182,7 @@ contains
                                             sTime, &
                                             a2dVarRainF, a2dVarTaF, a2dVarIncRadF, &
                                             a2dVarWindF, a2dVarRelHumF, a2dVarPaF, &
-                                            a2dVarAlbedoF, a2dVarLAIF, &
+                                            a2dVarAlbedoF, a2dVarLAIF, a2dVarFCF, &
                                             iScaleFactor)
                 !------------------------------------------------------------------------------------------
 
@@ -195,7 +201,8 @@ contains
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarPaF, oHMC_Vars(iID)%a2iMask, 'PA START') )
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarAlbedoF, oHMC_Vars(iID)%a2iMask, 'ALBEDO START') )
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarLAIF, oHMC_Vars(iID)%a2iMask, 'LAI START') )
-		call mprintf(.true., iINFO_Extra, '')
+                call mprintf(.true., iINFO_Extra, checkvar(a2dVarFCF, oHMC_Vars(iID)%a2iMask, 'FRACT.VEG.COVER START') )
+                call mprintf(.true., iINFO_Extra, '')
             endif
             !------------------------------------------------------------------------------------------
             
@@ -240,7 +247,12 @@ contains
                                               iRowsL, iColsL, a2dVarLAIL, &
                                               iRowsF, iColsF, a2dVarLAIF, &
                                               oHMC_Vars(iID)%a2dDem, &
-                                              oHMC_Vars(iID)%a2iXIndex, oHMC_Vars(iID)%a2iYIndex)                     
+                                              oHMC_Vars(iID)%a2iXIndex, oHMC_Vars(iID)%a2iYIndex)  
+            call HMC_Tools_Generic_SwitchGrid(oHMC_Namelist(iID)%iFlagGrid, &
+                                              iRowsL, iColsL, a2dVarFCL, &
+                                              iRowsF, iColsF, a2dVarFCF, &
+                                              oHMC_Vars(iID)%a2dDem, &
+                                              oHMC_Vars(iID)%a2iXIndex, oHMC_Vars(iID)%a2iYIndex)  
             !------------------------------------------------------------------------------------------
                                             
             !------------------------------------------------------------------------------------------
@@ -264,7 +276,7 @@ contains
             a2dVarPaL = oHMC_Vars(iID)%a2dPres
             a2dVarAlbedoL = oHMC_Vars(iID)%a2dAlbedo; 
             a2dVarLAIL = oHMC_Vars(iID)%a2dLAI; 
-            
+            a2dVarFCL = oHMC_Vars(iID)%a2dFC; 
             ! Info message for extra time step(s)
             call mprintf(.true., iINFO_Extra, ' Extra time step ---> Forcing data are set constant to last real value')
             call mprintf(.true., iINFO_Extra, ' Extra time step ---> Rain data are set to 0.0')
@@ -286,6 +298,7 @@ contains
         else
             call mprintf(.true., iWARN, ' All air temperature values are undefined! Check forcing data!' )
         endif
+
         
         ! Incoming radiation
         if ( .not. all(a2dVarIncRadL.eq.-9999.0) ) then
@@ -324,15 +337,56 @@ contains
             endif
         endif 
         
-        ! LAI
-        if ( .not. all(a2dVarLAIL.eq.-9999.0) ) then
-            oHMC_Vars(iID)%a2dLAI = a2dVarLAIL
-        else
-            call mprintf(.true., iWARN, ' All LAI values are undefined!'// &
-                                        ' LAI will be initialized using monthly mean information!')
-            call HMC_Tools_Time_MonthVal(oHMC_Namelist(iID)%a1dLAIMonthly, sTimeMonth, dVarLAI)
-            oHMC_Vars(iID)%a2dLAI = dVarLAI  
+        ! LAI          
+        if ( all(a2dVarLAIL.eq.-9999.0) ) then
+            if (iFlagDynVeg.eq.1) then
+                call mprintf(.true., iERROR, 'NO valid LAI found.Programm stopped!')
+            else
+                call mprintf(.true., iWARN, ' All LAI values are undefined!'// &
+                                            ' LAI will be initialized using monthly mean information!')
+                call HMC_Tools_Time_MonthVal(oHMC_Namelist(iID)%a1dLAIMonthly, sTimeMonth, dVarLAI)
+                a2dVarLAIL = dVarLAI  
+            endif
         endif 
+       
+        !check limits
+        where (oHMC_Vars(iID)%a2dDem.gt.0.0.and.a2dVarLAIL.lt.0.0)
+            a2dVarLAIL = -9999.0
+        elsewhere (oHMC_Vars(iID)%a2dDem.gt.0.0.and.a2dVarLAIL.ge.0.0.and.a2dVarLAIL.le.0.01) !to avoid very small LAI values
+            a2dVarLAIL = 0.01            
+        elsewhere (oHMC_Vars(iID)%a2dDem.gt.0.0.and.a2dVarLAIL.gt.8.0)
+            a2dVarLAIL = 8.0
+        endwhere
+        oHMC_Vars(iID)%a2dLAI = a2dVarLAIL
+
+        ! Fractional Vegetation Cover
+        if ( all(a2dVarFCL.eq.-9999.0) ) then
+            if (iFlagDynVeg.eq.1) then
+                call mprintf(.true., iWARN, 'NO valid FC found. Use empirical formulation based on LAI!')
+                !check limits
+                where (oHMC_Vars(iID)%a2dDem.gt.0.0.and.a2dVarLAIL.ge.0.0)
+                    !compute Fractional vegetation cover by empirical function (source Model NOAH)
+                    a2dVarFCL = 1 - exp(-0.52 * a2dVarLAIL)
+                elsewhere (oHMC_Vars(iID)%a2dDem.gt.0.0)
+                    a2dVarFCL = 0.0 !where LAI is not valid assumed as not vegetated pixel                   
+                endwhere                    
+
+            else
+                call mprintf(.true., iWARN, ' Fractional Vegetation Cover set equal to one!')
+                !Set FC=1 to have single source Evapotranspiration
+                a2dVarFCL = 1.0 
+            endif
+
+        endif   
+
+        !check limits
+        where (oHMC_Vars(iID)%a2dDem.gt.0.0.and.a2dVarFCL.lt.0.0)
+            a2dVarFCL = 0.0
+        elsewhere (oHMC_Vars(iID)%a2dDem.gt.0.0.and.a2dVarFCL.gt.1.0)
+            a2dVarFCL = 1.0
+        endwhere
+        oHMC_Vars(iID)%a2dFC = a2dVarFCL
+
         ! Albedo
         if ( .not. all(a2dVarAlbedoL.eq.-9999.0) ) then
             oHMC_Vars(iID)%a2dAlbedo = a2dVarAlbedoL
@@ -342,7 +396,6 @@ contains
             call HMC_Tools_Time_MonthVal(oHMC_Namelist(iID)%a1dAlbedoMonthly, sTimeMonth, dVarAlbedo)
             oHMC_Vars(iID)%a2dAlbedo = dVarAlbedo;
         endif 
-        
         !------------------------------------------------------------------------------------------
 
         !------------------------------------------------------------------------------------------
@@ -357,6 +410,7 @@ contains
             call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dPres, oHMC_Vars(iID)%a2iMask, 'PA END') )
             call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dAlbedo, oHMC_Vars(iID)%a2iMask, 'ALBEDO END') )
             call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dLAI, oHMC_Vars(iID)%a2iMask, 'LAI END') )
+            call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dFC, oHMC_Vars(iID)%a2iMask, 'FRACT.VEG.COVER END') )
             call mprintf(.true., iINFO_Extra, ' ========= FORCING GRIDDED END =========== ')
         endif
         
@@ -375,22 +429,23 @@ contains
                                   iRows, iCols, sTime, &
                                   a2dVarRain, a2dVarTa, a2dVarIncRad, &
                                   a2dVarWind, a2dVarRelHum, a2dVarPa, &
-                                  a2dVarAlbedo, a2dVarLAI)
+                                  a2dVarAlbedo, a2dVarLAI, a2dVarFC)
                                   
         !------------------------------------------------------------------------------------------
         ! Variable(s)
-        integer(kind = 4)                       :: iID                  
+        integer(kind = 4)                       :: iID, iDtModel, iTVeg                  
         
-        character(len = 256), intent(in)        :: sPathData_Forcing
-        character(len = 700)                    :: sFileNameData_Forcing, sFileNameData_Forcing_Zip
+        character(len = 256), intent(in)       :: sPathData_Forcing
+        character(len = 700)                    :: sFileNameData_Forcing, sFileNameData_Temp, sFileNameData_Forcing_Zip
         character(len = 700)                    :: sCommandUnzipFile, sCommandRemoveFile
         character(len = 256)                    :: sVarName
-        integer(kind = 4), intent(in)           :: iRows, iCols
+        integer(kind = 4), intent(in)          :: iRows, iCols
 
-        character(len = 19), intent(in)         :: sTime
-        character(len = 12)                     :: sTimeMonth
+        character(len = 19), intent(in)        :: sTime
+        character(len = 19)                     :: sTimeEndLAI, sTimeEndFC, sTimeStartLAI, sTimeStartFC
+        character(len = 12)                     :: sTimeMonth 
         
-        real(kind = 4)                          :: dVarLAI, dVarAlbedo
+        real(kind = 4)                          :: dVarAlbedo
         
         real(kind = 4), dimension(iCols, iRows)                 :: a2dVar
         
@@ -402,23 +457,30 @@ contains
         real(kind = 4), dimension(iRows, iCols), intent(out)    :: a2dVarPa 
         real(kind = 4), dimension(iRows, iCols), intent(out)    :: a2dVarAlbedo
         real(kind = 4), dimension(iRows, iCols), intent(out)    :: a2dVarLAI
+        real(kind = 4), dimension(iRows, iCols), intent(out)    :: a2dVarFC
 
-        character(len = 256):: sVarUnits
-        integer(kind = 4)   :: iErr
+        character(len = 256):: sVarUnits, sPID
+        integer(kind = 4)   :: iErr, iFlagDynVeg
         integer(kind = 4)   :: iFileID
-        
+
         logical             :: bFileExist
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
         ! Initialize variable(s)
-        a2dVarRain = -9999.0; a2dVarTa = -9999.0; a2dVarIncRad = -9999.0; a2dVarWind = -9999.0
-        a2dVarRelHum = -9999.0; a2dVarPa = -9999.0; a2dVarAlbedo = -9999.0; a2dVarLAI = -9999.0
+        a2dVarRain = -9999.0; a2dVarTa = -9999.0; a2dVarIncRad = -9999.0; a2dVarWind = -9999.0;
+        a2dVarRelHum = -9999.0; a2dVarPa = -9999.0; a2dVarAlbedo = -9999.0; a2dVarLAI = -9999.0;
+        a2dVarFC = -9999.0;
 
-        sFileNameData_Forcing = ''; sFileNameData_Forcing_Zip = ''; sTimeMonth = ''
+        sFileNameData_Forcing = ''; sFileNameData_Temp = ''; sFileNameData_Forcing_Zip = ''; sTimeMonth = ''; 
+        sTimeEndLAI = ''; sTimeEndFC = ''; sTimeStartLAI = ''; sTimeStartFC = '';
         
         ! Checking date
         write(sTimeMonth,'(A,A,A)') sTime(1:4), sTime(6:7), sTime(9:10)
+        
+        !write current date to new variable for checking LAI validity
+        write(sTimeStartLAI,'(A,A,A)') sTime
+        write(sTimeStartFC,'(A,A,A)') sTime
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -426,17 +488,33 @@ contains
         sCommandUnzipFile = oHMC_Namelist(iID)%sCommandUnzipFile
         sCommandRemoveFile = oHMC_Namelist(iID)%sCommandRemoveFile
         
+        !Get global parameters
+        sTimeEndLAI = oHMC_Vars(iID)%sTimeMaxLAI
+        sTimeEndFC = oHMC_Vars(iID)%sTimeMaxFC
+        iFlagDynVeg = oHMC_Namelist(iID)%iFlagDynVeg
+        iDtModel = oHMC_Namelist(iID)%iDtModel
+        iTVeg = oHMC_Namelist(iID)%iTVeg
+        
         ! Info start
         call mprintf(.true., iINFO_Extra, ' Data :: Forcing gridded :: NetCDF ... ' )
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
+        ! Get unique process ID
+        sPID = adjustl(getProcessID())
+              
         ! Filename forcing (example: hmc.dynamicdata.201404300000.nc.gz)
         sFileNameData_Forcing = trim(sPathData_Forcing)//"hmc.forcing-grid."// &
         sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
         sTime(12:13)//sTime(15:16)// &
-        ".nc"
-
+        ".nc"       
+        
+        ! Create Filename with unique PID number to avoid simultaneously access to the same Forcing file       
+        sFileNameData_Temp = trim(sPathData_Forcing)//"hmc.forcing-grid."// &
+        sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+        sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
+        ".nc"  
+        
         ! Info netCDF filename
         call mprintf(.true., iINFO_Verbose, ' Get filename (forcing gridded): '//trim(sFileNameData_Forcing)//' ... ' )
         !------------------------------------------------------------------------------------------
@@ -461,12 +539,12 @@ contains
             ! Unzip file
             call HMC_Tools_Generic_UnzipFile(oHMC_Namelist(iID)%sCommandUnzipFile, &
                                              sFileNameData_Forcing_Zip, &
-                                             sFileNameData_Forcing, .true.)
-            !------------------------------------------------------------------------------------------
+                                             sFileNameData_Temp, .true.)
+            !-----------------------------------------------------------------------------------------
         
             !------------------------------------------------------------------------------------------
             ! Open netCDF file
-            iErr = nf90_open(trim(sFileNameData_Forcing), NF90_NOWRITE, iFileID)
+            iErr = nf90_open(trim(sFileNameData_Temp), NF90_NOWRITE, iFileID)
             if (iErr /= 0) then
                 call mprintf(.true., iWARN, ' Problem opening uncompressed netCDF file: '// &
                              trim(sFileNameData_Forcing)//' --> Undefined forcing data values' )
@@ -562,28 +640,71 @@ contains
                     a2dVarAlbedo = transpose(a2dVar)
                 endif
                 !------------------------------------------------------------------------------------------
-                
+              
                 !------------------------------------------------------------------------------------------
                 ! LAI
                 sVarName = 'LAI'
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
+                
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//sVarName//'!')
-                    a2dVarLAI = -9999.0; 
-                    !dVarLAI = -9999.0
-                    !call HMC_Tools_Time_MonthVal(oHMC_Namelist(iID)%a1dLAIMonthly, sTimeMonth, dVarLAI)
-                    !a2dVarLAI = dVarLAI;
+                                        
+                    if (sTimeEndLAI .eq. sTimeStartLAI) then
+
+                        a2dVarLAI = -9999.0;
+                        ! Update time period within which LAI is still valid  - 1 model step because it is
+                        ! obtained from climatology
+                        call HMC_Tools_Time_GetNewDate(sTimeEndLAI, sTimeStartLAI, nint(real(iDtModel)))
+                        oHMC_Vars(iID)%sTimeMaxLAI = sTimeEndLAI
+                    else
+                        call mprintf(.true., iWARN , 'Using previous valid LAI!')
+                        a2dVarLAI = oHMC_Vars(iID)%a2dLAI
+                    endif
+
                 else
                     a2dVarLAI = transpose(a2dVar)
-                endif
-                !------------------------------------------------------------------------------------------
+                    
+                    !update time period within which LAI is still valid 
+                    call HMC_Tools_Time_GetNewDate(sTimeEndLAI, sTimeStartLAI, nint(real(iTVeg * iDtModel)))
+                    oHMC_Vars(iID)%sTimeMaxLAI = sTimeEndLAI
                 
+                endif               
+                
+                !------------------------------------------------------------------------------------------
+                !------------------------------------------------------------------------------------------
+                ! Fractional Vegetation Cover
+                sVarName = 'FC'
+                call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
+                
+                if(iErr /= 0) then
+                    call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//sVarName//'!')
+                                        
+                    if (sTimeEndFC .eq. sTimeStartFC) then
+                        a2dVarFC = -9999.0;
+!                        update time period within which LAI is still valid  - 1 model step because it is obtained from climatology
+                        call HMC_Tools_Time_GetNewDate(sTimeEndFC, sTimeStartFC, nint(real(iDtModel)))
+                        oHMC_Vars(iID)%sTimeMaxFC = sTimeEndFC
+                    else
+                        call mprintf(.true., iWARN , 'Using previous valid FC!')
+                        a2dVarFC = oHMC_Vars(iID)%a2dFC
+                    endif
+
+                else
+                    a2dVarFC = transpose(a2dVar)
+                    
+                    !update time period within which FC is still valid 
+                    call HMC_Tools_Time_GetNewDate(sTimeEndFC, sTimeStartFC, nint(real(iTVeg * iDtModel)))
+                    oHMC_Vars(iID)%sTimeMaxFC = sTimeEndFC
+                
+                endif               
+                !------------------------------------------------------------------------------------------
+
                 !------------------------------------------------------------------------------------------
                 ! Closing netCDF file
                 iErr = nf90_close(iFileID)
                 ! Remove uncompressed file (to save space on disk)
                 call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, &
-                                                  sFileNameData_Forcing, .false.)
+                                                  sFileNameData_Temp, .false.)
                 !------------------------------------------------------------------------------------------
                 
                 !------------------------------------------------------------------------------------------
@@ -610,12 +731,12 @@ contains
                                       iRows, iCols, sTime, &
                                       a2dVarRain, a2dVarTa, a2dVarIncRad, &
                                       a2dVarWind, a2dVarRelHum, a2dVarPa, &
-                                      a2dVarAlbedo, a2dVarLAI, &
+                                      a2dVarAlbedo, a2dVarLAI, a2dVarFC, &
                                       iScaleFactor)
     
         !------------------------------------------------------------------------------------------
         ! Variable(s)
-        integer(kind = 4)                   :: iID
+        integer(kind = 4)                   :: iID, iTVeg, iDtModel, iFlagDynVeg
                                       
         character(len = 256), intent(in)    :: sPathData_Forcing
         character(len = 700)                :: sFileNameData_Forcing, sFileNameData_Forcing_Zip
@@ -625,6 +746,7 @@ contains
         real(kind = 4)                      :: dVar
                
         character(len = 19), intent(in)     :: sTime
+        character(len = 19)                 :: sTimeEndLAI, sTimeEndFC, sTimeStartLAI, sTimeStartFC
         character(len = 12)                 :: sTimeMonth
         
         real(kind = 4), dimension(iRows, iCols)                 :: a2dVar
@@ -637,6 +759,7 @@ contains
         real(kind = 4), dimension(iRows, iCols), intent(out)    :: a2dVarPa 
         real(kind = 4), dimension(iRows, iCols), intent(out)    :: a2dVarAlbedo
         real(kind = 4), dimension(iRows, iCols), intent(out)    :: a2dVarLAI
+        real(kind = 4), dimension(iRows, iCols), intent(out)    :: a2dVarFC
        
         character(len = 256):: sVarUnits
         integer(kind = 4)   :: iErr
@@ -651,14 +774,29 @@ contains
         a2dVarRelHum = -9999.0; a2dVarPa = -9999.0; a2dVarAlbedo = -9999.0; a2dVarLAI = -9999.0;  
 
         sFileNameData_Forcing = ''; sFileNameData_Forcing_Zip = ''; sTimeMonth = ''
+        sTimeEndLAI = ''; sTimeEndFC = ''; sTimeStartLAI = ''; sTimeStartFC = '';
+
+        
         
         ! Checking date
         write(sTimeMonth,'(A,A,A)') sTime(1:4), sTime(6:7), sTime(9:10)
+        
+        !write current date to new variable for checking LAI validity
+        write(sTimeStartLAI,'(A,A,A)') sTime
+        write(sTimeStartFC,'(A,A,A)') sTime
+
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
         ! Get global information
         sCommandUnzipFile = oHMC_Namelist(iID)%sCommandUnzipFile
+        
+        !Get global parameters
+        sTimeEndLAI = oHMC_Vars(iID)%sTimeMaxLAI
+        sTimeEndFC = oHMC_Vars(iID)%sTimeMaxFC
+        iFlagDynVeg = oHMC_Namelist(iID)%iFlagDynVeg
+        iDtModel = oHMC_Namelist(iID)%iDtModel
+        iTVeg = oHMC_Namelist(iID)%iTVeg
         
         ! Info start
         call mprintf(.true., iINFO_Extra, ' Data :: Forcing gridded :: Binary ... ' )
@@ -885,16 +1023,25 @@ contains
             ".bin"
         call mprintf(.true., iINFO_Extra, ' Get filename (forcing gridded): '//trim(sFileNameData_Forcing) )
 
+        
         ! Checking file input availability
         sFileNameData_Forcing_Zip = trim(sFileNameData_Forcing)//'.gz'
         inquire (file = sFileNameData_Forcing_Zip, exist = bFileExist)
         if ( .not. bFileExist ) then
+
             call mprintf(.true., iWARN, ' Problem opening uncompressed binary file: '// &
-                         trim(sFileNameData_Forcing_Zip)//' --> Undefined forcing data values!')
-            a2dVar = -9999.0;
-            !dVar = -9999.0
-            !call HMC_Tools_Time_MonthVal(oHMC_Namelist(iID)%a1dLAIMonthly, sTimeMonth, dVar)
-            !a2dVar = dVar;
+                         trim(sFileNameData_Forcing_Zip))
+
+            if (sTimeEndLAI.eq.sTimeStartLAI) then
+                a2dVar = -9999.0;
+                !update time period within which LAI is still valid  - 1 model step becasue it is obtained from climatology
+                call HMC_Tools_Time_GetNewDate(sTimeEndLAI, sTimeStartLAI, nint(real(iDtModel)))
+                oHMC_Vars(iID)%sTimeMaxLAI = sTimeEndLAI                
+            else
+                call mprintf(.true., iWARN, ' Using previous valid LAI')
+                a2dVar = oHMC_Vars(iID)%a2dLAI
+            endif
+
         else
             ! Unzip file
             call HMC_Tools_Generic_UnzipFile(oHMC_Namelist(iID)%sCommandUnzipFile, &
@@ -905,8 +1052,57 @@ contains
             ! Remove uncompressed file (to save space on disk)
             call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, &
                                               sFileNameData_Forcing, .false.)
+                                              
+            !update time period in which LAI is still valid 
+            call HMC_Tools_Time_GetNewDate(sTimeEndLAI, sTimeStartLAI, nint(real(iTVeg * iDtModel)))
+            oHMC_Vars(iID)%sTimeMaxLAI = sTimeEndLAI
         endif
         a2dVarLAI = a2dVar
+        !------------------------------------------------------------------------------------------
+
+        !------------------------------------------------------------------------------------------
+        ! Fractional Vegetation Cover (example: FC_201405010000.bin.gz)
+        sFileNameData_Forcing = trim(sPathData_Forcing)//"FC_"// &
+            sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+            sTime(12:13)//sTime(15:16)// &
+            ".bin"
+        call mprintf(.true., iINFO_Extra, ' Get filename (forcing gridded): '//trim(sFileNameData_Forcing) )
+
+        
+        ! Checking file input availability
+        sFileNameData_Forcing_Zip = trim(sFileNameData_Forcing)//'.gz'
+        inquire (file = sFileNameData_Forcing_Zip, exist = bFileExist)
+        if ( .not. bFileExist ) then
+
+            call mprintf(.true., iWARN, ' Problem opening uncompressed binary file: '// &
+                         trim(sFileNameData_Forcing_Zip))
+
+            if (sTimeEndFC.eq.sTimeStartLAI) then
+                a2dVar = -9999.0;
+                !update time period within which LAI is still valid  - 1 model step becasue it is obtained from climatology
+                call HMC_Tools_Time_GetNewDate(sTimeEndFC, sTimeStartFC, nint(real(iDtModel)))
+                oHMC_Vars(iID)%sTimeMaxFC = sTimeEndFC
+            else
+                call mprintf(.true., iWARN, ' Using previous valid FC')
+                a2dVar = oHMC_Vars(iID)%a2dFC
+            endif
+                      
+        else
+            ! Unzip file
+            call HMC_Tools_Generic_UnzipFile(oHMC_Namelist(iID)%sCommandUnzipFile, &
+                                             sFileNameData_Forcing_Zip, &
+                                             sFileNameData_Forcing, .true.)
+            ! Read binary data
+            call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Forcing, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
+            ! Remove uncompressed file (to save space on disk)
+            call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, &
+                                              sFileNameData_Forcing, .false.)
+                                              
+            !update time period in which FC is still valid 
+            call HMC_Tools_Time_GetNewDate(sTimeEndFC, sTimeStartFC, nint(real(iTVeg * iDtModel)))
+            oHMC_Vars(iID)%sTimeMaxFC = sTimeEndFC
+        endif     
+        a2dVarFC = a2dVar
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------

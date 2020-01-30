@@ -317,7 +317,6 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Variable(s) initialization
-        iFlagVarDtPhysConv = 0;
         dDtIntegrAct = 0.0; dDtIntegrPStep = 0.0; dDtIntegr = 0.0;
         dVarRainMax = 0.0; dDEMStepMean = 0.0;
         dDtRef = 0.0; dDtRefRatio = 0.0; dDtIntegrMin = 0.0;

@@ -286,7 +286,7 @@ contains
 
         character(len = 19)                     :: sTime, sTimeSave
         
-        real(kind = 4)                          :: dVarMissingValue
+        real(kind = 4)                          :: dVarMissingValue, dScale_Factor
         real(kind = 4)                          :: dVarXLLCorner, dVarYLLCorner
         real(kind = 4)                          :: dVarCellSizeX, dVarCellSizeY
         
@@ -494,19 +494,21 @@ contains
         ! TMarked
         sVarName = 'Tmk'; sVarNameLong = 'air_temperature_marked'; sVarDescription = 'air temperature marked';
         sVarUnits = 'K'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+        dScale_Factor = 10.0;
         sVarCoords = 'Longitude Latitude';
         call HMC_Tools_IO_Put3d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, iID_Dim_TMarkedSteps, & 
                              sVarName, sVarNameLong, sVarDescription, &
-                             sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
-                             iCols, iRows, iTMarkedSteps, transpose3Dvar(a3dVarTaKMarked)) 
+                             sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, dScale_Factor, &
+                             iCols, iRows, iTMarkedSteps, transpose3Dvar(dScale_Factor * a3dVarTaKMarked)) 
         ! T24
         sVarName = 'T24'; sVarNameLong = 'air_temperature_last24'; sVarDescription = 'air temperature last 24 hours';
         sVarUnits = 'K'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+        dScale_Factor = 10.0;
         sVarCoords = 'Longitude Latitude';
         call HMC_Tools_IO_Put3d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, iID_Dim_Day1Steps, & 
                              sVarName, sVarNameLong, sVarDescription, &
-                             sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
-                             iCols, iRows, iDaySteps, transpose3Dvar(a3dVarTaK24)) 
+                             sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, dScale_Factor, &
+                             iCols, iRows, iDaySteps, transpose3Dvar(dScale_Factor * a3dVarTaK24)) 
         ! Water sources
         sVarName = 'WS'; sVarNameLong = 'water_sources'; sVarDescription = 'water sources';
         sVarUnits = 'm^3/s'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
@@ -556,20 +558,22 @@ contains
             ! Air Temperature last 1 day(s))
             sVarName = 'T_1Days'; sVarNameLong = 'air_temperature_last1days'; sVarDescription = 'air temperature last 1 day(s)';
             sVarUnits = 'C'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+            dScale_Factor = 10.0;
             sVarCoords = 'Longitude Latitude';
             call HMC_Tools_IO_Put3d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, iID_Dim_Day1Steps, & 
                                  sVarName, sVarNameLong, sVarDescription, &
-                                 sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
-                                 iCols, iRows, iDaySteps, transpose3Dvar(a3dVarTaC_1Days)) 
+                                 sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, dScale_Factor, &
+                                 iCols, iRows, iDaySteps, transpose3Dvar(dScale_Factor * a3dVarTaC_1Days)) 
                                  
             ! Air Temperature last 5 day(s))
             sVarName = 'T_5Days'; sVarNameLong = 'air_temperature_last5days'; sVarDescription = 'air temperature last 5 day(s)';
             sVarUnits = 'C'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+            dScale_Factor = 10.0;
             sVarCoords = 'Longitude Latitude';
             call HMC_Tools_IO_Put3d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, iID_Dim_Day5Steps, & 
                                  sVarName, sVarNameLong, sVarDescription, &
-                                 sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
-                                 iCols, iRows, iDaySteps*5, transpose3Dvar(a3dVarTaC_5Days)) 
+                                 sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, dScale_Factor, &
+                                 iCols, iRows, iDaySteps*5, transpose3Dvar(dScale_Factor * a3dVarTaC_5Days)) 
         endif
         !------------------------------------------------------------------------------------------
                                  

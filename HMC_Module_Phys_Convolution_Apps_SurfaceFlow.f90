@@ -13,17 +13,20 @@ module HMC_Module_Phys_Convolution_Apps_SurfaceFlow
 
     !------------------------------------------------------------------------------------
     ! External module(s) 
-    use HMC_Module_Namelist,                only: oHMC_Namelist
-    use HMC_Module_Vars_Loader,             only: oHMC_Vars
+    use HMC_Module_Namelist,                                only: oHMC_Namelist
+    use HMC_Module_Vars_Loader,                             only: oHMC_Vars
     
     use HMC_Module_Tools_Debug
     
-    use HMC_Module_Phys_HydraulicStructure, only: HMC_Phys_Dam_Spilling, &
-                                                  HMC_Phys_Dam_Discharge, &
-                                                  HMC_Phys_Lake_Tank
+    use HMC_Module_Phys_HydraulicStructure,                 only: HMC_Phys_Dam_Spilling, &
+                                                                    HMC_Phys_Dam_Discharge, &
+                                                                    HMC_Phys_Lake_Tank
                                                   
-    use HMC_Module_Tools_Generic,           only: getIntValue, getIntRange
+    use HMC_Module_Tools_Generic,                           only: getIntValue, getIntRange
     
+    use HMC_Module_Phys_Convolution_Apps_Flooding,          only: HMC_Phys_Convolution_Apps_Flooding
+
+
     ! Implicit none for all subroutines in this module
     implicit none
     !------------------------------------------------------------------------------------------
@@ -146,7 +149,7 @@ contains
         dBc = oHMC_Namelist(iID)%dBc
         
         ! Activate/Deactivate release mass update
-        iFlagReleaseMass = oHMC_Namelist(iID)%iFlagReleaseMass
+        iFlagReleaseMass = oHMC_Namelist(iID)%iFlagReleaseMass     
         
         ! Info start
         if (iDEBUG.gt.0) then
@@ -496,6 +499,9 @@ contains
 
                 ! Compute h
                 dDh = a2dVarHydroCatch(iC, iTTemp + 1)/dVarAreaCell*dDtSurfaceflow*1000 ! [mm]
+                
+                ! Avoid < 0 values in turbinate for mismatch in length of simulation
+                if (dDh.lt.0.0) dDh = 0.0
 
                 ! Defining flow directions
                 iII = int((int(oHMC_Vars(iID)%a2iPNT(iI,iJ))  - 1)/3) - 1
@@ -510,13 +516,13 @@ contains
                     dRoutPrev = a2dVarRouting(iIII, iJJJ) 
                     
                     ! Q less than QMV
-                    if(a2dVarRouting(iIII, iJJJ).le.dVarQminCatch)then
-                        dDh=0.0
+                    if(a2dVarRouting(iIII, iJJJ).le.dVarQminCatch) then
+                        dDh = 0.0 
                     ! Q larger than QMV
                     else
-                        !Q-QMV < Qplant
-                        if((a2dVarRouting(iIII, iJJJ)-dDh).lt.dVarQminCatch) then
-                                dDh=a2dVarRouting(iIII, iJJJ)-dVarQminCatch				
+                        ! Q-QMV < Qplant
+                        if((a2dVarRouting(iIII, iJJJ) - dDh).lt.dVarQminCatch) then
+                                dDh = a2dVarRouting(iIII, iJJJ)-dVarQminCatch				
                         endif
                     endif
 
@@ -587,7 +593,7 @@ contains
         !------------------------------------------------------------------------------------------
         ! Compute dam spilling
         call HMC_Phys_Dam_Spilling(iID, iNDam, dDtSurfaceflow, &
-                                                     a1dVarVDam, a1dVarQoutDam, a1dVarCoeffDam)
+                                                     a1dVarVDam, a1dVarQoutDam, a1dVarCoeffDam, a1dVarLDam)
         !------------------------------------------------------------------------------------------
                                      
         !------------------------------------------------------------------------------------------
@@ -693,7 +699,7 @@ contains
         real(kind = 4)      :: dHm, dHin,dKint
         real(kind = 4)      :: dDtSurfaceFlow
         
-        integer(kind = 4)   :: iFlagReleaseMass
+        integer(kind = 4)   :: iFlagReleaseMass, iFlagFlood
         integer(kind = 4)   :: iVarPNT
         real(kind = 4)      :: dUMax
         real(kind = 4)      :: dRm, dBc
@@ -710,7 +716,7 @@ contains
         real(kind = 4), dimension (iRows, iCols)            :: a2dVarUcAct, a2dVarUhAct
         real(kind = 4), dimension (iRows, iCols)            :: a2dVarQDisOut, a2dVarQVolOut
         real(kind = 4), dimension (iRows, iCols)            :: a2dVarRouting
-        real(kind = 4), dimension (iRows, iCols)            :: a2dPartition, a2dBF
+        real(kind = 4), dimension (iRows, iCols)            :: a2dPartition, a2dVarBF
         real(kind = 4), dimension (iRows, iCols)            :: a2dVarWidthC, a2dVarAreaCell, a2dVarWidthH
         
         real(kind = 4), dimension (iNDam)                   :: a1dVarVDam, a1dVarHDam, a1dVarLDam, &
@@ -733,9 +739,9 @@ contains
         
         a2dVarUcAct = 0.0; a2dVarUhAct = 0.0; 
         a2dVarFlowExf = 0.0; a2dVarRouting = 0.0;
-        
-        a2dVarQDisOut = 0.0 ! Outgoing discharge in m^3/s from each cell
-        a2dVarQVolOut = 0.0 ! Outgoing discharge in volume from each cell
+               
+        a2dVarQDisOut = 0.0; ! Outgoing discharge in m^3/s from each cell
+        a2dVarQVolOut = 0.0; ! Outgoing discharge in volume from each cell
         
         a1dVarVDam = 0.0; a1dVarHDam = 0.0; a1dVarLDam = 0.0; a1dVarCoeffDam = 0.0; a1dVarQoutDam = 0.0
         a1dVarVLake = 0.0; a1dVarQPlant = 0.0; 
@@ -747,6 +753,7 @@ contains
         a2dVarWidthC = 0.0; a2dVarAreaCell = 0.0; a2dVarWidthH = 0.0
         a2dVarHydroPrevH = 0.0;  a2dVarHydroUpdH = 0.0;
         a2dVarHydroPrevC = 0.0; a2dVarHydroUpdC = 0.0;
+        a2dVarBF = 0.0;
         
         ! Null global variable(s)
         oHMC_Vars(iID)%a2dQVolOut = 0.0 ! Initialize each step (Portata in volume in uscita da una cella == Qtmp)
@@ -765,8 +772,12 @@ contains
         ! Integrating step (SurfaceFlow)
         dDtSurfaceflow = dDtAct
         
-        !Limit for numerical integration
+        ! Limit for numerical integration
         dKint = 0.75
+        
+        ! Flooding parameters
+        dPa = 2.5
+        dPb = 0.5
         
         ! Variable(s) time dependent from global declaration
         a2dVarFlowExf = oHMC_Vars(iID)%a2dFlowExf         
@@ -802,12 +813,15 @@ contains
         ! Activate/Deactivate release mass update
         iFlagReleaseMass = oHMC_Namelist(iID)%iFlagReleaseMass
         
+        ! Flooding flag
+        iFlagFlood = oHMC_Namelist(iID)%iFlagFlood 
+        
         ! Info start
         if (iDEBUG.gt.0) then
             call mprintf(.true., iINFO_Extra, ' Phys :: Convolution :: SurfaceFlow ... ' )
         endif
         !------------------------------------------------------------------------------------------
-        
+             
         !------------------------------------------------------------------------------------------
         ! Debug
         if (iDEBUG.gt.0) then
@@ -826,13 +840,13 @@ contains
             call mprintf(.true., iINFO_Extra, ' ') 
         endif
         !------------------------------------------------------------------------------------------
-        
+
         !------------------------------------------------------------------------------------------
         ! Partition coefficient and length of flooding
         a2dPartition = 0.0;
         where (oHMC_Vars(iID)%a2dDEM.gt.0.0)
             a2dPartition = (a2dVarWidthC/sqrt(a2dVarAreaCell))**((100.0/sqrt(a2dVarAreaCell))**0.35)
-            a2dBF = dPa*a2dVarWidthC**dPb
+            a2dVarBF = dPa*a2dVarWidthC**dPb
         endwhere
         where ( (oHMC_Vars(iID)%a2dDEM.gt.0.0) .and. (a2dPartition.le.0) )
             a2dPartition = 0.01
@@ -841,7 +855,7 @@ contains
             a2dPartition = 0.99
         endwhere
         !------------------------------------------------------------------------------------------
-        
+
         !------------------------------------------------------------------------------------------
         ! Channel max surface velocity (UcMax)
         dUMax = 3600.0/dDtSurfaceflow*0.5
@@ -887,10 +901,16 @@ contains
         where( a2dVarRouting .lt. 0.0)
             a2dVarRouting = 0.0
         endwhere
+
+        where ((oHMC_Vars(iID)%a2iChoice.le.1) .and. (oHMC_Vars(iID)%a2dDEM.gt.0.0))
+            a2dVarAreaCell = a2dVarAreaCell
+        elsewhere
+            a2dVarAreaCell = 0.0
+        endwhere        
         !------------------------------------------------------------------------------------------
-        
-        !**********************************************************************************
-        !Equations for hillslope
+       
+        !------------------------------------------------------------------------------------------
+        ! Equations for hillslope
         where(a2dVarIntensityPrev.lt.0.0)
             a2dVarIntensityPrev = 0.0
         endwhere
@@ -899,14 +919,15 @@ contains
             a2dVarIntensityUpd = oHMC_Vars(iID)%a2dRunoffH*a2dVarAreaCell   + a2dVarFlowExf*a2dVarAreaCell 
         endwhere
                    
-        WHERE ((oHMC_Vars(iID)%a2iChoice.le.1) .and. (oHMC_Vars(iID)%a2dDEM.gt.0.0))
+        where ((oHMC_Vars(iID)%a2iChoice.le.1) .and. (oHMC_Vars(iID)%a2dDEM.gt.0.0))
             
             a2dVarQDisOut = a2dVarWidthH*a2dVarUhact*(tan(oHMC_Vars(iID)%a2dBeta)**0.5)*a2dVarHydroPrevH**(5.0/3.0)
-            WHERE (a2dVarQDisOut*dDtSurfaceflow.gt.dKint*(a2dVarHydroPrevH*a2dVarWidthH*sqrt(a2dVarAreaCell)+ &
+            
+            where (a2dVarQDisOut*dDtSurfaceflow.gt.dKint*(a2dVarHydroPrevH*a2dVarWidthH*sqrt(a2dVarAreaCell)+ &
                         a2dVarIntensityUpd*dDtSurfaceflow))
                 a2dVarQDisOut = dKint*(a2dVarHydroPrevH*a2dVarWidthH*sqrt(a2dVarAreaCell)+a2dVarIntensityUpd*dDtSurfaceflow)/ &
                                 dDtSurfaceflow
-            ENDWHERE
+            endwhere
              
             !Upgrade Level on hillslopes
             a2dVarHydroUpdH = a2dVarHydroPrevH +(-a2dVarQDisOut*dDtSurfaceflow+a2dVarIntensityUpd*dDtSurfaceflow)/ &
@@ -914,27 +935,18 @@ contains
             !Trapeeze method 1 iteration
             a2dVarQDisOut = a2dVarWidthH*a2dVarUhact*(tan(oHMC_Vars(iID)%a2dBeta)**0.5)* &
                             (0.5*a2dVarHydroPrevH**(5.0/3.0)+0.5*a2dVarHydroUpdH**(5.0/3.0))
-            WHERE (a2dVarQDisOut*dDtSurfaceflow.gt.dKint*(a2dVarHydroPrevH*a2dVarWidthH*sqrt(a2dVarAreaCell)+ &
+            where (a2dVarQDisOut*dDtSurfaceflow.gt.dKint*(a2dVarHydroPrevH*a2dVarWidthH*sqrt(a2dVarAreaCell)+ &
                 a2dVarIntensityUpd*dDtSurfaceflow))
                 a2dVarQDisOut = dKint*(a2dVarHydroPrevH*a2dVarWidthH*sqrt(a2dVarAreaCell)+a2dVarIntensityUpd*dDtSurfaceflow)/ &
                                 dDtSurfaceflow
-            ENDWHERE
+            endwhere
             oHMC_Vars(iID)%a2dQH = a2dVarQDisOut !Streamflow in hillslopes
             a2dVarHydroUpdH = a2dVarHydroPrevH+(-a2dVarQDisOut*dDtSurfaceflow+a2dVarIntensityUpd*dDtSurfaceflow)/ &
                         (a2dVarWidthH*sqrt(a2dVarAreaCell))
                         
-        ENDWHERE       
-        !------------------------------------------------------------------------------------------
-        
-        !------------------------------------------------------------------------------------------ 
-        ! FlOODING @932 ==> DA INSERIRE PARTE DI FLOODING
-        ! ....................
-        ! ....................
-        ! ....................
-        ! ....................
-        ! ....................
-        !------------------------------------------------------------------------------------------ 
-        
+        endwhere       
+        !-------------------------------------------------------------------------------------------
+
         !------------------------------------------------------------------------------------------ 
         ! Put null on input matrix because now used for Channels
         where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
@@ -1088,6 +1100,9 @@ contains
 
                 ! Compute Q catch
                 dDh = a2dVarHydroCatch(iC, iTTemp + 1) ! [m^3/s]
+                
+                ! Avoid < 0 values in turbinate for mismatch in length of simulation
+                if (dDh.lt.0.0) dDh = 0.0
 
                 ! Defining flow directions
                 iII = int((int(oHMC_Vars(iID)%a2iPNT(iI,iJ))  - 1)/3) - 1
@@ -1137,13 +1152,21 @@ contains
                 endif
 
             enddo
+            
+        endif
+        !------------------------------------------------------------------------------------------       
+
+        !------------------------------------------------------------------------------------------
+        ! Compute flooding
+        if(iFlagFlood.eq.1) then
+            call HMC_Phys_Convolution_Apps_Flooding(iID, iRows, iCols, &
+                                                    dDtSurfaceflow, a2dVarBF, a2dVarHydroPrevC)
         endif
         !------------------------------------------------------------------------------------------
-               
+
         !------------------------------------------------------------------------------------------
         ! CHANNELS 
-        a2dVarHydroUpdC = a2dVarHydroPrevC
-        
+        ! a2dVarHydroUpdC = a2dVarHydroPrevC
         where(oHMC_Vars(iID)%a2dDEM.gt.0.0.and.(oHMC_Vars(iID)%a2iChoice.le.1.0))
             a2dVarIntensityUpd = a2dVarIntensityUpd +  & !Plant and realese data
                                  oHMC_Vars(iID)%a2dQH*a2dPartition + & !From hillslopes to channels
@@ -1153,31 +1176,39 @@ contains
         endwhere
         
         a2dVarQDisOut = 0.0
-        WHERE ((oHMC_Vars(iID)%a2iChoice.le.1) .and. (oHMC_Vars(iID)%a2dDEM.gt.0.0))
+        where ((oHMC_Vars(iID)%a2iChoice.le.1) .and. (oHMC_Vars(iID)%a2dDEM.gt.0.0))
             a2dVarQDisOut = a2dVarWidthC*a2dVarUcact*(tan(oHMC_Vars(iID)%a2dBeta)**0.5)*a2dVarHydroPrevC**(1+dBc)
-            WHERE (a2dVarQDisOut*dDtSurfaceflow.gt.dKint*(a2dVarHydroPrevC*a2dVarWidthC*sqrt(a2dVarAreaCell)+ &
+            where (a2dVarQDisOut*dDtSurfaceflow.gt.dKint*(a2dVarHydroPrevC*a2dVarWidthC*sqrt(a2dVarAreaCell)+ &
                         a2dVarIntensityUpd*dDtSurfaceflow))
                 a2dVarQDisOut = dKint*(a2dVarHydroPrevC*a2dVarWidthC*sqrt(a2dVarAreaCell)+a2dVarIntensityUpd*dDtSurfaceflow)/ &
                                 dDtSurfaceflow
-            ENDWHERE
+            ENDwhere
             ! Upgrade Level on CHannels
             a2dVarHydroUpdC = a2dVarHydroPrevC +(-a2dVarQDisOut*dDtSurfaceflow+a2dVarIntensityUpd*dDtSurfaceflow)/ &
                         (a2dVarWidthC*sqrt(a2dVarAreaCell))
             ! Trapeeze method 1 iteration
             a2dVarQDisOut = a2dVarWidthC*a2dVarUcact*(tan(oHMC_Vars(iID)%a2dBeta)**0.5)* &
                             (0.5*a2dVarHydroPrevC**(1+dBc)+0.5*a2dVarHydroUpdC**(1+dBc))
-            WHERE (a2dVarQDisOut*dDtSurfaceflow.gt.dKint*(a2dVarHydroPrevC*a2dVarWidthC*sqrt(a2dVarAreaCell)+ &
+            where (a2dVarQDisOut*dDtSurfaceflow.gt.dKint*(a2dVarHydroPrevC*a2dVarWidthC*sqrt(a2dVarAreaCell)+ &
                     a2dVarIntensityUpd*dDtSurfaceflow))
                 a2dVarQDisOut = dKint*(a2dVarHydroPrevC*a2dVarWidthC*sqrt(a2dVarAreaCell)+a2dVarIntensityUpd*dDtSurfaceflow)/ &
                                 dDtSurfaceflow
-            ENDWHERE
+            ENDwhere
             
             a2dVarHydroUpdC = a2dVarHydroPrevC+(-a2dVarQDisOut*dDtSurfaceflow+a2dVarIntensityUpd*dDtSurfaceflow)/ &
                         (a2dVarWidthC*sqrt(a2dVarAreaCell))
-        ENDWHERE    
+        ENDwhere    
         dTmmm = MAXVAL(MAXVAL(a2dVarHydroUpdC,dim=1,mask=oHMC_Vars(iID)%a2iChoice.le.1.and. &
                     oHMC_Vars(iID)%a2dDem.gt.0))   
-                    
+                           
+        ! Check for zero values
+        where(a2dVarHydroUpdH.lt.0.0)
+                a2dVarHydroUpdH = 0.0
+        endwhere
+        where(a2dVarHydroUpdC.lt.0.0)
+                a2dVarHydroUpdC = 0.0
+        endwhere                    
+                            
         ! Input in Linear Lakes
         a2dVarIntensityUpd = 0.0
         where(oHMC_Vars(iID)%a2dDEM.gt.0.0.and.(oHMC_Vars(iID)%a2iChoice.gt.1))
@@ -1240,7 +1271,7 @@ contains
             enddo
         endif
         !------------------------------------------------------------------------------------------
-        
+
         !------------------------------------------------------------------------------------------  
         ! Calculating flow 
         ! Calcolo la porzione di acqua che va nella cella successiva
@@ -1327,7 +1358,7 @@ contains
         !------------------------------------------------------------------------------------------
         ! Compute dam spilling
         call HMC_Phys_Dam_Spilling(iID, iNDam, dDtSurfaceflow, &
-                                                     a1dVarVDam, a1dVarQoutDam, a1dVarCoeffDam)
+                                                     a1dVarVDam, a1dVarQoutDam, a1dVarCoeffDam, a1dVarLDam)
         !------------------------------------------------------------------------------------------
                                      
         !------------------------------------------------------------------------------------------

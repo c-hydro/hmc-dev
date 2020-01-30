@@ -20,19 +20,21 @@ TYPE HMC_Type_Namelist
     integer(kind = 4)       :: iFlagGrid
     integer(kind = 4)       :: iFlagCType
     integer(kind = 4)       :: iFlagFrac
-    
+    integer(kind = 4)       :: iFlagDynVeg
+    integer(kind = 4)       :: iFlagFlood
+
     logical                 :: bGridCheck
 
     integer(kind = 4)       :: iSimLength, iDtModel 
     integer(kind = 4)       :: iDtData_Forcing
     integer(kind = 4)       :: iDtData_Updating
     integer(kind = 4)       :: iDtData_Output_Gridded, iDtData_Output_Point
-    integer(kind = 4)       :: iDtData_State_Gridded, iDtData_State_Point
+    integer(kind = 4)       :: iDtData_State_Gridded, iDtData_State_Point 
     
     integer(kind = 4)       :: iDtPhysConv, iDtPhysConvPrevious
     integer(kind = 4)       :: iDtPhysMethod
 
-    integer(kind = 4)       :: iScaleFactor, iTcMax, iTc
+    integer(kind = 4)       :: iScaleFactor, iTcMax, iTc, iTVeg
     
     integer(kind = 4)       :: iRowsL, iColsL
     real(kind = 4)          :: dXLLCornerL, dYLLCornerL, dXCellSizeL, dYCellSizeL, dNoDataL

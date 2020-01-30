@@ -54,6 +54,7 @@ contains
         
         character(len = 10)                               :: sVarQoutSectionFirst, sVarQoutSectionMax
         character(len = 10), parameter                    :: sFMTVarQoutSection = "(F10.2)"
+
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -204,7 +205,7 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Variable(s) declaration
-        integer(kind = 4)   :: iID, iRows, iCols, iTAct
+        integer(kind = 4)   :: iID, iRows, iCols, iTAct, iFlagFlood
         real(kind = 4)      :: dDtDataForcing, dDtMax, dDtAct, dDtDischarge
         
         integer(kind = 4), intent(inout)    :: iNTime, iTq  
@@ -216,16 +217,19 @@ contains
         
         !real(kind = 4), dimension (iRows, iCols)          :: a2dVarHydroPrev, a2dVarHydro, a2dVarIntensity
         real(kind = 4), dimension (iRows, iCols)          :: a2dVarQDisOut, a2dVarQVolOut, a2dVarQTot, a2dVarQout
+        real(kind = 4), dimension (iRows, iCols)          :: a2dVarQfloodCR, a2dVarQfloodCL, a2dVarQfloodIR, a2dVarQfloodIL
 
         real(kind = 4), dimension (iNSection)             :: a1dVarQoutSection
         
         character(len = 10)                               :: sVarQoutSectionFirst, sVarQoutSectionMax
         character(len = 10), parameter                    :: sFMTVarQoutSection = "(F10.2)"
+
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
         ! Variable(s) initialization 
         a2dVarQDisOut = 0.0; a2dVarQVolOut = 0.0; a2dVarQTot = 0.0; a2dVarQout = 0.0; 
+        a2dVarQfloodCR = 0.0; a2dVarQfloodCL = 0.0; a2dVarQfloodIR = 0.0; a2dVarQfloodIL = 0.0;
 
         a1dVarQoutSection = 0.0; 
         
@@ -235,8 +239,8 @@ contains
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
-        ! Flags
-        !iFlagVarUc = oHMC_Namelist(iID)%iFlagVarUc
+        ! Flooding flag
+        iFlagFlood = oHMC_Namelist(iID)%iFlagFlood 
 
         ! Temporal model step
         iT = int(oHMC_Vars(iID)%iTime)
@@ -246,6 +250,11 @@ contains
         a2dVarQVolOut = oHMC_Vars(iID)%a2dQC ! Q channel 2G
         a2dVarQTot = oHMC_Vars(iID)%a2dQTot
         a2dVarQout = oHMC_Vars(iID)%a2dQout
+
+        a2dVarQfloodCR = oHMC_Vars(iID)%a2dQfloodCR !cumulative flooding right bank
+        a2dVarQfloodIR = oHMC_Vars(iID)%a2dQfloodIR !convolution step flooding right bank
+        a2dVarQfloodCL = oHMC_Vars(iID)%a2dQfloodCL !cumulative flooding left bank
+        a2dVarQfloodIL = oHMC_Vars(iID)%a2dQfloodIL !convolution step flooding left bank
 
         a1dVarQoutSection = oHMC_Vars(iID)%a1dQoutSection
         
@@ -278,10 +287,18 @@ contains
         where( (oHMC_Vars(iID)%a2iChoice.le.1) .and. (oHMC_Vars(iID)%a2dDEM.gt.0.0) )
             a2dVarQTot = a2dVarQTot + a2dVarQVolOut
         endwhere
-
-        
         !------------------------------------------------------------------------------------------
-        
+
+        !------------------------------------------------------------------------------------------
+        !If Flooding is activated build the Average Qflooding maps
+        if (iFlagFlood.eq.1) then
+            where( (oHMC_Vars(iID)%a2iChoice.le.1) .and. (oHMC_Vars(iID)%a2dDEM.gt.0.0) )				
+                a2dVarQfloodCR = a2dVarQfloodCR + a2dVarQfloodIR
+                a2dVarQfloodCL = a2dVarQfloodCL + a2dVarQfloodIL
+            endwhere
+        endif
+        !------------------------------------------------------------------------------------------
+
         !------------------------------------------------------------------------------------------
         ! Compute discharge from mm/s to m^3/s (constant is in 1/h)
         if( (real(iTq)*dDtDischarge) .ge. (dDtDataForcing - dDtMax*1.001) ) then ! 1.001 for numerical approx
@@ -293,7 +310,17 @@ contains
                 a2dVarQout = a2dVarQTot                                
             endwhere
             !------------------------------------------------------------------------------------------
-            
+
+            !------------------------------------------------------------------------------------------
+            !If Flooding is activated build the Average Qflooding maps
+            if (iFlagFlood.eq.1) then
+                where( (oHMC_Vars(iID)%a2iChoice.le.1) .and. (oHMC_Vars(iID)%a2dDEM.gt.0.0) )				
+                    a2dVarQfloodCR = a2dVarQfloodCR / (real(iTq))
+                    a2dVarQfloodCL = a2dVarQfloodCL / (real(iTq))
+                endwhere
+            endif
+            !------------------------------------------------------------------------------------------
+
             !------------------------------------------------------------------------------------------
             ! Calculating discharge in selected outlet(s)
             a1dVarQoutSection = 0.0
@@ -317,7 +344,7 @@ contains
             enddo
                         
             ! Re-initialize qtot array and q counter
-            !write(*,*) a1dVarQoutSection; write(*,*) a1dVarQinDam
+            ! write(*,*) a1dVarQoutSection; write(*,*) a1dVarQinDam
             a2dVarQTot = 0.0 
             iTq = 0
             !------------------------------------------------------------------------------------------
@@ -351,6 +378,9 @@ contains
         oHMC_Vars(iID)%a2dQTot = a2dVarQTot    
         oHMC_Vars(iID)%a2dQout = a2dVarQout   ! Distributed discharge
         oHMC_Vars(iID)%a1dQoutSection = a1dVarQoutSection   ! Section discharge OUT
+        oHMC_Vars(iID)%a2dQfloodCR = a2dVarQfloodCR !cumulative flooding right bank
+        oHMC_Vars(iID)%a2dQfloodCL = a2dVarQfloodCL !cumulative flooding left bank
+
         
         ! Info end
         if (iDEBUG.gt.0) then

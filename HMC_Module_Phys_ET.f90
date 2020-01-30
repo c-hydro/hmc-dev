@@ -23,25 +23,25 @@ contains
 
     !------------------------------------------------------------------------------------------
     ! Subroutine to calculate evapotranspiration
-    subroutine HMC_Phys_ET_Cpl(iID, iRows, iCols, iTime, sTime, iNLake, iNDam)
+    subroutine HMC_Phys_ET_Cpl(iID, iRows, iCols, iTime, iDaySteps, sTime, iNLake, iNDam)
     
 	!------------------------------------------------------------------------------------------
         ! Variable(s) declaration
         integer(kind = 4)           :: iID
         integer(kind = 4)           :: iRows, iCols
         integer(kind = 4)           :: iNLake, iNDam
-        integer(kind = 4)           :: iTime
+        integer(kind = 4)           :: iTime, iDaySteps, iStep
         integer(kind = 4)           :: iI, iJ, iL, iD
         
-        real(kind = 4), dimension (iRows, iCols)         :: a2dVarET, a2dVarETCum, a2dVarVTot
-        real(kind = 4), dimension (iRows, iCols)         :: a2dVarVRet
+        real(kind = 4), dimension (iRows, iCols)         :: a2dVarET, a2dVarVTot, a2dVarETPot
+        real(kind = 4), dimension (iRows, iCols)         :: a2dVarVRet, a2dVarVTotWP
         
         real(kind = 4)              :: dVarET, dVarAE, dVarETLake, dVarETTot
         
         integer(kind = 4), dimension (iRows, iCols)         :: a2iVarMask, a2iVarChoice
-        real(kind = 4), dimension (iRows, iCols)            :: a2dVarDEM, a2dVarAreaCell
+        real(kind = 4), dimension (iRows, iCols)            :: a2dVarDEM, a2dVarAreaCell, a2dVarCtWP
         
-        real(kind = 4), dimension (iRows, iCols)            :: a2dVarAE
+        real(kind = 4), dimension (iRows, iCols)            :: a2dVarAE, a2dVarAEres
         
         integer(kind = 4), dimension (iNDam, 2)             :: a2iVarXYDam   
         real(kind = 4), dimension (iNDam)                   :: a1dVarCodeDam 
@@ -59,9 +59,9 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Initialization variable(s)
-        a2iVarMask = 0; a2iVarChoice = 0; a2dVarDEM = 0.0; a2dVarAreaCell = 0.0;
-        a2dVarAE = 0.0; a2dVarVRet = 0.0; a2dVarVTot = 0.0;
-        dVarAE = 0.0; dVarET = 0.0; dVarETLake = 0.0
+        a2iVarMask = 0; a2iVarChoice = 0; a2dVarDEM = 0.0; a2dVarAreaCell = 0.0; a2dVarCtWP = 0.0;
+        a2dVarAE = 0.0; a2dVarVRet = 0.0; a2dVarVTot = 0.0; a2dVarVTotWP = 0.0;
+        dVarAE = 0.0; dVarET = 0.0; dVarETLake = 0.0; a2dVarAEres = 0.0;
         
         a2iVarXYDam = 0; a1dVarCodeDam = 0.0; a1dVarVDam = 0.0; 
         a2iVarXYLake = 0; a1dVarCodeLake = 0.0; a1dVarVLake = 0.0;
@@ -73,6 +73,8 @@ contains
         a2iVarMask = oHMC_Vars(iID)%a2iMask
         a2iVarChoice = oHMC_Vars(iID)%a2iChoice
         a2dVarAreaCell = oHMC_Vars(iID)%a2dAreaCell
+        a2dVarCtWP = oHMC_Vars(iID)%a2dCtWP
+        
         ! Lake(s) and dam(s) variable(s)
         a2iVarXYDam = oHMC_Vars(iID)%a2iXYDam
         a1dVarCodeDam = oHMC_Vars(iID)%a1dCodeDam 
@@ -83,10 +85,15 @@ contains
         
         ! Extracting dynamic variable(s)
         a2dVarVRet = oHMC_Vars(iID)%a2dVRet
+
         ! Extracting dynamic state variable(s)
         a2dVarVTot = oHMC_Vars(iID)%a2dVTot         ! Total soil volume
         a2dVarET = oHMC_Vars(iID)%a2dET             ! Evapotranspiration
-        a2dVarETCum = oHMC_Vars(iID)%a2dETCum 
+        a2dVarETPot = oHMC_Vars(iID)%a2dETPot       ! Potential Evapotranspiration
+
+        ! Compute soil water content at wilting point - minimum threshold for evapotranspiration
+        a2dVarVTotWP = oHMC_Vars(iID)%a2dVTotWP
+        
         ! Extracting checking variable(s)
         dVarETTot = oHMC_Vars(iID)%dVarETTot
         
@@ -98,11 +105,10 @@ contains
         ! Debug
         if (iDEBUG.gt.0) then
             call mprintf(.true., iINFO_Extra, ' ========= EVAPOTRANSPIRATION START =========== ')  
-            call mprintf(.true., iINFO_Extra, checkvar(a2dVarET, a2iVarMask, 'ET START ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarET, a2iVarMask, 'ET START ') )   
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarAE, a2iVarMask, 'AE START ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarVTot, a2iVarMask, 'VTOT START ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarVRet, a2iVarMask, 'VRET START ') )
-            call mprintf(.true., iINFO_Extra, checkvar(a2dVarETCum, a2iVarMask, 'ETCUM START ') )
             call mprintf(.true., iINFO_Extra, '') 
         endif
         !------------------------------------------------------------------------------------------
@@ -121,13 +127,11 @@ contains
                 
                 ! Compute dam volume
                 if (a1dVarCodeDam(iD) .gt. 0) then
-                    
                     ! Distributed dam-lake
                     dVarETLake = 0.0
-                    dVarETLake = sum(sum( a2dVarET, DIM = 1, mask=a2iVarChoice.eq. a1dVarCodeDam(iD)))
+                    dVarETLake = sum(sum( a2dVarETPot, DIM = 1, mask=a2iVarChoice .eq. a1dVarCodeDam(iD)))
                     ! Update dam volume
                     a1dVarVDam(iD) = a1dVarVDam(iD) - dVarETLake/1000*a2dVarAreaCell(iI, iJ) !in m^3
-                
                 endif
                 
                 if (a1dVarVDam(iD) .lt. 0.0) a1dVarVDam(iD) = 0.0
@@ -148,14 +152,13 @@ contains
                 
                 ! Compute lake volume
                 if (a1dVarCodeLake(iL) .gt. 0) then
-                    
                     ! Distributed lake
                     dVarETLake = 0.0
-                    dVarETLake = sum(sum( a2dVarET, DIM = 1, mask=a2iVarChoice.eq. a1dVarCodeLake(iL)))
+                    dVarETLake = sum(sum( a2dVarETPot, DIM = 1, mask=a2iVarChoice .eq. a1dVarCodeLake(iL)))
                     ! Update dam volume
                     a1dVarVLake(iL) = a1dVarVLake(iL) - dVarETLake/1000*a2dVarAreaCell(iI, iJ) !in m^3
-                    
                 endif
+                
                 if (a1dVarVLake(iL) .lt. 0.0) a1dVarVLake(iL) = 0.0
                 dVarETLake = 0.0 
                 
@@ -164,11 +167,6 @@ contains
         !------------------------------------------------------------------------------------------
        
         !------------------------------------------------------------------------------------------
-        ! Re-initialize ET cumulate at 00.00
-        if(sTime(12:13) .eq. '00') then
-            a2dVarETCum = 0.0
-        endif
-
         ! Passing evapotranspiration (ET) to Actual evapotranspiration (AE)
         where (a2dVarDEM.gt.0.0)
             a2dVarAE = a2dVarET
@@ -177,40 +175,49 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Calculating retention volume 
-        where( (a2dVarVRet.gt.0.0) .and. (a2dVarVRet.gt.a2dVarAE) .and.  &
+        where( (a2dVarVRet.gt.0.0) .and. (a2dVarVRet.ge.a2dVarETPot) .and.  &
                (a2dVarDEM.gt.0.0) .and. (a2iVarChoice.le.1) )
                
-            a2dVarVRet = a2dVarVRet - a2dVarET
+            a2dVarVRet = a2dVarVRet - a2dVarETPot
+            a2dVarAE = a2dVarETPot
             
-        elsewhere( (a2dVarVRet.gt.0.0) .and. (a2dVarVRet.lt.a2dVarAE) .and. (a2iVarChoice.le.1) )
+        elsewhere( (a2dVarVRet.gt.0.0) .and. (a2dVarVRet.lt.a2dVarETPot) .and. &
+                (a2dVarDEM.gt.0.0) .and. (a2iVarChoice.le.1) )
             
-            where( (a2dVarVTot) .ge. (a2dVarAE - a2dVarVRet) )
-                a2dVarVTot = a2dVarVTot - (a2dVarAE - a2dVarVRet)
-            elsewhere
-                a2dVarAE = a2dVarVRet + a2dVarVTot
-                a2dVarVTot = 0.0
+            ! Compute residual evapotranspiration demand
+            a2dVarAEres = a2dVarETPot - a2dVarVRet
+            
+            where( a2dVarAEres .lt. a2dVarAE)
+                a2dVarAE = a2dVarAEres
+            endwhere
+            
+            where( (a2dVarVTot - a2dVarVTotWP) .gt. a2dVarAE )
+                a2dVarVTot = a2dVarVTot - a2dVarAE
+                a2dVarAE = a2dVarVRet + a2dVarAE
+            elsewhere ( (a2dVarVTot - a2dVarVTotWP) .le. a2dVarAE .and. (a2dVarVTot - a2dVarVTotWP) .gt. 0.0 ) 
+                a2dVarAE = a2dVarVRet + (a2dVarVTot - a2dVarVTotWP)
+                a2dVarVTot = a2dVarVTotWP
+            elsewhere ( (a2dVarVTot-a2dVarVTotWP) .le. 0.0 ) ! to account also for VTot<Vwp situations
+                a2dVarAE = 0.0
             endwhere
             a2dVarVRet = 0.0       
             
-        elsewhere(a2iVarChoice.le.1) ! Retention == 0.0 not on lakes
+        elsewhere (a2dVarDEM.gt.0.0 .and. a2iVarChoice.le.1) ! Retention == 0.0 not on lakes
             
-            where(a2dVarVTot.ge.a2dVarAE)
+            where ((a2dVarVTot - a2dVarVTotWP).gt.a2dVarAE)
                 ! tolgo evt da a2dV solo quando "non piove" cio� a2dRetention=0 
                 ! quando piove l'evaporazione dal suolo � trascurabile
                 a2dVarVTot = a2dVarVTot - a2dVarAE
-            elsewhere
-                a2dVarAE = a2dVarVTot
-                a2dVarVTot = 0.0
+            elsewhere ((a2dVarVTot-a2dVarVTotWP).le.a2dVarAE .and. (a2dVarVTot-a2dVarVTotWP) .gt. 0.0 )
+                a2dVarAE = a2dVarVTot - a2dVarVTotWP
+                a2dVarVTot = a2dVarVTotWP
+            elsewhere ( (a2dVarVTot-a2dVarVTotWP) .le. 0.0 ) ! to account also for VTot<Vwp situations
+                a2dVarAE = 0.0
             endwhere
             
         endwhere
         !------------------------------------------------------------------------------------------
 
-        !------------------------------------------------------------------------------------------
-        ! ET cumulated
-        a2dVarETCum = a2dVarETCum + a2dVarAE
-        !------------------------------------------------------------------------------------------
-        
         !------------------------------------------------------------------------------------------
         ! Calculating control variable(s) 
         dVarAE = sum(a2dVarAE, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
@@ -228,7 +235,42 @@ contains
                                           ' ET: '//sVarET//' [mm] '// &
                                           ' ET Tot: '//sVarETTot//' [mm]')
         !------------------------------------------------------------------------------------------
-                                    
+                   
+        !------------------------------------------------------------------------------------------
+        ! Copy instantaneous ET & ETpot to 3D var
+        ! 3D_ET 
+        if (all(oHMC_Vars(iID)%a3dET.lt.0.0))then
+            oHMC_Vars(iID)%a3dET(:,:,int(iDaySteps)) =  a2dVarAE
+        else
+            ! Re-initializing 
+            do iStep=2, int(iDaySteps)
+                oHMC_Vars(iID)%a3dET(:,:,int(iStep-1)) = oHMC_Vars(iID)%a3dET(:,:,int(iStep))
+            enddo
+            ! Updating with new field
+            where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
+                oHMC_Vars(iID)%a3dET(:,:,int(iDaySteps)) =  a2dVarAE
+            elsewhere
+                oHMC_Vars(iID)%a3dET(:,:,int(iDaySteps)) = -9999.0
+            endwhere
+        endif
+
+        ! 3D_ETpot 
+        if (all(oHMC_Vars(iID)%a3dETpot.lt.0.0))then
+            oHMC_Vars(iID)%a3dETpot(:,:,int(iDaySteps)) =  a2dVarETpot
+        else
+            ! Re-initializing 
+            do iStep=2, int(iDaySteps)
+                oHMC_Vars(iID)%a3dETpot(:,:,int(iStep-1)) = oHMC_Vars(iID)%a3dETpot(:,:,int(iStep))
+            enddo
+            ! Updating with new field
+            where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
+                oHMC_Vars(iID)%a3dETpot(:,:,int(iDaySteps)) =  a2dVarETpot
+            elsewhere
+                oHMC_Vars(iID)%a3dETpot(:,:,int(iDaySteps)) = -9999.0
+            endwhere
+        endif
+        !------------------------------------------------------------------------------------------
+                                          
         !------------------------------------------------------------------------------------------
         ! Debug
         if (iDEBUG.gt.0) then
@@ -237,7 +279,6 @@ contains
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarAE, a2iVarMask, 'AE END ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarVTot, a2iVarMask, 'VTOT END ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarVRet, a2iVarMask, 'VRET END ') )
-            call mprintf(.true., iINFO_Extra, checkvar(a2dVarETCum, a2iVarMask, 'ETCUM END ') )
             call mprintf(.true., iINFO_Extra, ' ========= EVAPOTRANSPIRATION END =========== ')  
         endif
         !------------------------------------------------------------------------------------------
@@ -251,9 +292,9 @@ contains
         
         ! Updating state variable(s): ET and Total Volume
         oHMC_Vars(iID)%a2dET = 0.0              ! Re-initializing ET
+        oHMC_Vars(iID)%a2dETPot = 0.0           ! Re-initializing ET pot
         oHMC_Vars(iID)%a2dVTot = a2dVarVTot     ! Updating total volume  
-        oHMC_Vars(iID)%a2dETCum = a2dVarETCum
-        
+
         oHMC_Vars(iID)%dVarETTot = dVarETTot    ! Check mean cumulated ET 
         
         ! Info end

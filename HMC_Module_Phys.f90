@@ -66,7 +66,7 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Check time step (iT)
-        if (iTime .lt. iNTime) then
+        if (iTime .le. iNTime) then
             
             !------------------------------------------------------------------------------------------
             ! Subroutine to update model state(s)
@@ -88,6 +88,7 @@ contains
             !------------------------------------------------------------------------------------------
             ! Extra steps condition
             oHMC_Vars(iID)%a2dET = 5.0/24.0*real(oHMC_Namelist(iID)%iDtData_Forcing)/3600
+            oHMC_Vars(iID)%a2dETpot = 5.0/24.0*real(oHMC_Namelist(iID)%iDtData_Forcing)/3600
             
             ! Info message for extra time step(s)
             call mprintf(.true., iINFO_Extra, ' Extra time step ---> Updating state(s) routine(s) are skipped!')
@@ -101,7 +102,7 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Subroutine to compute ET
-        call HMC_Phys_ET_Cpl(iID, iRows, iCols, iTime, sTime, iNLake, iNDam)
+        call HMC_Phys_ET_Cpl(iID, iRows, iCols, iTime, iDaySteps, sTime, iNLake, iNDam)
         !------------------------------------------------------------------------------------------
 
         !------------------------------------------------------------------------------------------
@@ -119,7 +120,7 @@ contains
                                       iTime, iNTime, iETime, &
                                       iNSection, iNData, &
                                       iNLake, iNDam, &
-                                      iNPlant, iNCatch, iNRelease, iNJoint)
+                                      iNPlant, iNCatch, iNRelease, iNJoint, sTime, iDaySteps)
         else
             
             ! Subroutine to compute convolution for channel network (for all steps including extra steps)
@@ -128,7 +129,7 @@ contains
                                       iTime, iNTime, iETime, &
                                       iNSection, iNData, &
                                       iNLake, iNDam, &
-                                      iNPlant, iNCatch, iNRelease, iNJoint)
+                                      iNPlant, iNCatch, iNRelease, iNJoint, sTime, iDaySteps)
         endif
         !------------------------------------------------------------------------------------------
 
