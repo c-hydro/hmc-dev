@@ -977,6 +977,9 @@ contains
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
             if (iErr /= 0) then 
                 call mprintf(.true., iWARN, ' Ct data not found. Initializing Ct with average values.')
+                where(a2dVarDEM.gt.0.0)
+                    a2dVarCt = dCt
+                endwhere
             else
                 a2dVarCt = reshape(a2dVar, (/iRows, iCols/))
             endif
@@ -987,7 +990,7 @@ contains
             sFileName = trim(sPathData)//trim(sDomainName)//'.ct_wp.txt'
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
             if (iErr /= 0) then 
-                call mprintf(.true., iWARN, ' Permanent wilting point data not found. Initializing with average values.')
+                call mprintf(.true., iWARN, ' Permanent wilting point data not found. Initializing with default value 0.4*Ct.')
             else
                 a2dVarCtWP = reshape(a2dVar, (/iRows, iCols/))
             endif
@@ -1279,13 +1282,15 @@ contains
         iPixCount = count((a2dVarCtWP.eq.0.0 .and. a2dVarDEM.gt.0.0))
         if (iPixCount.gt.0) then
             write(sPixCount, *) iPixCount;
-            write(sParDefault, *) dCt;
-            call mprintf(.true., iWARN, ' Ct values are equal to 0.0 in '//trim(sPixCount)//' pixels over domain. '// &
-            'Initialize with default value: '//trim(sParDefault)//'.')
+            ! write(sParDefault, *) dCt;
+            ! call mprintf(.true., iWARN, ' Ct values are equal to 0.0 in '//trim(sPixCount)//' pixels over domain. '// &
+            ! 'Initialize with default value: '//trim(sParDefault)//'.')
+            call mprintf(.true., iWARN, ' CtWP values are equal to 0.0 in '//trim(sPixCount)//' pixels over domain. '// &
+            'Initialize with default value: 0.4*Ct.')
         endif
         where (a2dVarCtWP.le.0.0 .and. a2dVarDEM.gt.0)
-            a2dVarCtWP = 0.4*dCt
-        endwhere
+            a2dVarCtWP = 0.4*a2dVarCt
+        endwhere 
         
         ! Check Cf values over domain
         iPixCount = count((a2dVarCf.eq.0.0 .and. a2dVarDEM.gt.0.0))
