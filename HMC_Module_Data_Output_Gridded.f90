@@ -476,7 +476,7 @@ contains
                              iCols, iRows, transpose(a2dVarVTot))   
         ! Soil Moisture 
         sVarName = 'SM'; sVarNameLong = 'soil_moisture'; sVarDescription = 'soil moisture';
-        sVarUnits = '%'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+        sVarUnits = '-'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
         sVarCoords = 'Longitude Latitude';
         call HMC_Tools_IO_Put2d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, & 
                              sVarName, sVarNameLong, sVarDescription, &
@@ -484,40 +484,42 @@ contains
                              iCols, iRows, transpose(a2dVarSM))  
         !------------------------------------------------------------------------------------------      
                              
-        !------------------------------------------------------------------------------------------     
-        ! 3D ET (Distributed evapotranspiration values)
-        sVarName = '3D ET'; sVarNameLong = 'Time Step Evapotranspiration'; 
-        sVarDescription = 'Evapotranspiration at each time step of the previous 24H (saving time included)';
-        sVarUnits = 'mm/h'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
-        dScale_Factor = 1000.0;
-        sVarCoords = 'Longitude Latitude';
-        call HMC_Tools_IO_Put3d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, iID_Dim_Day1Steps, & 
-                             sVarName, sVarNameLong, sVarDescription, &
-                             sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, dScale_Factor, &
-                             iCols, iRows, iDaySteps, transpose3Dvar(dScale_Factor * a3dVarET))    
+!        !------------------------------------------------------------------------------------------     
+!        ! 3D ET (Distributed evapotranspiration values)
+!        sVarName = '3D ET'; sVarNameLong = 'Time Step Evapotranspiration'; 
+!        sVarDescription = 'Evapotranspiration at each time step of the previous 24H (saving time included)';
+!        sVarUnits = 'mm/h'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+!        dScale_Factor = 1000.0;
+!        sVarCoords = 'Longitude Latitude';
+!        call HMC_Tools_IO_Put3d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, iID_Dim_Day1Steps, & 
+!                             sVarName, sVarNameLong, sVarDescription, &
+!                             sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, dScale_Factor, &
+!                             iCols, iRows, iDaySteps, transpose3Dvar(dScale_Factor * a3dVarET))    
+!        
+!        ! 3D ET pot (Distributed potential evapotranspiration values)
+!        sVarName = '3D ETpot'; sVarNameLong = 'Time Step Potential Evapotranspiration'; 
+!        sVarDescription = 'Potential Evapotranspiration at each time step of the previous 24H (saving time included)';
+!        sVarUnits = 'mm/h'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+!        dScale_Factor = 1000.0;
+!        sVarCoords = 'Longitude Latitude';
+!        call HMC_Tools_IO_Put3d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, iID_Dim_Day1Steps, & 
+!                             sVarName, sVarNameLong, sVarDescription, &
+!                             sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, dScale_Factor, &
+!                             iCols, iRows, iDaySteps, transpose3Dvar(dScale_Factor * a3dVarETpot))  
+!        
+!        ! 3D Qout (Distributed discharge values)
+!        sVarName = '3D Discharge'; sVarNameLong = 'Time Step discharge'; 
+!        sVarDescription = 'discharge at each time step of the previous 24H (saving time included)';
+!        sVarUnits = 'm^3/s'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+!        dScale_Factor = 1000.0;
+!        sVarCoords = 'Longitude Latitude';
+!        call HMC_Tools_IO_Put3d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, iID_Dim_Day1Steps, & 
+!                             sVarName, sVarNameLong, sVarDescription, &
+!                             sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, dScale_Factor, &
+!                             iCols, iRows, iDaySteps, transpose3Dvar(dScale_Factor * a3dVarQout)) 
+!        !------------------------------------------------------------------------------------------
         
-        ! 3D ET pot (Distributed potential evapotranspiration values)
-        sVarName = '3D ETpot'; sVarNameLong = 'Time Step Potential Evapotranspiration'; 
-        sVarDescription = 'Potential Evapotranspiration at each time step of the previous 24H (saving time included)';
-        sVarUnits = 'mm/h'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
-        dScale_Factor = 1000.0;
-        sVarCoords = 'Longitude Latitude';
-        call HMC_Tools_IO_Put3d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, iID_Dim_Day1Steps, & 
-                             sVarName, sVarNameLong, sVarDescription, &
-                             sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, dScale_Factor, &
-                             iCols, iRows, iDaySteps, transpose3Dvar(dScale_Factor * a3dVarETpot))  
-        
-        ! 3D Qout (Distributed discharge values)
-        sVarName = '3D Discharge'; sVarNameLong = 'Time Step discharge'; 
-        sVarDescription = 'discharge at each time step of the previous 24H (saving time included)';
-        sVarUnits = 'm^3/s'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
-        dScale_Factor = 1000.0;
-        sVarCoords = 'Longitude Latitude';
-        call HMC_Tools_IO_Put3d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, iID_Dim_Day1Steps, & 
-                             sVarName, sVarNameLong, sVarDescription, &
-                             sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, dScale_Factor, &
-                             iCols, iRows, iDaySteps, transpose3Dvar(dScale_Factor * a3dVarQout))          
-        
+        !------------------------------------------------------------------------------------------
         ! Flooding variable(s)                
         if (iFlagFlood.eq.1) then
 
@@ -637,7 +639,7 @@ contains
     !------------------------------------------------------------------------------------------
     
     !------------------------------------------------------------------------------------------
-    ! Subroutine to write netCDF data output
+    ! Subroutine to write Binary data output
     subroutine  HMC_Data_Output_Gridded_Binary(iID, &
                                     sPathData_Output, &
                                     iRows, iCols, &
@@ -848,36 +850,37 @@ contains
                 
         !------------------------------------------------------------------------------------------
 
-        !------------------------------------------------------------------------------------------
-        ! 3D ET (Distributed evapotranspiration values)
-        iVarScale = 10000
-        sFileNameData_Output = trim(sPathData_Output)//"3D_ET_"// &
-                           sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
-                           ".bin"            
-        call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
-        call HMC_Tools_IO_Put3d_Binary(sFileNameData_Output, a3dVarET, iRows, iCols, iDaySteps, iVarScale, .true., iErr)  
-        call HMC_Tools_Generic_ZipFile(oHMC_Namelist(iID)%sCommandZipFile, &
-                                       sFileNameData_Output//'.gz', sFileNameData_Output, .false.)
-        
-        ! 3D ET POT (Distributed potential evapotranspiration values)
-        iVarScale = 10000
-        sFileNameData_Output = trim(sPathData_Output)//"3D_ETpot_"// &
-                           sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
-                           ".bin"            
-        call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
-        call HMC_Tools_IO_Put3d_Binary(sFileNameData_Output, a3dVarETpot, iRows, iCols, iDaySteps, iVarScale, .true., iErr)  
-        call HMC_Tools_Generic_ZipFile(oHMC_Namelist(iID)%sCommandZipFile, &
-                                       sFileNameData_Output//'.gz', sFileNameData_Output, .false.)   
-                                       
-        ! 3D Qout (Distributed discharge values)
-        iVarScale = 10000
-        sFileNameData_Output = trim(sPathData_Output)//"3D_Q_"// &
-                           sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
-                           ".bin"            
-        call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
-        call HMC_Tools_IO_Put3d_Binary(sFileNameData_Output, a3dVarQout, iRows, iCols, iDaySteps, iVarScale, .true., iErr)  
-        call HMC_Tools_Generic_ZipFile(oHMC_Namelist(iID)%sCommandZipFile, &
-                                       sFileNameData_Output//'.gz', sFileNameData_Output, .false.)
+!        !------------------------------------------------------------------------------------------
+!        ! 3D ET (Distributed evapotranspiration values)
+!        iVarScale = 10000
+!        sFileNameData_Output = trim(sPathData_Output)//"3D_ET_"// &
+!                           sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
+!                           ".bin"            
+!        call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
+!        call HMC_Tools_IO_Put3d_Binary(sFileNameData_Output, a3dVarET, iRows, iCols, iDaySteps, iVarScale, .true., iErr)  
+!        call HMC_Tools_Generic_ZipFile(oHMC_Namelist(iID)%sCommandZipFile, &
+!                                       sFileNameData_Output//'.gz', sFileNameData_Output, .false.)
+!        
+!        ! 3D ET POT (Distributed potential evapotranspiration values)
+!        iVarScale = 10000
+!        sFileNameData_Output = trim(sPathData_Output)//"3D_ETpot_"// &
+!                           sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
+!                           ".bin"            
+!        call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
+!        call HMC_Tools_IO_Put3d_Binary(sFileNameData_Output, a3dVarETpot, iRows, iCols, iDaySteps, iVarScale, .true., iErr)  
+!        call HMC_Tools_Generic_ZipFile(oHMC_Namelist(iID)%sCommandZipFile, &
+!                                       sFileNameData_Output//'.gz', sFileNameData_Output, .false.)   
+!                                       
+!        ! 3D Qout (Distributed discharge values)
+!        iVarScale = 10000
+!        sFileNameData_Output = trim(sPathData_Output)//"3D_Q_"// &
+!                           sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
+!                           ".bin"            
+!        call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
+!        call HMC_Tools_IO_Put3d_Binary(sFileNameData_Output, a3dVarQout, iRows, iCols, iDaySteps, iVarScale, .true., iErr)  
+!        call HMC_Tools_Generic_ZipFile(oHMC_Namelist(iID)%sCommandZipFile, &
+!                                       sFileNameData_Output//'.gz', sFileNameData_Output, .false.)
+!        !------------------------------------------------------------------------------------------
 
         ! Flooding variable(s)                
         if (iFlagFlood.eq.1) then
