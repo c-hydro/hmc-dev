@@ -321,6 +321,8 @@ contains
 
             a2dVarWidthC = oHMC_Vars(iID)%a2dWidthC
             a2dVarWidthH = oHMC_Vars(iID)%a2dWidthH
+            
+            a2iVarMask = oHMC_Vars(iID)%a2iMask 
             !------------------------------------------------------------------------------------
 
             !------------------------------------------------------------------------------------ 
@@ -373,7 +375,7 @@ contains
                 a2dVarWidthH = a2dVarSizeCell - a2dVarWidthC
             endwhere
             !------------------------------------------------------------------------------------ 
-
+            
             !------------------------------------------------------------------------------------ 
             ! Debug
             if (iDEBUG.gt.0) then
@@ -1282,9 +1284,6 @@ contains
         iPixCount = count((a2dVarCtWP.eq.0.0 .and. a2dVarDEM.gt.0.0))
         if (iPixCount.gt.0) then
             write(sPixCount, *) iPixCount;
-            ! write(sParDefault, *) dCt;
-            ! call mprintf(.true., iWARN, ' Ct values are equal to 0.0 in '//trim(sPixCount)//' pixels over domain. '// &
-            ! 'Initialize with default value: '//trim(sParDefault)//'.')
             call mprintf(.true., iWARN, ' CtWP values are equal to 0.0 in '//trim(sPixCount)//' pixels over domain. '// &
             'Initialize with default value: 0.4*Ct.')
         endif
