@@ -340,7 +340,7 @@ contains
         ! LAI          
         if ( all(a2dVarLAIL.eq.-9999.0) ) then
             if (iFlagDynVeg.eq.1) then
-                call mprintf(.true., iERROR, 'NO valid LAI found.Programm stopped!')
+                call mprintf(.true., iERROR, ' LAI valid values not found. Programm stopped!')
             else
                 call mprintf(.true., iWARN, ' All LAI values are undefined!'// &
                                             ' LAI will be initialized using monthly mean information!')
@@ -362,7 +362,8 @@ contains
         ! Fractional Vegetation Cover
         if ( all(a2dVarFCL.eq.-9999.0) ) then
             if (iFlagDynVeg.eq.1) then
-                call mprintf(.true., iWARN, 'NO valid FC found. Use empirical formulation based on LAI!')
+                call mprintf(.true., iWARN, ' Fractional vegetation cover valid values not found. ' // &
+                                            'Use empirical formulation based on LAI!')
                 !check limits
                 where (oHMC_Vars(iID)%a2dDem.gt.0.0.and.a2dVarLAIL.ge.0.0)
                     !compute Fractional vegetation cover by empirical function (source Model NOAH)
@@ -372,7 +373,7 @@ contains
                 endwhere                    
 
             else
-                call mprintf(.true., iWARN, ' Fractional Vegetation Cover set equal to one!')
+                call mprintf(.true., iWARN, ' Fractional vegetation Cover set equal to one!')
                 !Set FC=1 to have single source Evapotranspiration
                 a2dVarFCL = 1.0 
             endif
@@ -557,7 +558,7 @@ contains
                 sVarName = 'Rain'
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if(iErr /= 0) then
-                    call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//sVarName//'!')
+                    call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//trim(sVarName)//'!')
                     a2dVarRain = -9999.0;
                 else
                     a2dVarRain = transpose(a2dVar)
@@ -569,7 +570,7 @@ contains
                 sVarName = 'AirTemperature'
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if(iErr /= 0) then
-                    call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//sVarName//'!')
+                    call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//trim(sVarName)//'!')
                     a2dVarTa = -9999.0;
                 else
                     a2dVarTa = transpose(a2dVar)
@@ -581,7 +582,7 @@ contains
                 sVarName = 'IncRadiation'
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if(iErr /= 0) then
-                    call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//sVarName//'!')
+                    call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//trim(sVarName)//'!')
                     a2dVarIncRad = -9999.0;
                 else
                     a2dVarIncRad = transpose(a2dVar)
@@ -593,7 +594,7 @@ contains
                 sVarName = 'RelHumidity'
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if(iErr /= 0) then
-                    call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//sVarName//'!')
+                    call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//trim(sVarName)//'!')
                     a2dVarRelHum = -9999.0;
                 else
                     a2dVarRelHum = transpose(a2dVar)
@@ -605,7 +606,7 @@ contains
                 sVarName = 'Wind'
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if(iErr /= 0) then
-                    call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//sVarName//'!')
+                    call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//trim(sVarName)//'!')
                     a2dVarWind = -9999.0;
                 else
                     a2dVarWind = transpose(a2dVar)
@@ -617,8 +618,8 @@ contains
                 sVarName = 'AirPressure'
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if(iErr /= 0) then
-                    call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//sVarName//'! '// &
-                        'Variable initializes in default mode using Altitude values!')
+                    call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '// &
+                                                trim(sVarName)//'! Variable initializes in default mode using Altitude values!')
                     a2dVarPa = -9999.0;
                     !a2dVarPa = 101.3*((293-0.0065*oHMC_Vars(iID)%a2dDem)/293)**5.26	![kPa]
                 else
@@ -631,7 +632,7 @@ contains
                 sVarName = 'Albedo'
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if(iErr /= 0) then
-                    call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//sVarName//'!')
+                    call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//trim(sVarName)//'!')
                     a2dVarAlbedo = -9999.0; 
                     !dVarAlbedo = -9999.0
                     !call HMC_Tools_Time_MonthVal(oHMC_Namelist(iID)%a1dAlbedoMonthly, sTimeMonth, dVarAlbedo)
@@ -647,7 +648,7 @@ contains
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 
                 if(iErr /= 0) then
-                    call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//sVarName//'!')
+                    call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//trim(sVarName)//'!')
                                         
                     if (sTimeEndLAI .eq. sTimeStartLAI) then
 
@@ -671,13 +672,14 @@ contains
                 endif               
                 
                 !------------------------------------------------------------------------------------------
+                
                 !------------------------------------------------------------------------------------------
                 ! Fractional Vegetation Cover
                 sVarName = 'FC'
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 
                 if(iErr /= 0) then
-                    call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//sVarName//'!')
+                    call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//trim(sVarName)//'!')
                                         
                     if (sTimeEndFC .eq. sTimeStartFC) then
                         a2dVarFC = -9999.0;

@@ -83,8 +83,6 @@ contains
         ! Actual model step 
         iTAct = iTime
         
-       
-        
         ! Info start
         call mprintf(.true., iINFO_Verbose, ' Phys :: Convolution [channel network] ... ' )
         !------------------------------------------------------------------------------------------
@@ -171,44 +169,6 @@ contains
                 
         enddo TimeIntLoop
         !------------------------------------------------------------------------------------------
-
-        !------------------------------------------------------------------------------------------      
-        ! Initializing and updating discharge 3d field(s)
-        if (all(oHMC_Vars(iID)%a3dQout.lt.0.0))then
-
-            do iStep=1, int(iDaySteps)
-                where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
-                    oHMC_Vars(iID)%a3dQout(:,:,int(iStep)) =  oHMC_Vars(iID)%a2dQout
-                elsewhere
-                    oHMC_Vars(iID)%a3dQout(:,:,int(iStep)) =  0.0
-                endwhere
-            enddo
-            
-            ! Updating with new field
-            where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
-                oHMC_Vars(iID)%a3dQout(:,:,int(iDaySteps)) =  oHMC_Vars(iID)%a2dQout + 100
-            elsewhere
-                oHMC_Vars(iID)%a3dQout(:,:,int(iDaySteps)) = 0.0
-            endwhere
-            
-            call mprintf(.true., iINFO_Extra, ' Phys :: Land surface model :: TDeep :: '// &
-                                              ' First mean temperature 3d field storing step ... OK')
-            
-        else
-            ! Re-initializing 
-            do iStep=2, int(iDaySteps)
-                oHMC_Vars(iID)%a3dQout(:,:,int(iStep-1)) = oHMC_Vars(iID)%a3dQout(:,:,int(iStep))
-            enddo
-            ! Updating with new field
-            where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
-                oHMC_Vars(iID)%a3dQout(:,:,int(iDaySteps)) =  oHMC_Vars(iID)%a2dQout
-            elsewhere
-                oHMC_Vars(iID)%a3dQout(:,:,int(iDaySteps)) = 0.0
-            endwhere
-            
-        endif
-        !------------------------------------------------------------------------------------------
-
 
         !------------------------------------------------------------------------------------------
         ! Call deep flow routine

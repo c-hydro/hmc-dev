@@ -30,6 +30,9 @@ TYPE HMC_Type_Namelist
     integer(kind = 4)       :: iDtData_Updating
     integer(kind = 4)       :: iDtData_Output_Gridded, iDtData_Output_Point
     integer(kind = 4)       :: iDtData_State_Gridded, iDtData_State_Point 
+
+    integer(kind = 4)       :: iActiveData_Output_Generic, iActiveData_Output_Flooding, iActiveData_Output_Snow
+    integer(kind = 4)       :: iAccumData_Output_Hour
     
     integer(kind = 4)       :: iDtPhysConv, iDtPhysConvPrevious
     integer(kind = 4)       :: iDtPhysMethod

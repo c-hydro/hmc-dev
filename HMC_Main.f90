@@ -7,30 +7,9 @@
 
 !******************************************************************************************
 ! HYDROLOGICAL MODEL CONTINUUM
-! Version 3.1.0
-! Date: 2020/01/30
+! Version 3.1.1
+! Date: 2020/03/30
 !
-!	- Modified Horton Method for Infiltration
-!	- Runoff Routing;
-!	- Subsurface Flow Routing;
-!	- Complete Energy Balance using Force Restore Equation to compute Soil Temperature;
-!	- Tdeep Filter;
-!	- WaterTable and Deep Flow Routing;
-!       - Snow model and correction (S3M model 3.1);
-!       - SoilMoisture correction.
-!
-!	Working Team:
-!	Francesco Silvestro
-!	Simone Gabellani
-!	Fabio Delogu
-!	Roberto Rudari
-!       Valerio Basso
-!
-!	Developers Team:
-!	Francesco Silvestro
-!	Simone Gabellani
-!	Fabio Delogu
-!       Valerio Basso
 ! 
 ! 0) COMMAND LINE:
 !   TYPE 1:
@@ -44,18 +23,18 @@
 ! Add in: Project --> Properties --> Linker --> Libraries
 !   netcdff.a and netcdff.so (note double f for fortran libraries)
 ! Add in: Project --> Properties --> Linker --> Additional Options:
-!   -I/home/fabio/Documents/Working_Area/Code_Development/Library/netcdf-4.1.2_shared/include/ 
-!   -L/home/fabio/Documents/Working_Area/Code_Development/Library/netcdf-4.1.2_shared/lib/ 
-!   -lnetcdff -lnetcdf   
+!   -I/home/fabio/Documents/Work_Area/Code_Development/Library/nc4_fortran-4.4.2/include/ 
+!   -L/home/fabio/Documents/Work_Area/Code_Development/Library/nc4_fortran-4.4.2/lib/ 
+!   -lnetcdff -lnetcdff   
 ! Add in: Project --> Properties --> Fortran Compiler --> Additional Options:
-!   -I//home/fabio/Documents/Working_Area/Code_Development/Library/netcdf-4.1.2_shared/include/ 
-!   -L/home/fabio/Documents/Working_Area/Code_Development/Library/netcdf-4.1.2_shared/lib/ 
-!   -lnetcdff -lnetcdf  
+!   -I//home/fabio/Documents/Work_Area/Code_Development/Library/nc4_fortran-4.4.2/include/ 
+!   -L/home/fabio/Documents/Work_Area/Code_Development/Library/nc4_fortran-4.4.2/lib/ 
+!   -lnetcdff -lnetcdff
 ! Add in: Project --> Properties --> Fortran Compiler --> Additional Options:
 !   gfortran: -cpp -DLIB_NC
 !   ifort: -fpp -DLIB_NC            
 ! Add in: Project --> Properties --> Run --> Environment --> NewValue
-!   LD_LIBRARY_PATH $LD_LIBRARY_PATH:/home/fabio/Documents/Working_Area/Code_Development/Library/netcdf-4.1.2_shared/lib/
+!   LD_LIBRARY_PATH $LD_LIBRARY_PATH:/home/fabio/Documents/Work_Area/Code_Development/Library/nc4_fortran-4.4.2/lib/
 !
 ! 2) SET COMMAND LINE OPTION:
 ! Add in: Project --> Properties --> Debug --> Debug Command

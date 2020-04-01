@@ -239,6 +239,7 @@ contains
             
             !------------------------------------------------------------------------------------------
             ! Check restart flag on data availability
+            call mprintf(.true., iINFO_Extra, ' Data :: Restart gridded for generic physics ... ' )
             if (bCheckRestart .eqv. .true.) then
 
                 !------------------------------------------------------------------------------------------
@@ -324,7 +325,7 @@ contains
                 oHMC_Vars(iID)%a2dWSRunoff = a2dVarWSRunoff
   
                 ! Info end
-                call mprintf(.true., iINFO_Extra, ' Data :: Restart gridded ... OK' )
+                call mprintf(.true., iINFO_Extra, ' Data :: Restart gridded for generic physics ... OK' )
                 !------------------------------------------------------------------------------------------
                 
             else
@@ -332,7 +333,7 @@ contains
                 ! Exit message for not using restart data
                 call mprintf(.true., iINFO_Verbose, ' Restart flag selected but data are N/A (gridded data)')
                 ! Info end
-                call mprintf(.true., iINFO_Extra, ' Data :: Restart gridded ... SKIPPED ' )
+                call mprintf(.true., iINFO_Extra, ' Data :: Restart gridded for generic physics ... SKIPPED ' )
                 !------------------------------------------------------------------------------------------
                 
             endif
@@ -340,6 +341,7 @@ contains
             
             !------------------------------------------------------------------------------------------
             ! Check restart flag on snow data availability
+            call mprintf(.true., iINFO_Extra, ' Data :: Restart gridded for snow physics ... ' )
             if (bCheckRestartS .eqv. .true.) then
                 
                 !------------------------------------------------------------------------------------------
@@ -359,7 +361,7 @@ contains
                 oHMC_Vars(iID)%a3dTaC_Days5 = a3dVarTaC_5Days
                 
                 ! Info end
-                call mprintf(.true., iINFO_Extra, ' Data :: Restart gridded ... OK' )
+                call mprintf(.true., iINFO_Extra, ' Data :: Restart gridded for snow physics ... OK' )
                 !------------------------------------------------------------------------------------------
                 
             else
@@ -367,7 +369,7 @@ contains
                 ! Exit message for not using restart data
                 call mprintf(.true., iINFO_Verbose, ' Restart flag selected but snow data are N/A (gridded data)')
                 ! Info end
-                call mprintf(.true., iINFO_Extra, ' Data :: Restart gridded for snow data ... SKIPPED ' )
+                call mprintf(.true., iINFO_Extra, ' Data :: Restart gridded for snow physics ... SKIPPED' )
                 !------------------------------------------------------------------------------------------
                 
             endif
@@ -880,7 +882,7 @@ contains
         !------------------------------------------------------------------------------------------
         ! Debug
         if (iDEBUG.gt.0) then
-            call mprintf(.true., iINFO_Extra, ' ========= CHECK FORCING GRIDDED NC =========== ')
+            call mprintf(.true., iINFO_Extra, ' ========= CHECK RESTART GRIDDED NC =========== ')
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarVTot, int(oHMC_Vars(iID)%a2dDEM), 'VTOT NC') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarVRet, oHMC_Vars(iID)%a2iMask, 'VRET NC') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarHydro, oHMC_Vars(iID)%a2iMask, 'HYDRO NC') )
@@ -892,7 +894,7 @@ contains
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarSWE, oHMC_Vars(iID)%a2iMask, 'SWE NC') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarRhoS, oHMC_Vars(iID)%a2iMask, 'RHOS NC') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarAlbedoS, oHMC_Vars(iID)%a2iMask, 'ALBEDOS NC') )
-            call mprintf(.true., iINFO_Extra, ' ========= CHECK FORCING GRIDDED NC =========== ')
+            call mprintf(.true., iINFO_Extra, ' ========= CHECK RESTART GRIDDED NC =========== ')
         endif
         !------------------------------------------------------------------------------------------
         
@@ -1638,7 +1640,7 @@ contains
         !------------------------------------------------------------------------------------------
         ! Debug
         if (iDEBUG.gt.0) then
-            call mprintf(.true., iINFO_Extra, ' ========= CHECK FORCING GRIDDED BINARY =========== ')
+            call mprintf(.true., iINFO_Extra, ' ========= CHECK RESTART GRIDDED BINARY =========== ')
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarVTot, int(oHMC_Vars(iID)%a2dDEM), 'VTOT BIN') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarVRet, oHMC_Vars(iID)%a2iMask, 'VRET BIN') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarHydro, oHMC_Vars(iID)%a2iMask, 'HYDRO BIN') )
@@ -1650,7 +1652,7 @@ contains
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarSWE, oHMC_Vars(iID)%a2iMask, 'SWE BIN') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarRhoS, oHMC_Vars(iID)%a2iMask, 'RHOS BIN') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarAlbedoS, oHMC_Vars(iID)%a2iMask, 'ALBEDOS BIN') )
-            call mprintf(.true., iINFO_Extra, ' ========= CHECK FORCING GRIDDED BINARY =========== ')
+            call mprintf(.true., iINFO_Extra, ' ========= CHECK RESTART GRIDDED BINARY =========== ')
         endif
         !------------------------------------------------------------------------------------------
         
