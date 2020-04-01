@@ -87,10 +87,13 @@ TYPE HMC_Type_Vars
     ! S3M variable(s)
     integer(kind = 4), allocatable,     dimension(:, :)         :: a2iAge
     real(kind = 4), allocatable,  	dimension(:, :)         :: a2dSWE, a2dRhoS, a2dRhoS0, a2dAlbedo_Snow
-    real(kind = 4), allocatable,        dimension(:, :)         :: a2dSnowFall, a2dSnowFallDayCum
-    real(kind = 4), allocatable,        dimension(:, :)         :: a2dMeltingDayCum, a2dMelting, a2dMeltingSc
+    real(kind = 4), allocatable,        dimension(:, :)         :: a2dSnowFall
+    ! real(kind = 4), allocatable,        dimension(:, :)         :: a2dSnowFallDayCum
+    ! real(kind = 4), allocatable,        dimension(:, :)         :: a2dMeltingDayCum
+    real(kind = 4), allocatable,        dimension(:, :)         :: a2dMelting, a2dMeltingSc
     real(kind = 4), allocatable,        dimension(:, :)         :: a2dMaskS
     real(kind = 4), allocatable,        dimension(:, :, :)      :: a3dTaC_Days1, a3dTaC_Days5
+    real(kind = 4), allocatable,        dimension(:, :, :)      :: a3dMelting, a3dSnowFall
      
     ! LSM variable(s)
     real(kind = 4), allocatable,  	dimension(:, :)         :: a2dLST
@@ -98,13 +101,12 @@ TYPE HMC_Type_Vars
     real(kind = 4), allocatable,  	dimension(:, :, :)      :: a3dTaKMarked, a3dTaK24 
     
     ! ET variable(s)
-    real(kind = 4), allocatable,  	dimension(:, :)         :: a2dET, a2dAE, a2dETpot
-    real(kind = 4), allocatable,  	dimension(:, :, :)      :: a3dET, a3dETpot
+    real(kind = 4), allocatable,  	dimension(:, :)         :: a2dET, a2dAE, a2dETpot, a2dAEpot
+    real(kind = 4), allocatable,  	dimension(:, :, :)      :: a3dAE, a3dAEpot 
     
     ! Convolution variable(s) for channel network
     real(kind = 4), allocatable,  	dimension(:, :)         :: a2dHydro, a2dHydroPrev, a2dRouting, a2dDarcy
     real(kind = 4), allocatable,  	dimension(:, :)         :: a2dQDisOut, a2dQVolOut, a2dQTot, a2dQout
-    real(kind = 4), allocatable,  	dimension(:, :, :)      :: a3dQout, a3dQfloodCR, a3dQfloodCL 
     real(kind = 4), allocatable,  	dimension(:, :)         :: a2dIntensity
     real(kind = 4), allocatable,        dimension(:, :)         :: a2dFlowDeep, a2dFlowExf
     
@@ -118,39 +120,37 @@ TYPE HMC_Type_Vars
     real(kind = 4), allocatable,        dimension(:, :)         :: a2dVWT, a2dVWTMax
     
     ! Section, plant, catch and release variable(s)
-    real(kind = 4), allocatable,        dimension (:)          :: a1dQoutSection
-    real(kind = 4), allocatable,        dimension (:)          :: a1dQoutLake
+    real(kind = 4), allocatable,        dimension (:)           :: a1dQoutSection
+    real(kind = 4), allocatable,        dimension (:)           :: a1dQoutLake
     
-    real(kind = 4), allocatable,        dimension (:, :)       :: a2dHydroPlant
-    real(kind = 4), allocatable,        dimension (:, :)       :: a2dHydroCatch
-    real(kind = 4), allocatable,        dimension (:, :)       :: a2dHydroRelease
+    real(kind = 4), allocatable,        dimension (:, :)        :: a2dHydroPlant
+    real(kind = 4), allocatable,        dimension (:, :)        :: a2dHydroCatch
+    real(kind = 4), allocatable,        dimension (:, :)        :: a2dHydroRelease
     
     ! Dam variable(s)
-    real(kind = 4), allocatable,        dimension (:)          :: a1dVDam, a1dLDam, a1dHDam
-    real(kind = 4), allocatable,        dimension (:)          :: a1dQoutDam
-    real(kind = 4), allocatable,        dimension (:)          :: a1dVDamObs
+    real(kind = 4), allocatable,        dimension (:)           :: a1dVDam, a1dLDam, a1dHDam
+    real(kind = 4), allocatable,        dimension (:)           :: a1dQoutDam
+    real(kind = 4), allocatable,        dimension (:)           :: a1dVDamObs
     
     ! Dynamic Vegetation module variable(s)
-    real(kind = 4), allocatable,  	dimension(:, :)        :: a2dGd, a2dRSmin, a2dHveg, a2dBareSoil
-    real(kind = 4), allocatable,  	dimension(:, :)        :: a2dVTotWP
+    real(kind = 4), allocatable,  	dimension(:, :)         :: a2dGd, a2dRSmin, a2dHveg, a2dBareSoil
+    real(kind = 4), allocatable,  	dimension(:, :)         :: a2dVTotWP
 
-    
     ! Time-Series variable(s)
     logical                             :: bFileForcingTimeSeries
     integer(kind = 4)                   :: iFileUnitTSQ, iFileUnitTSVDam
     logical                             :: bFileUnitTSQ, bFileUnitTSVDam
     
     ! Convolution variable(s) for channel fraction
-    real(kind = 4), allocatable,        dimension (:, :)       :: a2dQC, a2dQH, a2dHydroC, a2dHydroH
-    real(kind = 4), allocatable,        dimension (:, :)       :: a2dRunoffC, a2dRunoffH, a2dQup
-    real(kind = 4), allocatable,        dimension (:, :)       :: a2dWidthC, a2dWidthH
+    real(kind = 4), allocatable,        dimension (:, :)        :: a2dQC, a2dQH, a2dHydroC, a2dHydroH
+    real(kind = 4), allocatable,        dimension (:, :)        :: a2dRunoffC, a2dRunoffH, a2dQup
+    real(kind = 4), allocatable,        dimension (:, :)        :: a2dWidthC, a2dWidthH
      
     ! Fracturation variable(s)
-    real(kind = 4), allocatable,        dimension (:, :)       :: a2dFrac
+    real(kind = 4), allocatable,        dimension (:, :)        :: a2dFrac
     
     ! Flooding variable (s)
-    !real(kind = 4)                      :: dFlagFlood
-    real(kind = 4), allocatable,        dimension (:, :)       :: a2dLevBankL, a2dLevBankR, a2dFirst
-    real(kind = 4), allocatable,        dimension (:, :)       :: a2dQfloodIL, a2dQfloodCL, a2dQfloodIR, a2dQfloodCR
+    real(kind = 4), allocatable,        dimension (:, :)        :: a2dLevBankL, a2dLevBankR, a2dFirst
+    real(kind = 4), allocatable,        dimension (:, :)        :: a2dQfloodIL, a2dQfloodCL, a2dQfloodIR, a2dQfloodCR
 
 END TYPE HMC_Type_Vars

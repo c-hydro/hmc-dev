@@ -195,10 +195,12 @@ contains
         allocate( oHMC_Vars(iID)%a3dTaC_Days5       (iRows, iCols, iDaySteps*5) )
         allocate( oHMC_Vars(iID)%a2dMelting         (iRows, iCols) )  
         allocate( oHMC_Vars(iID)%a2dMeltingSc       (iRows, iCols) ) 
-        allocate( oHMC_Vars(iID)%a2dMeltingDayCum   (iRows, iCols) )
+        !allocate( oHMC_Vars(iID)%a2dMeltingDayCum   (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dSnowFall        (iRows, iCols) )  
-        allocate( oHMC_Vars(iID)%a2dSnowFallDayCum  (iRows, iCols) )
+        !allocate( oHMC_Vars(iID)%a2dSnowFallDayCum  (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dMaskS           (iRows, iCols) ) 
+        allocate( oHMC_Vars(iID)%a3dMelting         (iRows, iCols, iDaySteps) )
+        allocate( oHMC_Vars(iID)%a3dSnowFall        (iRows, iCols, iDaySteps) )
         
         ! Dynamic LSM variable(s)
         allocate( oHMC_Vars(iID)%a2dLST             (iRows, iCols) )
@@ -214,8 +216,9 @@ contains
         allocate( oHMC_Vars(iID)%a2dAE              (iRows, iCols) ) 
         allocate( oHMC_Vars(iID)%a2dET              (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dETpot           (iRows, iCols) )
-        allocate( oHMC_Vars(iID)%a3dET              (iRows, iCols, iDaySteps) )
-        allocate( oHMC_Vars(iID)%a3dETpot           (iRows, iCols, iDaySteps) )
+        allocate( oHMC_Vars(iID)%a2dAEpot           (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a3dAE              (iRows, iCols, iDaySteps) )
+        allocate( oHMC_Vars(iID)%a3dAEpot           (iRows, iCols, iDaySteps) )
 
         ! Dynamic Convolution variable(s) with channel network
         allocate( oHMC_Vars(iID)%a2dHydro           (iRows, iCols) )
@@ -223,9 +226,6 @@ contains
         allocate( oHMC_Vars(iID)%a2dRouting         (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dDarcy           (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dQout            (iRows, iCols) )
-        allocate( oHMC_Vars(iID)%a3dQout            (iRows, iCols, iDaySteps) )
-        allocate( oHMC_Vars(iID)%a3dQfloodCR        (iRows, iCols, iDaySteps) )
-        allocate( oHMC_Vars(iID)%a3dQfloodCL        (iRows, iCols, iDaySteps) )
         allocate( oHMC_Vars(iID)%a2dQDisOut         (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dQVolOut         (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dQTot            (iRows, iCols) )
@@ -482,12 +482,14 @@ contains
         oHMC_Vars(iID)%a2dAlbedo_Snow = 0.0
         oHMC_Vars(iID)%a2dMelting = 0.0
         oHMC_Vars(iID)%a2dMeltingSc = 0.0
-        oHMC_Vars(iID)%a2dMeltingDayCum = 0.0
+        !oHMC_Vars(iID)%a2dMeltingDayCum = 0.0
         oHMC_Vars(iID)%a3dTaC_Days1 = 0.0
         oHMC_Vars(iID)%a3dTaC_Days5 = 0.0
         oHMC_Vars(iID)%a2dSnowFall = 0.0
-        oHMC_Vars(iID)%a2dSnowFallDayCum = 0.0
+        !oHMC_Vars(iID)%a2dSnowFallDayCum = 0.0
         oHMC_Vars(iID)%a2dMaskS = 0.0
+        oHMC_Vars(iID)%a3dMelting = 0.0
+        oHMC_Vars(iID)%a3dSnowFall = 0.0
         
         ! Dynamic LSM variable(s)
         oHMC_Vars(iID)%a2dLST = 0.0
@@ -503,8 +505,8 @@ contains
         oHMC_Vars(iID)%a2dET = 0.0
         oHMC_Vars(iID)%a2dETpot = 0.0
         oHMC_Vars(iID)%a2dAE = 0.0
-        oHMC_Vars(iID)%a3dET = -9999.0
-        oHMC_Vars(iID)%a3dETpot = -9999.0
+        oHMC_Vars(iID)%a3dAE = -9999.0
+        oHMC_Vars(iID)%a3dAEpot = -9999.0
 
         ! Dynamic convolution variable(s) for channel network
         oHMC_Vars(iID)%a2dHydro = 0.000001    
@@ -512,9 +514,6 @@ contains
         oHMC_Vars(iID)%a2dRouting = 0.0     
         oHMC_Vars(iID)%a2dDarcy = 0.0     
         oHMC_Vars(iID)%a2dQout = 0.0    
-        oHMC_Vars(iID)%a3dQout = -9999.0   
-        oHMC_Vars(iID)%a3dQfloodCR = -9999.0   
-        oHMC_Vars(iID)%a3dQfloodCL = -9999.0   
         oHMC_Vars(iID)%a2dQDisOut = 0.0     
         oHMC_Vars(iID)%a2dQVolOut = 0.0     
         oHMC_Vars(iID)%a2dQTot = 0.0     
@@ -539,7 +538,7 @@ contains
         oHMC_Vars(iID)%a1dVDam = 0.0            ! to store dynamic volume dam 
         oHMC_Vars(iID)%a1dLDam = 0.0            ! to store dynamic length dam
         oHMC_Vars(iID)%a1dHDam = 0.0            ! to store dynamic water heigth dam
-        oHMC_Vars(iID)%a1dVDamObs = -9999.0    ! to store dynamic volume dam observation(s)
+        oHMC_Vars(iID)%a1dVDamObs = -9999.0     ! to store dynamic volume dam observation(s)
         
         ! Dynamic plant variable(s)
         oHMC_Vars(iID)%a2dHydroPlant = 0.0

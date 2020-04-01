@@ -176,72 +176,7 @@ contains
                 
         enddo TimeIntLoop
         !------------------------------------------------------------------------------------------
-
-        !------------------------------------------------------------------------------------------
-        ! Build 3D variable for distributed discharge
-       
-        ! Initializing and updating discharge 3d field(s)
-        if (all(oHMC_Vars(iID)%a3dQout.lt.0.0))then
-
-            oHMC_Vars(iID)%a3dQout(:,:,int(iDaySteps)) =  oHMC_Vars(iID)%a2dQout
-       
-        else
-            ! Re-initializing 
-            do iStep=2, int(iDaySteps)
-                oHMC_Vars(iID)%a3dQout(:,:,int(iStep-1)) = oHMC_Vars(iID)%a3dQout(:,:,int(iStep))
-            enddo
-            ! Updating with new field
-            where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
-                oHMC_Vars(iID)%a3dQout(:,:,int(iDaySteps)) =  oHMC_Vars(iID)%a2dQout
-            elsewhere
-                oHMC_Vars(iID)%a3dQout(:,:,int(iDaySteps)) = -9999.0
-            endwhere
-            
-        endif
-        !------------------------------------------------------------------------------------------
-
-        !------------------------------------------------------------------------------------------
-        ! If Flooding is activated build the Average Qflooding maps
-        if (iFlagFlood.eq.1) then
-            ! Initializing and updating discharge 3d field(s)
-            if (all(oHMC_Vars(iID)%a3dQfloodCR.lt.0.0))then
-                oHMC_Vars(iID)%a3dQfloodCR(:,:,int(iDaySteps)) =  oHMC_Vars(iID)%a2dQfloodCR
-               
-            else
-                ! Re-initializing 
-                do iStep=2, int(iDaySteps)
-                    oHMC_Vars(iID)%a3dQfloodCR(:,:,int(iStep-1)) = oHMC_Vars(iID)%a3dQfloodCR(:,:,int(iStep))
-                enddo
-                ! Updating with new field
-                where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
-                    oHMC_Vars(iID)%a3dQfloodCR(:,:,int(iDaySteps)) =  oHMC_Vars(iID)%a2dQfloodCR
-                elsewhere
-                    oHMC_Vars(iID)%a3dQfloodCR(:,:,int(iDaySteps)) = -9999.0
-                endwhere
-
-            endif
-            
-            if (all(oHMC_Vars(iID)%a3dQfloodCL.lt.0.0))then
-
-                oHMC_Vars(iID)%a3dQfloodCL(:,:,int(iDaySteps)) =  oHMC_Vars(iID)%a2dQfloodCL
-
-            else
-                ! Re-initializing 
-                do iStep=2, int(iDaySteps)
-                    oHMC_Vars(iID)%a3dQfloodCL(:,:,int(iStep-1)) = oHMC_Vars(iID)%a3dQfloodCL(:,:,int(iStep))
-                enddo
-                ! Updating with new field
-                where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
-                    oHMC_Vars(iID)%a3dQfloodCL(:,:,int(iDaySteps)) =  oHMC_Vars(iID)%a2dQfloodCL
-                elsewhere
-                    oHMC_Vars(iID)%a3dQfloodCL(:,:,int(iDaySteps)) = -9999.0
-                endwhere
-
-            endif
-            
-        endif
-        !------------------------------------------------------------------------------------------
-
+           
         !------------------------------------------------------------------------------------------
         ! Call deep flow routine
         call HMC_Phys_Convolution_Apps_DeepFlow_ChannelFraction(iID, iRows, iCols, dDtDataForcing)

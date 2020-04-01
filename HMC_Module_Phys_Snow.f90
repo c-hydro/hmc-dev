@@ -38,10 +38,12 @@ contains
         !-------------------------------------------------------------------------------------
         ! Variable(s) declaration
         integer(kind = 4)   :: iID, iRows, iCols
-        integer(kind = 4)   :: iDaySteps, iDaySteps1Days, iDaySteps5Days
+        integer(kind = 4)   :: iDaySteps, iDaySteps1Days, iDaySteps5Days, iStep
         integer(kind = 4)   :: iTime, iDtDataForcing, iDt
         integer(kind = 4)   :: iGlacierValue
         integer(kind = 4)   :: iHour
+        
+        integer(kind = 4)   :: iAccumData_Hour, iStepData_Hour
         
         integer(kind = 4)   :: iFlagSnow, iFlagSnowAssim
         real(kind = 4)      :: dVarRhoW, dVarRhoSMax
@@ -58,13 +60,15 @@ contains
         real(kind = 4), dimension(iRows, iCols)         :: a2dVarSnowHeight, a2dVarSnowKernel
         real(kind = 4), dimension(iRows, iCols)         :: a2dVarSnowCA, a2dVarSnowQA
         
-        real(kind = 4), dimension(iRows, iCols)         :: a2dVarSnowFall, a2dVarSnowFallDayCum
+        real(kind = 4), dimension(iRows, iCols)         :: a2dVarSnowFall, a2dVarSnowFallCum
+        !real(kind = 4), dimension(iRows, iCols)         :: a2dVarSnowFallDayCum
         
         real(kind = 4), dimension(iRows, iCols)         :: a2dVarArctUp
         
         integer(kind = 4), dimension(iRows, iCols)      :: a2iVarAgeS
         real(kind = 4), dimension(iRows, iCols)         :: a2dVarSWE, a2dVarRhoS, a2dVarRhoS0, a2dVarAlbedoS
-        real(kind = 4), dimension(iRows, iCols)         :: a2dVarMeltingS, a2dVarMeltingSDayCum
+        real(kind = 4), dimension(iRows, iCols)         :: a2dVarMeltingS, a2dVarMeltingSCum
+        !real(kind = 4), dimension(iRows, iCols)         :: a2dVarMeltingSDayCum
         real(kind = 4), dimension(iRows, iCols)         :: a2dVarMeltingSc
         real(kind = 4), dimension(iRows, iCols)         :: a2dVarSnowMask
         
@@ -105,14 +109,18 @@ contains
         a2dVarSnowHeight = -9999.0; a2dVarSnowKernel = -9999.0; a2dVarSnowCA = -9999.0; a2dVarSnowQA = -9999.0
         a2dVarSnowMask = -9999.0
 
-        a2dVarSnowFall = 0.0; a2dVarSnowFallDayCum = 0.0;
+        a2dVarSnowFall = 0.0; a2dVarSnowFallCum = 0.0
+        !a2dVarSnowFallDayCum = 0.0;
         
         a2dVarSWE = -9999.0; a2dVarRhoS = -9999.0; a2dVarRhoS0 = -9999; a2dVarAlbedoS = -9999.0; a2iVarAgeS = -9999.0;
-        a2dVarMeltingS = -9999.0; a2dVarMeltingSDayCum = -9999.0;
+        a2dVarMeltingS = -9999.0; a2dVarMeltingSCum = -9999.0
+        !a2dVarMeltingSDayCum = -9999.0;
         
         a2dVarSepCoeff = -9999.0; a2dVarCloudFactor = -9999.0; 
         a2dVarTaC_MeanDays1 = -9999.0; a2dVarTaC_MeanDays5 = -9999.0;
         a2dVarMeltingSc = -9999.0;
+        
+        iAccumData_Hour = -1; iStepData_Hour = -1;
         !-------------------------------------------------------------------------------------                         
                                      
         !-------------------------------------------------------------------------------------                      
@@ -135,6 +143,9 @@ contains
         
         ! Snow mask (if provided by external file to uncoupled snow physics)
         a2dVarSnowMask = oHMC_Vars(iID)%a2dMaskS
+        
+        ! Accumulated hour
+        iAccumData_Hour = oHMC_Namelist(iID)%iAccumData_Output_Hour 
 
         ! Info start
         call mprintf(.true., iINFO_Verbose, ' Phys :: Snow model ... ' )
@@ -170,12 +181,15 @@ contains
             a2dVarSnowCA = oHMC_Vars(iID)%a2dSCA
             a2dVarSnowQA = oHMC_Vars(iID)%a2dSQA
             
+            read(sTime(12:13) , *) iStepData_Hour
+            if (iAccumData_Hour + 1 > 23) iAccumData_Hour = 0
+
             !Re-initialize snowfall and melting cumulated variable(s)
-            if ( (sTime(12:13).eq.'00') .and. (iTime.gt.1) ) then
+            !if ( (iStepData_Hour .eq. iAccumData_Hour) .and. (iTime .gt. 1) ) then
                 ! Update cumulated daily melting
-                oHMC_Vars(iID)%a2dMeltingDayCum = 0.0
-                oHMC_Vars(iID)%a2dSnowFallDayCum = 0.0
-            endif
+                !oHMC_Vars(iID)%a2dMeltingDayCum = 0.0
+                !oHMC_Vars(iID)%a2dSnowFallDayCum = 0.0
+            !endif
             
             ! Extracting state variable(s)
             a2dVarSWE = oHMC_Vars(iID)%a2dSWE
@@ -184,9 +198,9 @@ contains
             a2dVarAlbedoS = oHMC_Vars(iID)%a2dAlbedo_Snow
             a2iVarAgeS = oHMC_Vars(iID)%a2iAge
             a2dVarMeltingS = oHMC_Vars(iID)%a2dMelting
-            a2dVarMeltingSDayCum = oHMC_Vars(iID)%a2dMeltingDayCum
+            !a2dVarMeltingSDayCum = oHMC_Vars(iID)%a2dMeltingDayCum
             a2dVarSnowFall = oHMC_Vars(iID)%a2dSnowFall
-            a2dVarSnowFallDayCum = oHMC_Vars(iID)%a2dSnowFallDayCum
+            !a2dVarSnowFallDayCum = oHMC_Vars(iID)%a2dSnowFallDayCum
             a2dVarMeltingSc = oHMC_Vars(iID)%a2dMeltingSc
 
             ! Dt snow model step
@@ -212,7 +226,7 @@ contains
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarSnowQA, a2iVarMask, 'SNOWQA START ') )
                 
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarSnowFall, a2iVarMask, 'SNOWFALL START ') )
-                call mprintf(.true., iINFO_Extra, checkvar(a2dVarSnowFallDayCum, a2iVarMask, 'SNOWFALL DAYCUM START ') )
+                !call mprintf(.true., iINFO_Extra, checkvar(a2dVarSnowFallDayCum, a2iVarMask, 'SNOWFALL DAYCUM START ') )
 
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarSWE, a2iVarMask, 'SWE START ') )
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarRhoS, a2iVarMask, 'RHOS START ') )
@@ -220,7 +234,7 @@ contains
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarAlbedoS, a2iVarMask, 'ALBEDOS START ') )
                 call mprintf(.true., iINFO_Extra, checkvar(real(a2iVarAgeS), a2iVarMask, 'AGES START ') )
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarMeltingS, a2iVarMask, 'MELTINGS START ') )
-                call mprintf(.true., iINFO_Extra, checkvar(a2dVarMeltingSDayCum, a2iVarMask, 'MELTINGS DAYCUM START ') )
+                !call mprintf(.true., iINFO_Extra, checkvar(a2dVarMeltingSDayCum, a2iVarMask, 'MELTINGS DAYCUM START ') )
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarSnowMask, a2iVarMask, 'SNOWMASK START ') )
                 call mprintf(.true., iINFO_Extra, ' ') 
             endif
@@ -256,7 +270,25 @@ contains
                 a2dVarSnowHeight = a2dVarSnowHeight*10;
             endwhere
             
-            a2dVarSnowFallDayCum = a2dVarSnowFallDayCum + a2dVarSnowFall
+            ! Snowfall 3d values
+            if ( (iStepData_Hour .eq. iAccumData_Hour) .and. (iTime .gt. 1) ) then
+                oHMC_Vars(iID)%a3dSnowFall = 0.0
+            endif
+            
+            if ( all(oHMC_Vars(iID)%a3dSnowFall .eq. 0.0) ) then
+                oHMC_Vars(iID)%a3dSnowFall(:,:,int(iDaySteps)) =  a2dVarSnowFall
+            else
+                ! Re-initializing 
+                do iStep=2, int(iDaySteps1Days)
+                    oHMC_Vars(iID)%a3dSnowFall(:,:,int(iStep-1)) =  oHMC_Vars(iID)%a3dSnowFall(:,:,int(iStep))
+                enddo
+                ! Updating with new field
+                where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
+                    oHMC_Vars(iID)%a3dSnowFall(:,:,int(iDaySteps)) =  a2dVarSnowFall
+                elsewhere
+                    oHMC_Vars(iID)%a3dSnowFall(:,:,int(iDaySteps)) = -9999.0
+                endwhere
+            endif
             !-------------------------------------------------------------------------------------
             
             !-------------------------------------------------------------------------------------
@@ -280,11 +312,12 @@ contains
             
             !-------------------------------------------------------------------------------------
             ! Call subroutine to compute snow density
+            a2dVarMeltingSCum = sum(oHMC_Vars(iID)%a3dMelting(:, :, 1:int(iDaySteps1Days)), dim=3) 
             call HMC_Phys_Snow_Apps_Rho(iID, iRows, iCols, &
                                             sTime, iTime, &
                                             iDt, &
                                             a2dVarDem, &
-                                            a2dVarTa, a2dVarSnowFall, a2dVarSWE, a2dVarMeltingSDayCum, &
+                                            a2dVarTa, a2dVarSnowFall, a2dVarSWE, a2dVarMeltingSCum, &
                                             a2dVarRhoS, a2dVarRhoS0)                                            
 
             ! Debug
@@ -292,11 +325,12 @@ contains
             !-------------------------------------------------------------------------------------
                                
             !-------------------------------------------------------------------------------------
-            ! Call subroutine to compute snow age
+            ! Call subroutine to compute snow age                  
+            a2dVarSnowFallCum = sum(oHMC_Vars(iID)%a3dSnowFall(:, :, 1:int(iDaySteps1Days)), dim=3)                            
             call HMC_Phys_Snow_Apps_Age(iID, iRows, iCols, &
                                         sTime, iTime, &
                                         a2dVarDem, &
-                                        a2dVarSnowFallDayCum, a2dVarSWE, &
+                                        a2dVarSnowFallCum, a2dVarSWE, &
                                         a2iVarAgeS) 
             ! Debug
             ! call mprintf(.true., iINFO_Extra, checkvar(float(a2iVarAgeS), a2iVarMask, 'AGES') ) 
@@ -365,9 +399,9 @@ contains
 
             !-------------------------------------------------------------------------------------
             ! Compute daily cumulated melting
-            where( (a2dVarDem.ge.0.0) .and. (a2dVarMeltingS.gt.0.0) )
-                a2dVarMeltingSDayCum = a2dVarMeltingSDayCum + a2dVarMeltingS
-            endwhere
+            !where( (a2dVarDem.ge.0.0) .and. (a2dVarMeltingS.gt.0.0) )
+            !    a2dVarMeltingSDayCum = a2dVarMeltingSDayCum + a2dVarMeltingS
+            !endwhere
             !-------------------------------------------------------------------------------------
 
             !-------------------------------------------------------------------------------------
@@ -428,7 +462,7 @@ contains
             where(a2dVarDem.lt.0.0)
                 a2dVarRain = -9999.0;  a2dVarSWE = -9999.0; a2dVarSnowFall = -9999.0; a2dVarRhos = -9999.0;
                 a2dVarTaC_MeanDays1 = -9999.0; a2dVarTaC_MeanDays5 = -9999.0; 
-                a2iVarAgeS = -9999; a2dVarMeltingS = -9999.0; a2dVarMeltingSDayCum = -9999.0
+                a2iVarAgeS = -9999; a2dVarMeltingS = -9999.0; !a2dVarMeltingSDayCum = -9999.0
             endwhere
             
             where( (a2dVarDem.gt.0.0) .and. (a2dVarSWE.eq.0.0) ) 
@@ -451,7 +485,7 @@ contains
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarTaC_MeanDays5, a2iVarMask, 'TA MEAN 5 DAYS END ') )
                 
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarSnowFall, a2iVarMask, 'SNOWFALL END ') )
-                call mprintf(.true., iINFO_Extra, checkvar(a2dVarSnowFallDayCum, a2iVarMask, 'SNOWFALL DAYCUM END ') )
+                !call mprintf(.true., iINFO_Extra, checkvar(a2dVarSnowFallDayCum, a2iVarMask, 'SNOWFALL DAYCUM END ') )
                 
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarSWE, a2iVarMask, 'SWE END ') )
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarRhoS, a2iVarMask, 'RHOS END ') )
@@ -459,13 +493,33 @@ contains
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarAlbedoS, a2iVarMask, 'ALBEDOS END ') )
                 call mprintf(.true., iINFO_Extra, checkvar(real(a2iVarAgeS), a2iVarMask, 'AGES END ') )
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarMeltingS, a2iVarMask, 'MELTINGS END ') )
-                call mprintf(.true., iINFO_Extra, checkvar(a2dVarMeltingSDayCum, a2iVarMask, 'MELTINGS DAYCUM END ') )
+                !call mprintf(.true., iINFO_Extra, checkvar(a2dVarMeltingSDayCum, a2iVarMask, 'MELTINGS DAYCUM END ') )
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarSnowMask, a2iVarMask, 'SNOWMASK END ') )
                 call mprintf(.true., iINFO_Extra, ' ========= SNOW END =========== ')  
             endif
             !-----------------------------------------------------------------------------------------
 
             !-----------------------------------------------------------------------------------------
+            ! Snow melting 3D
+            if ( (iStepData_Hour .eq. iAccumData_Hour) .and. (iTime .gt. 1) ) then
+                oHMC_Vars(iID)%a3dMelting = 0.0
+            endif
+            
+            if (all(oHMC_Vars(iID)%a3dMelting.lt.0.0))then
+                oHMC_Vars(iID)%a3dMelting(:,:,int(iDaySteps1Days)) =  a2dVarMeltingS
+            else
+                ! Re-initializing 
+                do iStep=2, int(iDaySteps1Days)
+                    oHMC_Vars(iID)%a3dMelting(:,:,int(iStep-1)) =  oHMC_Vars(iID)%a3dMelting(:,:,int(iStep))
+                enddo
+                ! Updating with new field
+                where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
+                    oHMC_Vars(iID)%a3dMelting(:,:,int(iDaySteps)) =  a2dVarMeltingS
+                elsewhere
+                    oHMC_Vars(iID)%a3dMelting(:,:,int(iDaySteps)) = -9999.0
+                endwhere
+            endif
+
             ! Update forcing variable(s)
             oHMC_Vars(iID)%a2dRain = a2dVarRain
 
@@ -477,9 +531,9 @@ contains
             oHMC_Vars(iID)%a2iAge = a2iVarAgeS
             oHMC_Vars(iID)%a2dMelting = a2dVarMeltingS
             oHMC_Vars(iID)%a2dMeltingSc = a2dVarMeltingSc
-            oHMC_Vars(iID)%a2dMeltingDayCum = a2dVarMeltingSDayCum
+            !oHMC_Vars(iID)%a2dMeltingDayCum = a2dVarMeltingSDayCum
             oHMC_Vars(iID)%a2dSnowFall = a2dVarSnowFall
-            oHMC_Vars(iID)%a2dSnowFallDayCum = a2dVarSnowFallDayCum
+            !oHMC_Vars(iID)%a2dSnowFallDayCum = a2dVarSnowFallDayCum
             oHMC_Vars(iID)%a2dMaskS = a2dVarSnowMask
             
             ! Info end
@@ -498,9 +552,12 @@ contains
             
             oHMC_Vars(iID)%a2dMelting = -9999.0
             oHMC_Vars(iID)%a2dMeltingSc = -9999.0
-            oHMC_Vars(iID)%a2dMeltingDayCum  = -9999.0
+            !oHMC_Vars(iID)%a2dMeltingDayCum  = -9999.0
             oHMC_Vars(iID)%a2dSnowFall = -9999.0
             oHMC_Vars(iID)%a2dMaskS = a2dVarSnowMask
+            
+            oHMC_Vars(iID)%a3dMelting = -9999.0
+            oHMC_Vars(iID)%a3dSnowFall = -9999.0
             
             ! Info end
             call mprintf(.true., iINFO_Verbose, ' Phys :: Snow model ... NOT ACTIVATED' )

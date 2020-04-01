@@ -68,13 +68,16 @@ contains
         integer(kind = 4)       :: iFlagDynVeg
         integer(kind = 4)       :: iFlagFlood
         
-        logical                  :: bGridCheck
+        logical                 :: bGridCheck
 
         integer(kind = 4)       :: iSimLength, iDtModel, iDtPhysConv
         integer(kind = 4)       :: iDtData_Forcing
         integer(kind = 4)       :: iDtData_Updating
         integer(kind = 4)       :: iDtData_Output_Gridded, iDtData_Output_Point
         integer(kind = 4)       :: iDtData_State_Gridded, iDtData_State_Point
+        
+        integer(kind = 4)       :: iActiveData_Output_Generic, iActiveData_Output_Flooding, iActiveData_Output_Snow
+        integer(kind = 4)       :: iAccumData_Output_Hour
         
         integer(kind = 4)       :: iDtPhysPrev
         integer(kind = 4)       :: iDtPhysMethod
@@ -153,10 +156,10 @@ contains
         character(len = 700)    :: sAuthorNames
         character(len = 5)      :: sReleaseVersion
         
-        real(kind = 4)           :: dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax
+        real(kind = 4)          :: dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax
         character(len = 256)    :: sDomainName
         
-        real(kind = 4)           :: dUcF, dUhF, dCtF, dCfF, dCPIF, dWTableHbrF, dKSatRatioF, dSlopeMaxF
+        real(kind = 4)          :: dUcF, dUhF, dCtF, dCfF, dCPIF, dWTableHbrF, dKSatRatioF, dSlopeMaxF
         character(len = 256)    :: sDomainNameF
         
         character(len = 256)    :: sStrCf, sStrCt, sStrUh, sStrUc
@@ -164,10 +167,10 @@ contains
 
         !--------------------------------------------------------------------------------
         ! Read namelist(s)
-        namelist /HMC_Parameters/      dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax, &
+        namelist /HMC_Parameters/       dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax, &
                                         sDomainName
         
-        namelist /HMC_Namelist/        iFlagTypeData_Static, &
+        namelist /HMC_Namelist/         iFlagTypeData_Static, &
                                         iFlagTypeData_Forcing_Gridded, iFlagTypeData_Forcing_Point, & 
                                         iFlagTypeData_Forcing_TimeSeries, &
                                         iFlagTypeData_Updating_Gridded, &
@@ -195,6 +198,8 @@ contains
                                         iDtData_Updating, &
                                         iDtData_Output_Gridded, iDtData_Output_Point, &
                                         iDtData_State_Gridded, iDtData_State_Point, &
+                                        iActiveData_Output_Generic, iActiveData_Output_Flooding, iActiveData_Output_Snow, &
+                                        iAccumData_Output_Hour, &
                                         sTimeStart, sTimeRestart, &
                                         sPathData_Static_Gridded, sPathData_Static_Point, &
                                         sPathData_Forcing_Gridded, sPathData_Forcing_Point, sPathData_Forcing_TimeSeries, &
@@ -203,11 +208,11 @@ contains
                                         sPathData_State_Gridded, sPathData_State_Point, &
                                         sPathData_Restart_Gridded, sPathData_Restart_Point
                                         
-        namelist /HMC_Snow/            a1dArctUp, a1dExpRhoLow, a1dExpRhoHigh, a1dAltRange, &
+        namelist /HMC_Snow/             a1dArctUp, a1dExpRhoLow, a1dExpRhoHigh, a1dAltRange, &
                                         iGlacierValue, dRhoSnowFresh, dRhoSnowMax, dSnowQualityThr, &
                                         dMeltingTRef
                                         
-        namelist /HMC_Constants/       a1dAlbedoMonthly, a1dLAIMonthly, a1dCHMonthly, &
+        namelist /HMC_Constants/        a1dAlbedoMonthly, a1dLAIMonthly, a1dCHMonthly, &
                                         dWTableHMin, dWTableHUSoil, dWTableHUChannel, dWTableSlopeBM, dWTableHOBedRock, &
                                         dRateMin, dBc, &
                                         dTRef, iTdeepShift, dEpsS, dSigma, dBFMin, dBFMax, &
@@ -216,12 +221,12 @@ contains
                                         dTV, dDamSpillH, &
                                         dSMGain
                                         
-        namelist /HMC_Command/         sCommandZipFile, &
+        namelist /HMC_Command/          sCommandZipFile, &
                                         sCommandUnzipFile, &
                                         sCommandRemoveFile, &
                                         sCommandCreateFolder
         
-        namelist /HMC_Info/            sReleaseDate, &
+        namelist /HMC_Info/             sReleaseDate, &
                                         sAuthorNames, &
                                         sReleaseVersion
         !--------------------------------------------------------------------------------
@@ -253,6 +258,10 @@ contains
         iDtData_Updating = -9999; 
         iDtData_Output_Gridded = -9999; iDtData_Output_Point = -9999; 
         iDtData_State_Gridded = -9999; iDtData_State_Point = -9999;
+        
+        iActiveData_Output_Generic = -1; iActiveData_Output_Flooding = -1; iActiveData_Output_Snow = -1; 
+        iAccumData_Output_Hour = -1
+        
         sTimeStart = ""; sTimeRestart = ""; 
         sPathData_Static_Gridded = ""; sPathData_Static_Point = ""; 
         sPathData_Forcing_Gridded = ""; sPathData_Forcing_Point = ""; sPathData_Forcing_TimeSeries = "";
@@ -562,6 +571,28 @@ contains
         oHMC_Namelist_Init%iDtData_State_Gridded = iDtData_State_Gridded
         oHMC_Namelist_Init%iDtData_State_Point = iDtData_State_Point
         
+        if (iActiveData_Output_Generic .eq. -1) then  
+            oHMC_Namelist_Init%iActiveData_Output_Generic = 2
+        else
+            oHMC_Namelist_Init%iActiveData_Output_Generic = iActiveData_Output_Generic
+        endif
+        if (iActiveData_Output_Flooding .eq. -1) then 
+            oHMC_Namelist_Init%iActiveData_Output_Flooding = 0
+        else
+            oHMC_Namelist_Init%iActiveData_Output_Flooding = iActiveData_Output_Flooding
+        endif
+        if (iActiveData_Output_Snow .eq. -1) then 
+            oHMC_Namelist_Init%iActiveData_Output_Snow = 0
+        else
+            oHMC_Namelist_Init%iActiveData_Output_Snow = iActiveData_Output_Snow
+        endif
+        
+        if (iAccumData_Output_Hour .eq. -1) then 
+            oHMC_Namelist_Init%iAccumData_Output_Hour = 23
+        else
+            oHMC_Namelist_Init%iAccumData_Output_Hour = iAccumData_Output_Hour
+        endif
+        
         ! Time reference info
         oHMC_Namelist_Init%sTimeStart = sTimeStartLong
         oHMC_Namelist_Init%sTimeRestart = sTimeRestartLong
@@ -667,9 +698,44 @@ contains
         oHMC_Namelist_Init%sAuthorNames = sAuthorNames
         oHMC_Namelist_Init%sReleaseVersion = sReleaseVersion
         
+        ! Check of dumping flags for generic and flooding variable(s))
+        if ( oHMC_Namelist_Init%iActiveData_Output_Generic .eq. 1 ) then
+            call mprintf(.true., iINFO_Main, ' Activation of generic outcome dumping: BASIC DATASETS ')
+        else if ( oHMC_Namelist_Init%iActiveData_Output_Generic .eq. 2 ) then
+            call mprintf(.true., iINFO_Main, ' Activation of generic outcome dumping: EXTENDED DATASETS')
+        else
+            call mprintf(.true., iERROR, ' Activation of generic outcome dumping: NULL (1 = BASIN, 2 = EXTENDED)')
+        endif
+        
+        if ( oHMC_Namelist_Init%iActiveData_Output_Flooding .eq. 0 ) then
+            call mprintf(.true., iINFO_Main, ' Activation of flooding outcome dumping: NOT ACTIVE ')
+        else if ( oHMC_Namelist_Init%iActiveData_Output_Flooding .eq. 1 ) then
+            call mprintf(.true., iINFO_Main, ' Activation of flooding outcome dumping: ACTIVE')
+        else
+            call mprintf(.true., iERROR, ' Activation of flooding outcome dumping: NULL (0 = NOT ACTIVE, 1 = ACTIVE)')
+        endif
+        
+        if ( oHMC_Namelist_Init%iActiveData_Output_Snow .eq. 0 ) then
+            call mprintf(.true., iINFO_Main, ' Activation of snow outcome dumping: NOT ACTIVE ')
+        else if ( oHMC_Namelist_Init%iActiveData_Output_Snow .eq. 1 ) then
+            call mprintf(.true., iINFO_Main, ' Activation of snow outcome dumping: ACTIVE')
+        else
+            call mprintf(.true., iERROR, ' Activation of flooding outcome dumping: NULL (0 = NOT ACTIVE, 1 = ACTIVE)')
+        endif
+        
+        if (( oHMC_Namelist_Init%iFlagFlood .eq. 0 ) .and. ( oHMC_Namelist_Init%iActiveData_Output_Flooding .eq. 1 )) then
+            call mprintf(.true., iWARN, ' Flooding is not activated; deactivate the dumping of flooding output ')
+            oHMC_Namelist_Init%iActiveData_Output_Flooding = 0
+        endif
+        
+        if (( oHMC_Namelist_Init%iFlagFlood .eq. 0 ) .and. ( oHMC_Namelist_Init%iActiveData_Output_Snow .eq. 1 )) then
+            call mprintf(.true., iWARN, ' Snow is not activated; deactivate the dumping of snow output ')
+            oHMC_Namelist_Init%iActiveData_Output_Snow = 0
+        endif
+        
         ! Info model
         write(sStrUc, *) dUc; write(sStrUh, *) dUh; write(sStrCt, *) dCt; write(sStrCf, *) dCf;
-        call mprintf(.true., iINFO_Basic, ' PARAMETER(S) INFO --- dUc: '//trim(sStrUc)//' - dUh: '//trim(sStrUh)// &
+        call mprintf(.true., iINFO_Basic, ' PARAMETER(S) DEFAULT INFO --- dUc: '//trim(sStrUc)//' - dUh: '//trim(sStrUh)// &
                     ' dCt: '//trim(sStrCt)//' dCf: '//trim(sStrCf) )           
         ! Info
         call mprintf(.true., iINFO_Main, ' Read Namelist ... OK')

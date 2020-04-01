@@ -60,7 +60,8 @@ contains
         !------------------------------------------------------------------------------------------
         ! Initialization variable(s)
         a2iVarMask = 0; a2iVarChoice = 0; a2dVarDEM = 0.0; a2dVarAreaCell = 0.0; a2dVarCtWP = 0.0;
-        a2dVarAE = 0.0; a2dVarVRet = 0.0; a2dVarVTot = 0.0; a2dVarVTotWP = 0.0;
+        a2dVarAE = 0.0; a2dVarET = 0.0; a2dVarETPot = 0.0; 
+        a2dVarVRet = 0.0; a2dVarVTot = 0.0; a2dVarVTotWP = 0.0;
         dVarAE = 0.0; dVarET = 0.0; dVarETLake = 0.0; a2dVarAEres = 0.0;
         
         a2iVarXYDam = 0; a1dVarCodeDam = 0.0; a1dVarVDam = 0.0; 
@@ -88,8 +89,8 @@ contains
 
         ! Extracting dynamic state variable(s)
         a2dVarVTot = oHMC_Vars(iID)%a2dVTot         ! Total soil volume
-        a2dVarET = oHMC_Vars(iID)%a2dET             ! Evapotranspiration
-        a2dVarETPot = oHMC_Vars(iID)%a2dETPot       ! Potential Evapotranspiration
+        a2dVarET = oHMC_Vars(iID)%a2dET             ! Evapotranspiration ==> drom LST phys
+        a2dVarETPot = oHMC_Vars(iID)%a2dETPot       ! Potential Evapotranspiration == from LST phys
 
         ! Compute soil water content at wilting point - minimum threshold for evapotranspiration
         a2dVarVTotWP = oHMC_Vars(iID)%a2dVTotWP
@@ -235,41 +236,6 @@ contains
                                           ' ET: '//sVarET//' [mm] '// &
                                           ' ET Tot: '//sVarETTot//' [mm]')
         !------------------------------------------------------------------------------------------
-                   
-        !------------------------------------------------------------------------------------------
-        ! Copy instantaneous ET & ETpot to 3D var
-        ! 3D_ET 
-        if (all(oHMC_Vars(iID)%a3dET.lt.0.0))then
-            oHMC_Vars(iID)%a3dET(:,:,int(iDaySteps)) =  a2dVarAE
-        else
-            ! Re-initializing 
-            do iStep=2, int(iDaySteps)
-                oHMC_Vars(iID)%a3dET(:,:,int(iStep-1)) = oHMC_Vars(iID)%a3dET(:,:,int(iStep))
-            enddo
-            ! Updating with new field
-            where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
-                oHMC_Vars(iID)%a3dET(:,:,int(iDaySteps)) =  a2dVarAE
-            elsewhere
-                oHMC_Vars(iID)%a3dET(:,:,int(iDaySteps)) = -9999.0
-            endwhere
-        endif
-
-        ! 3D_ETpot 
-        if (all(oHMC_Vars(iID)%a3dETpot.lt.0.0))then
-            oHMC_Vars(iID)%a3dETpot(:,:,int(iDaySteps)) =  a2dVarETpot
-        else
-            ! Re-initializing 
-            do iStep=2, int(iDaySteps)
-                oHMC_Vars(iID)%a3dETpot(:,:,int(iStep-1)) = oHMC_Vars(iID)%a3dETpot(:,:,int(iStep))
-            enddo
-            ! Updating with new field
-            where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
-                oHMC_Vars(iID)%a3dETpot(:,:,int(iDaySteps)) =  a2dVarETpot
-            elsewhere
-                oHMC_Vars(iID)%a3dETpot(:,:,int(iDaySteps)) = -9999.0
-            endwhere
-        endif
-        !------------------------------------------------------------------------------------------
                                           
         !------------------------------------------------------------------------------------------
         ! Debug
@@ -284,8 +250,42 @@ contains
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
+        ! Copy instantaneous AE & AEpot to 3D var
+        ! AE - 3D
+        if (all(oHMC_Vars(iID)%a3dAE.lt.0.0))then
+            oHMC_Vars(iID)%a3dAE(:,:,int(iDaySteps)) =  a2dVarAE
+        else
+            ! Re-initializing 
+            do iStep=2, int(iDaySteps)
+                oHMC_Vars(iID)%a3dAE(:,:,int(iStep-1)) = oHMC_Vars(iID)%a3dAE(:,:,int(iStep))
+            enddo
+            ! Updating with new field
+            where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
+                oHMC_Vars(iID)%a3dAE(:,:,int(iDaySteps)) =  a2dVarAE
+            elsewhere
+                oHMC_Vars(iID)%a3dAE(:,:,int(iDaySteps)) = -9999.0
+            endwhere
+        endif
+        
+        ! AEpot - 3D
+        if (all(oHMC_Vars(iID)%a3dAEpot.lt.0.0))then
+            oHMC_Vars(iID)%a3dAEpot(:,:,int(iDaySteps)) =  a2dVarETPot
+        else
+            ! Re-initializing 
+            do iStep=2, int(iDaySteps)
+                oHMC_Vars(iID)%a3dAEpot(:,:,int(iStep-1)) = oHMC_Vars(iID)%a3dAEpot(:,:,int(iStep))
+            enddo
+            ! Updating with new field
+            where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
+                oHMC_Vars(iID)%a3dAEpot(:,:,int(iDaySteps)) =  a2dVarETPot
+            elsewhere
+                oHMC_Vars(iID)%a3dAEpot(:,:,int(iDaySteps)) = -9999.0
+            endwhere
+        endif
+
         ! Passing variable(s) to global declaration
         oHMC_Vars(iID)%a2dAE = a2dVarAE
+        oHMC_Vars(iID)%a2dAEPot = a2dVarETPot
         oHMC_Vars(iID)%a2dVRet = a2dVarVRet
         oHMC_Vars(iID)%a1dVLake = a1dVarVLake
         oHMC_Vars(iID)%a1dVDam = a1dVarVDam
