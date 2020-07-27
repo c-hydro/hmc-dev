@@ -24,6 +24,8 @@ module HMC_Module_Data_State_Gridded
                                             HMC_Tools_IO_Put3d_Binary, &
                                             HMC_Tools_IO_Put2d_NC, &
                                             HMC_Tools_IO_Put3d_NC, &
+                                            HMC_Tools_IO_PutTime_DBL_NC, &
+                                            HMC_Tools_IO_PutTime_STR_NC, &
                                             check
 #else
     use HMC_Module_Tools_IO,        only:   HMC_Tools_IO_Put2d_Binary_INT, &
@@ -37,6 +39,8 @@ module HMC_Module_Data_State_Gridded
                                             HMC_Tools_Generic_ZipFile, &
                                             HMC_Tools_Generic_RemoveFile, &
                                             transpose3Dvar
+                                            
+    use HMC_Module_Tools_Time,      only:   HMC_Tools_Time_DateDiff
     
     ! Implicit none for all subroutines in this module
     implicit none
@@ -283,8 +287,9 @@ contains
         integer(kind = 4), intent(in)           :: iRows, iCols
         integer(kind = 4)                       :: iDaySteps, iTMarkedSteps
         integer(kind = 4)                       :: iFlagSnow, iFlagCType
-
-        character(len = 19)                     :: sTime, sTimeSave
+        
+        integer(kind = 4)                       :: iTimeStep
+        character(len = 19)                     :: sTime, sTimeSave, sTimeRef
         
         real(kind = 4)                          :: dVarMissingValue, dScale_Factor
         real(kind = 4)                          :: dVarXLLCorner, dVarYLLCorner
@@ -317,13 +322,16 @@ contains
         integer(kind = 4)       :: iErr
         
         integer(kind = 4)       :: iFileID
-        integer(kind = 4)       :: iID_Dim_Rows, iID_Dim_Cols, iID_Dim_Time
+        integer(kind = 4)       :: iID_Dim_Rows, iID_Dim_Cols, iID_Dim_Time_DBL, iID_Dim_Time_STR
         integer(kind = 4)       :: iID_Dim_TMarkedSteps, iID_Dim_Day1Steps, iID_Dim_Day5Steps
+        
+        real(kind = 8)          :: dTimeHours_Diff, dTimeSeconds_Diff
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
         ! Initialize variable(s)
         sCommandZipFile = ""
+        sTimeRef = '1970-01-01_00:00:00'
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -341,6 +349,11 @@ contains
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
+        ! Define elapsed hours from reference date
+        call HMC_Tools_Time_DateDiff(sTime, sTimeRef, dTimeSeconds_Diff, dTimeHours_Diff)
+        !------------------------------------------------------------------------------------------
+
+        !------------------------------------------------------------------------------------------
         ! Filename output
         sFileNameData_State = trim(sPathData_State)//"hmc.state-grid."// &
         sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
@@ -356,7 +369,8 @@ contains
         call check( nf90_create(trim(sFileNameData_State), NF90_NETCDF4, iFileID) )
         
         ! Dimension(s)        
-        call check( nf90_def_dim(iFileID, "time", NF90_UNLIMITED, iID_Dim_Time) )
+        call check( nf90_def_dim(iFileID, "time", 1, iID_Dim_Time_DBL) )
+        call check( nf90_def_dim(iFileID, "time_str_length", 19, iID_Dim_Time_STR) )
         call check( nf90_def_dim(iFileID, "west_east", iRows, iID_Dim_Rows) )
         call check( nf90_def_dim(iFileID, "south_north", iCols, iID_Dim_Cols) )
         call check( nf90_def_dim(iFileID, "tmarked_steps", iTMarkedSteps, iID_Dim_TMarkedSteps) )
@@ -380,7 +394,28 @@ contains
         ! Definition mode OFF - Data mode ON
         call check( nf90_enddef(iFileID))
         !------------------------------------------------------------------------------------------
-
+        
+                !------------------------------------------------------------------------------------------
+        ! Writing time variable(s) in netcdf output file
+        ! TIMES
+        sVarName = 'times'; sVarNameLong = 'times definition of output datasets'; 
+        sVarDescription = 'times';
+        sVarUnits = 'time units'; 
+        sVarCoords = ''; iTimeStep = 1
+        call HMC_Tools_IO_PutTime_STR_NC(iFileID, iID_Dim_Time_STR, & 
+                             sVarName, sVarNameLong, sVarDescription, &
+                             sVarUnits, sVarCoords, &
+                             iTimeStep, sTimeSave)
+        ! TIME
+        sVarName = 'time'; sVarNameLong = 'time definition of output datasets'; 
+        sVarDescription = 'synthesized time coordinate from Times(time)'; sVarUnits = 'secs since '//trim(sTimeRef); 
+        sVarCoords = 't'; iTimeStep = 1
+        call HMC_Tools_IO_PutTime_DBL_NC(iFileID, iID_Dim_Time_DBL, & 
+                             sVarName, sVarNameLong, sVarDescription, &
+                             sVarUnits, sVarCoords, &
+                             iTimeStep, dTimeSeconds_Diff)
+        !------------------------------------------------------------------------------------------
+        
         !------------------------------------------------------------------------------------------
         ! Writing static variable(s) in netcdf output file
         ! LONGITUDE

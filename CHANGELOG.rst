@@ -2,6 +2,13 @@
 Changelog
 =========
 
+Version 3.1.2 [2020-07-23]
+**************************
+- ADD: parameters configuration for CN, WS and Fracturation;
+- ADD: variable time in state and outcome datasets;
+- FIX: restart mandatory flags for snow variables;
+- FIX: hydraulic structures bug in surface flow for channel fraction.
+
 Version 3.1.1 [2020-03-30]
 **************************
 - ADD: flags for selecting the outcome datasets;

@@ -112,6 +112,7 @@ TYPE HMC_Type_Namelist
     character(len = 5)      :: sReleaseVersion
 
     real(kind = 4)          :: dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax
+    real(kind = 4)          :: dCN, dWS, dFrac
     character(len = 256)    :: sDomainName
    
 END TYPE HMC_Type_Namelist
