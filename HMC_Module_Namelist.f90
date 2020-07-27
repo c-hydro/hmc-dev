@@ -157,10 +157,8 @@ contains
         character(len = 5)      :: sReleaseVersion
         
         real(kind = 4)          :: dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax
+        real(kind = 4)          :: dCN, dWS, dFrac
         character(len = 256)    :: sDomainName
-        
-        real(kind = 4)          :: dUcF, dUhF, dCtF, dCfF, dCPIF, dWTableHbrF, dKSatRatioF, dSlopeMaxF
-        character(len = 256)    :: sDomainNameF
         
         character(len = 256)    :: sStrCf, sStrCt, sStrUh, sStrUc
         !--------------------------------------------------------------------------------
@@ -168,6 +166,7 @@ contains
         !--------------------------------------------------------------------------------
         ! Read namelist(s)
         namelist /HMC_Parameters/       dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax, &
+                                        dCN, dWS, dFrac, &
                                         sDomainName
         
         namelist /HMC_Namelist/         iFlagTypeData_Static, &
@@ -287,6 +286,8 @@ contains
         dKq = -9999.0; dKw = -9999.0; dKo = -9999.0; dPorS = -9999.0; dFqS = -9999.0;
         dTV = -9999.0; dDamSpillH = -9999.0
         dSMGain = -9999.0;
+        
+        dCN = -9999.0; dWS = -9999.0; dFrac = -9999.0
         
         sCommandZipFile = ""; sCommandUnzipFile = ""; sCommandRemoveFile = ""; sCommandCreateFolder = ""
         
@@ -642,7 +643,7 @@ contains
         oHMC_Namelist_Init%sCommandRemoveFile = sCommandRemoveFile
         oHMC_Namelist_Init%sCommandCreateFolder = sCommandCreateFolder
         
-        ! Command line argument(s)        
+        ! Command line argument(s) or namelist parameter(s)   
         oHMC_Namelist_Init%dUc = dUc
         oHMC_Namelist_Init%dUh = dUh
         oHMC_Namelist_Init%dCt = dCt
@@ -652,7 +653,23 @@ contains
         oHMC_Namelist_Init%dKSatRatio = dKSatRatio
         oHMC_Namelist_Init%dSlopeMax = dSlopeMax
         oHMC_Namelist_Init%sDomainName = sDomainName
-             
+        
+        if (dCN .eq. -9999) then  ! backward compatibility with older version of info file (without curve number value)
+            oHMC_Namelist_Init%dCN = -9999.0               
+        else
+            oHMC_Namelist_Init%dCN = dCN
+        endif
+        if (dWS .eq. -9999) then  ! backward compatibility with older version of info file (without water sources value)
+            oHMC_Namelist_Init%dWS = -9999.0               
+        else
+            oHMC_Namelist_Init%dWS = dWS
+        endif
+        if (dFrac .eq. -9999) then  ! backward compatibility with older version of info file (without fracturation value)
+            oHMC_Namelist_Init%dFrac = -9999.0               
+        else
+            oHMC_Namelist_Init%dFrac = dFrac
+        endif
+        
         ! Water-table constant(s)
         oHMC_Namelist_Init%dWTableHMin = dWTableHMin
         oHMC_Namelist_Init%dWTableHUSoil = dWTableHUSoil

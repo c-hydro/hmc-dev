@@ -4,7 +4,7 @@
 # Script option(s)
 Script="HMC Library Builder"
 Version="1.5.1"
-Date='2020/01/13'
+Date='2020/07/23'
 
 # Other option(s)
 Archive_Default="hmc_v310.tar.gz"

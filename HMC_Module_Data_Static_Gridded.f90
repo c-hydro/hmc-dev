@@ -432,6 +432,7 @@ contains
         real(kind = 4)          :: dDomainArea
         
         real(kind = 4)          :: dUc, dUh, dCt, dCf
+        real(kind = 4)          :: dCN, dWS, dFrac
         
         character(len = 256)    :: sVarName
         character(len = 256)    :: sVarUnits
@@ -490,6 +491,7 @@ contains
         a2dVarCtWP = 0.0; a2dVarGd = 0.0; a2dVarRSmin = 0.0; a2dVarHveg = 0.0; a2dVarBareSoil = 0.0;
         a2dVarLevBankR = -9999.0; a2dVarLevBankL = -9999.0; a2dVarFirst = -9999.0;
         
+        dUc = -9999.0; dUh = -9999.0; dCt = -9999.0; dCf = -9999.0; dCN= -9999.0; dWS = -9999.0; dFrac = -9999.0;
         
         iFlagCoeffRes = -9999; iFlagWS = -9999; iFlagFrac = -9999; iFlagCType = -9999; iFlagDynVeg = -9999; iFlagFlood = -9999;
         
@@ -504,12 +506,16 @@ contains
         iTypeData = oHMC_Namelist(iID)%iFlagTypeData_Static
         ! Get iT max for
         iTcMax = oHMC_Namelist(iID)%iTcMax
+        
         ! Get mean parameter(s)
         dCt = oHMC_Namelist(iID)%dCt
         dCf = oHMC_Namelist(iID)%dCf
         dUh = oHMC_Namelist(iID)%dUh
-        dUc = oHMC_Namelist(iID)%dUc
-        
+        dUc = oHMC_Namelist(iID)%dUc 
+        dCN = oHMC_Namelist(iID)%dCN
+        dWS = oHMC_Namelist(iID)%dWS
+        dFrac = oHMC_Namelist(iID)%dFrac
+
         ! Flag to set coeff resolution map default mode
         iFlagCoeffRes = oHMC_Namelist(iID)%iFlagCoeffRes
         ! Flag to activate/deactivate water sources map
@@ -594,9 +600,13 @@ contains
                 
                 !------------------------------------------------------------------------------------------
                 ! CN
-                sVarName = 'VegetationType'
-                call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .true., iErr)
-                a2dVarCN = transpose(a2dVar)
+                call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
+                if (iErr /= 0) then
+                    call mprintf(.true., iWARN, ' CN data not found. Initializing CN with default values.')
+                    a2dVarCN = dCN
+                else
+                    a2dVarCN = transpose(a2dVar)
+                endif
                 !------------------------------------------------------------------------------------------
                 
                 !------------------------------------------------------------------------------------------
@@ -740,8 +750,8 @@ contains
                 if (iFlagWS .eq. 1) then
                     call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                     if (iErr /= 0) then
-                        call mprintf(.true., iWARN, ' CoeffWS data not found. Initializing CoeffWS with zero values.')
-                        a2dVarCoeffWS = 0.0
+                        call mprintf(.true., iWARN, ' CoeffWS data not found. Initializing CoeffWS with default values.')
+                        a2dVarCoeffWS = dWS
                     else
                         a2dVarCoeffWS = int(transpose(a2dVar))
                     endif
@@ -774,8 +784,8 @@ contains
                 if (iFlagFrac .eq. 1) then
                     call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                     if (iErr /= 0) then
-                        call mprintf(.true., iWARN, ' Fracturing data not found. Initializing Fracturing with zero values.')   
-                        a2dVarFrac = 0.0
+                        call mprintf(.true., iWARN, ' Fracturing data not found. Initializing Fracturing with default values.')   
+                        a2dVarFrac = dFrac
                     else
                         a2dVarFrac = transpose(a2dVar)
                     endif
@@ -931,6 +941,20 @@ contains
             !------------------------------------------------------------------------------------------
             
             !------------------------------------------------------------------------------------------
+            ! CN
+            sFileName = trim(sPathData)//trim(sDomainName)//'.cn.txt'
+            call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
+            if (iErr /= 0) then 
+                call mprintf(.true., iWARN, ' CN data not found. Initializing CN with average value.')
+                where(a2dVarDEM.gt.0.0)
+                    a2dVarCN = dCN
+                endwhere
+            else
+                a2dVarCN = reshape(a2dVar, (/iRows, iCols/))
+            endif
+            !------------------------------------------------------------------------------------------
+            
+            !------------------------------------------------------------------------------------------
             ! PNT
             sFileName = trim(sPathData)//trim(sDomainName)//'.pnt.txt'
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .true., iErr)
@@ -978,7 +1002,7 @@ contains
             sFileName = trim(sPathData)//trim(sDomainName)//'.ct.txt'
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
             if (iErr /= 0) then 
-                call mprintf(.true., iWARN, ' Ct data not found. Initializing Ct with average values.')
+                call mprintf(.true., iWARN, ' Ct data not found. Initializing Ct with average value.')
                 where(a2dVarDEM.gt.0.0)
                     a2dVarCt = dCt
                 endwhere
@@ -1003,7 +1027,7 @@ contains
             sFileName = trim(sPathData)//trim(sDomainName)//'.cf.txt'
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
             if (iErr /= 0) then 
-                call mprintf(.true., iWARN, ' Cf data not found. Initializing Cf with average values.')
+                call mprintf(.true., iWARN, ' Cf data not found. Initializing Cf with average value.')
                 where(a2dVarDEM.gt.0.0)
                     a2dVarCf = dCf
                 endwhere
@@ -1110,8 +1134,10 @@ contains
                 sFileName = trim(sPathData)//trim(sDomainName)//'.ws.txt'
                 call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
                 if (iErr /= 0) then 
-                    call mprintf(.true., iWARN, ' CoeffWS data not found. Initializing CoeffWS with default values.')
-                    a2dVarCoeffWS = 0.0
+                    call mprintf(.true., iWARN, ' CoeffWS data not found. Initializing CoeffWS with average values.')
+                    where(a2dVarDEM.gt.0.0)
+                        a2dVarCoeffWS = dWS
+                    endwhere
                 else
                     a2dVarCoeffWS = reshape(a2dVar, (/iRows, iCols/))
                 endif
@@ -1142,12 +1168,16 @@ contains
                 sFileName = trim(sPathData)//trim(sDomainName)//'.fr.txt'
                 call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
                 if (iErr /= 0) then 
-                    call mprintf(.true., iWARN, ' Fracturing data not found. Initializing Fracturing with zero values.')                  
+                    call mprintf(.true., iWARN, ' Fracturing data not found. Initializing CoeffWS with average values.')    
+                    where(a2dVarDEM.gt.0.0)
+                        a2dVarFrac = dFrac
+                    endwhere
                 else
                     a2dVarFrac = reshape(a2dVar, (/iRows, iCols/)) 
                 endif
             else
                 call mprintf(.true., iWARN, ' Fracturing not activated. Initializing Fracturing with zero values.')
+                a2dVarFrac = 0.0
             endif
             !------------------------------------------------------------------------------------------  
 

@@ -218,6 +218,132 @@ contains
 #endif
     !------------------------------------------------------------------------------------
     
+        !------------------------------------------------------------------------------------
+    ! Subroutine to put time double variable
+#ifdef LIB_NC
+    subroutine HMC_Tools_IO_PutTime_DBL_NC(iFileID, iID_DimTime, &
+                               sVarName, sVarNameLong, sVarDescription, &
+                               sVarUnits, &
+                               sVarCoords, &
+                               iVarTime, dVarValue) 
+            
+        !------------------------------------------------------------------------------------
+        ! Variable(s) declaration
+        integer(kind = 4) :: iFileID
+        integer(kind = 4) :: iID_DimTime
+        
+        character(len = 256) :: sVarName, sVarNameLong, sVarDescription
+        character(len = 256) :: sVarUnits
+        character(len = 256) :: sVarCoords
+        
+        integer(kind = 4)    :: iVarID, iVarTime
+
+        real(kind = 8)       :: dVarValue
+        !------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------
+        ! Initializing variable(s)
+        iVarID = 0;
+        !------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------
+        ! Definition mode ON - Data mode OFF
+        call check( nf90_redef(iFileID) )
+        !------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------
+        ! Allocating variable 
+        call check( nf90_def_var(iFileID, trim(sVarName), nf90_double, (/iID_DimTime/), iVarID, &
+                                 deflate_level = iDeflateLevelNC) )
+        
+        !  Writing variable attribute(s)
+        call check( nf90_put_att(iFileID, iVarID, 'long_name'     , trim(sVarNameLong)) )
+        call check( nf90_put_att(iFileID, iVarID, 'description'   , trim(sVarDescription)) )
+        call check( nf90_put_att(iFileID, iVarID, 'units'         , trim(sVarUnits)) )
+        call check( nf90_put_att(iFileID, iVarID, 'coordinates'   , trim(sVarCoords)) )
+
+        ! Writing variable value(s)
+        call check( nf90_inq_varid(iFileID, trim(sVarName), iVarID) )
+        !------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------
+        ! Definition mode OFF - Data mode ON
+        call check( nf90_enddef(iFileID))
+        !------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------
+        ! Writing variable(s)
+        call check( nf90_put_var(iFileID, iVarID, dVarValue))
+        !------------------------------------------------------------------------------------
+
+    end subroutine HMC_Tools_IO_PutTime_DBL_NC
+#endif
+    !------------------------------------------------------------------------------------
+    
+    
+    !------------------------------------------------------------------------------------
+    ! Subroutine to put time string variable
+#ifdef LIB_NC
+    subroutine HMC_Tools_IO_PutTime_STR_NC(iFileID, iID_DimTime, &
+                               sVarName, sVarNameLong, sVarDescription, &
+                               sVarUnits, &
+                               sVarCoords, &
+                               iVarTime, sVarValue) 
+            
+        !------------------------------------------------------------------------------------
+        ! Variable(s) declaration
+        integer(kind = 4) :: iFileID
+        integer(kind = 4) :: iID_DimTime
+        
+        character(len = 256) :: sVarName, sVarNameLong, sVarDescription
+        character(len = 256) :: sVarUnits
+        character(len = 256) :: sVarCoords
+        
+        integer(kind = 4)    :: iVarID, iVarTime
+
+        character(len = 19) :: sVarValue
+        !------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------
+        ! Initializing variable(s)
+        iVarID = 0;
+        !------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------
+        ! Definition mode ON - Data mode OFF
+        call check( nf90_redef(iFileID) )
+        !------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------
+        ! Allocating variable 
+        call check( nf90_def_var(iFileID, trim(sVarName), nf90_char, (/iID_DimTime/), iVarID, &
+                                 deflate_level = iDeflateLevelNC) )
+        
+        !  Writing variable attribute(s)
+        call check( nf90_put_att(iFileID, iVarID, 'long_name'     , trim(sVarNameLong)) )
+        call check( nf90_put_att(iFileID, iVarID, 'description'   , trim(sVarDescription)) )
+        call check( nf90_put_att(iFileID, iVarID, 'units'         , trim(sVarUnits)) )
+        call check( nf90_put_att(iFileID, iVarID, 'coordinates'   , trim(sVarCoords)) )
+
+        ! Writing variable value(s)
+        call check( nf90_inq_varid(iFileID, trim(sVarName), iVarID) )
+        !------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------
+        ! Definition mode OFF - Data mode ON
+        call check( nf90_enddef(iFileID))
+        !------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------
+        ! Writing variable(s)
+        call check( nf90_put_var(iFileID, iVarID, sVarValue))
+        !------------------------------------------------------------------------------------
+
+    end subroutine HMC_Tools_IO_PutTime_STR_NC
+#endif
+    !------------------------------------------------------------------------------------
+    
+    
     !------------------------------------------------------------------------------------
     ! Subroutine to put 1d variable
 #ifdef LIB_NC

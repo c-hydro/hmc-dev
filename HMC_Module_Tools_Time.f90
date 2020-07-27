@@ -16,6 +16,87 @@ module HMC_Module_Tools_Time
     !------------------------------------------------------------------------------------------
     
 contains   
+    
+    
+    !------------------------------------------------------------------------------------------
+    ! Subroutine to convert string time to integer time
+    subroutine HMC_Tools_Time_DateDiff(sTime, sTimeRef, dTimeSeconds_Diff, dTimeHours_Diff)
+        
+        !------------------------------------------------------------------------------------------
+        ! Variable(s) declaration
+        character(len = 19)  :: sTime
+        character(len = 19), optional  :: sTimeRef
+        
+        integer(kind = 4)       :: iTimeJD_Ref, iTimeJD, iTimeJD_Diff
+        integer(kind = 4)       :: iYear, iMonth, iDay, iHour, iMins
+        integer(kind = 4)       :: iYear_Ref, iMonth_Ref, iDay_Ref, iHour_Ref, iMins_Ref
+        
+        integer(kind = 8)       :: iTimeSeconds_Diff
+        real(kind = 8)          :: dTimeHours_Diff, dTimeSeconds_Diff
+        !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
+        ! Initialize variable(s)
+        if(.not. present(sTimeRef)) sTimeRef = '1970-01-01_00:00:00' ! default value
+        
+        iYear = 0; iMonth = 0; iDay = 0; iHour = 0; iMins = 0;
+        iYear_Ref = 0; iMonth_Ref = 0; iDay_Ref = 0; iHour_Ref = 0; iMins_Ref = 0;
+        !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
+        ! Convert string date to int date
+        call HMC_Tools_Time_Str2Int(sTimeRef, iYear_Ref, iMonth_Ref, iDay_Ref, iHour_Ref, iMins_Ref)
+        call HMC_Tools_Time_Str2Int(sTime, iYear, iMonth, iDay, iHour, iMins)
+        
+        ! Compute JulianDay
+        iTimeJD_Ref = HMC_Tools_Time_JD(iYear_Ref, iMonth_Ref, iDay_Ref)
+        iTimeJD = HMC_Tools_Time_JD(iYear, iMonth, iDay)
+        ! Compute difference between days
+        iTimeJD_Diff = iTimeJD - iTimeJD_Ref
+        ! Compute difference in seconds
+        iTimeSeconds_Diff = int8(int8(iTimeJD_Diff) * 86400 + iHour * 3600 + (iMins / 60) * 3600)
+        dTimeSeconds_Diff = real(iTimeSeconds_Diff, 8)
+        ! Compute difference in hours
+        dTimeHours_Diff = real(iTimeSeconds_Diff, 8) / 3600.0
+        !------------------------------------------------------------------------------------------
+        
+    end subroutine HMC_Tools_Time_DateDiff
+    !------------------------------------------------------------------------------------------
+
+    !------------------------------------------------------------------------------------------
+    ! Subroutine to convert string time to integer time
+    subroutine HMC_Tools_Time_Str2Int(sTime, iYear, iMonth, iDay, iHour, iMins)
+
+    
+        character(len = 19)  :: sTime
+        integer(kind = 4)    :: iYear, iMonth, iDay, iHour, iMins
+        
+        read (sTime(1:4),'(I10)') iYear
+        read (sTime(6:7),'(I10)') iMonth
+        read (sTime(9:10),'(I10)') iDay
+        read (sTime(12:13),'(I10)') iHour
+        read (sTime(15:16),'(I10)') iMins
+        
+        
+    end subroutine HMC_Tools_Time_Str2Int
+    !------------------------------------------------------------------------------------------
+        
+    !------------------------------------------------------------------------------------------
+    ! Function to compute julian day
+    function HMC_Tools_Time_JD(yyyy, mm, dd) result (julian)
+
+        ! converts calendar date to Julian date
+        ! cf Fliegel & Van Flandern, CACM 11(10):657, 1968
+        ! example: julian_date(1970,1,1) = 2440588
+        integer, intent(in) :: yyyy,mm,dd
+        integer :: julian
+        
+        julian = dd-32075+1461*(yyyy+4800+(mm-14)/12)/4 + &
+        367*(mm-2-((mm-14)/12)*12)/12- &
+        3*((yyyy + 4900 + (mm - 14)/12)/100)/4
+        
+    end function HMC_Tools_Time_JD
+    !------------------------------------------------------------------------------------------
 
     !------------------------------------------------------------------------------------------
     ! Subroutine to get time now

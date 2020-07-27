@@ -1114,22 +1114,27 @@ contains
                 dRoutPrev = 0.0
                 if( (iIII.ge.1) .and. (iJJJ.ge.1) ) then
                     
-                    dRoutPrev = oHMC_Vars(iID)%a2dQC(iIII, iJJJ) 
+                    ! --- start correction 2020/07/18 ---
+                    dRoutPrev = oHMC_Vars(iID)%a2dQup(iIII, iJJJ) 
                     
                     ! Q less than QMV
-                    if(oHMC_Vars(iID)%a2dQC(iIII, iJJJ).le.dVarQminCatch)then
+                    if(oHMC_Vars(iID)%a2dQup(iIII, iJJJ).le.dVarQminCatch)then
                         dDh=0.0
                     ! Q larger than QMV
                     else
                         !Q-QMV < Qplant
-                        if((oHMC_Vars(iID)%a2dQC(iIII, iJJJ)-dDh).lt.dVarQminCatch) then
-                                dDh=oHMC_Vars(iID)%a2dQC(iIII, iJJJ)-dVarQminCatch				
+                        if((oHMC_Vars(iID)%a2dQup(iIII, iJJJ)-dDh).lt.dVarQminCatch) then
+                                dDh = oHMC_Vars(iID)%a2dQup(iIII, iJJJ)-dVarQminCatch				
                         endif
                     endif
-
+                    
+                    oHMC_Vars(iID)%a2dQup(iIII, iJJJ) = oHMC_Vars(iID)%a2dQup(iIII, iJJJ) - dDh
+                    
                     !Hc- Hc due to QplantCorrected
-                    a2dVarHydroPrevC(iIII, iJJJ)=a2dVarHydroPrevC(iIII, iJJJ)-dDh*dDtSurfaceflow/ &
-                                                (a2dVarWidthC(iIII, iJJJ)*sqrt(dVarAreaCell))
+                    !a2dVarHydroPrevC(iIII, iJJJ) = a2dVarHydroPrevC(iIII, iJJJ)-dDh*dDtSurfaceflow/ &
+                    !                            (a2dVarWidthC(iIII, iJJJ)*sqrt(dVarAreaCell))
+                    
+                    ! --- end correction 2020/07/18 ---
                     
                     ! Update data release(s)
                     if (iFlagReleaseMass .eq. 1) then   ! activate/deactivate release mass update
@@ -1139,13 +1144,21 @@ contains
 
                             if (iTTemp + iShift .lt. iRank ) then
                                 a2dVarHydroRelease(iC, iTTemp + 1) = dDh*(1000.0*3600) &
-                                             /dVarAreaCell ! Riconverto in mm/h
+                                             /dVarAreaCell ! in m^3/s to maintain the mass balance
                             endif
 
                         endif
                     endif
-
-                    if(a2dVarHydroPrevC(iIII, iJJJ).lt.0.0)then
+                                   
+                    if (oHMC_Vars(iID)%a2dQC(iIII, iJJJ) .lt. 0.0) then
+                        oHMC_Vars(iID)%a2dQC(iIII, iJJJ) = 0.0
+                    endif
+                    
+                    if (oHMC_Vars(iID)%a2dQup(iIII, iJJJ) .lt. 0.0) then
+                        oHMC_Vars(iID)%a2dQup(iIII, iJJJ) = 0.0
+                    endif
+                    
+                    if(a2dVarHydroPrevC(iIII, iJJJ).lt.0.0) then
                         a2dVarHydroPrevC(iIII, iJJJ) = 0.0
                     endif
 

@@ -797,7 +797,7 @@ contains
                     ! Air temperature last 1 day(s)
                     sVarName = 'T_1Days';
                     call HMC_Tools_IO_Get3d_NC((sVarName), iFileID, a3dVar3, sVarUnits, dScaleFactor, &
-                                                iDaySteps, iCols, iRows, .true., iErr)
+                                                iDaySteps, iCols, iRows, .false., iErr)
 !                    call HMC_Tools_IO_Get3d_NC((sVarName), iFileID, a3dVar3, sVarUnits, iDaySteps, iCols, iRows, .true., iErr)
 
                     if(iErr /= 0) then
@@ -813,7 +813,7 @@ contains
                     ! Air temperature last 5 day(s)
                     sVarName = 'T_5Days';
                     call HMC_Tools_IO_Get3d_NC((sVarName), iFileID, a3dVar4, sVarUnits, dScaleFactor, &
-                                                iDaySteps*5, iCols, iRows, .true., iErr)
+                                                iDaySteps*5, iCols, iRows, .false., iErr)
 !                    call HMC_Tools_IO_Get3d_NC((sVarName), iFileID, a3dVar4, sVarUnits, iDaySteps*5, iCols, iRows, .true., iErr)
 
                     if(iErr /= 0) then
