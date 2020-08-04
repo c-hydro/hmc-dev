@@ -933,12 +933,6 @@ contains
             a2dVarLat = reshape(a2dVar, (/iRows, iCols/))
             !------------------------------------------------------------------------------------------
             
-            !------------------------------------------------------------------------------------------
-            ! CN
-            sFileName = trim(sPathData)//trim(sDomainName)//'.cn.txt'
-            call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .true., iErr)
-            a2dVarCN = reshape(a2dVar, (/iRows, iCols/))
-            !------------------------------------------------------------------------------------------
             
             !------------------------------------------------------------------------------------------
             ! CN
@@ -1219,7 +1213,6 @@ contains
                
                 !------------------------------------------------------------------------------------------
                 ! Minimum Stomata resistance [s/m]
-                !------------------------------------------------------------------------------------
                 sFileName = trim(sPathData)//trim(sDomainName)//'.RSmin.txt'
                 call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .true., iErr)
                 if (iErr /= 0) then 
@@ -1227,7 +1220,8 @@ contains
                     'Dynamic vegetation module not applicable. Program stopped!')
                 else
                     a2dVarRSmin = reshape(a2dVar, (/iRows, iCols/))
-                endif            
+                endif           
+                !------------------------------------------------------------------------------------------
 
                 !------------------------------------------------------------------------------------------
                 ! Vegetation height [m]
@@ -1242,7 +1236,7 @@ contains
                 !------------------------------------------------------------------------------------------
 
                 !------------------------------------------------------------------------------------------
-                ! coefficient for the dependancy of canopy resistance on water vapor deficit [hPa-1]
+                ! Coefficient for the dependancy of canopy resistance on water vapor deficit [hPa-1]
                 sFileName = trim(sPathData)//trim(sDomainName)//'.Gd.txt'
                 call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .true., iErr)
                 if (iErr /= 0) then 

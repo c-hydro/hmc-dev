@@ -25,6 +25,78 @@ module HMC_Module_Tools_IO
     !------------------------------------------------------------------------------------
 
 contains 
+    
+    !------------------------------------------------------------------------------------
+    ! Subroutine for checking variable name NC
+#ifdef LIB_NC
+    subroutine HMC_Tools_IO_CheckVar_NC(var_name_list, file_id, var_name_select)
+        
+        !------------------------------------------------------------------------------------
+        ! Variable(s) declaration
+        integer(kind = 4)    :: file_id, var_id
+        character(len = *)   :: var_name_list, var_name_select
+        character(len = 80)  :: string_tmp, string_step, var_name_tmp
+        integer(kind = 4)    :: return_code
+        integer(kind = 4)    :: i, n, m, p, string_idx, max_length
+        character            :: delimiter =';' 
+
+        type :: string 
+         character(:) , allocatable     :: str_val  ! Value of variable dynamic string
+        end type string 
+
+        type(string), pointer :: p_string_array(:)
+        type(string)          :: string_item
+        !------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------
+        ! Initializing variable(s)
+        var_name_select = ''
+        !------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------
+        ! Get sub-string number using a delimiter
+        string_tmp = trim (adjustl(var_name_list) ) 
+        n = count(transfer(trim(string_tmp), 'a', len(trim(string_tmp))) == delimiter) + 1
+        
+        ! Allocate and dump each selected string
+        m = 1
+        allocate (p_string_array(n))
+        do i = 1, n
+            string_idx = index(string_tmp(m:),delimiter)
+            
+            string_step = adjustl( string_tmp(m: m + string_idx-2) )
+            string_item % str_val = string_step
+            p_string_array(i) = string_item
+
+            m = m + string_idx
+        end do
+        string_step = adjustl(string_tmp(m:) )
+        string_item % str_val = string_step
+        p_string_array(n) = string_item
+        
+        ! Check variable name in the file structure
+        do i = 1, n
+            var_name_tmp = p_string_array(i)%str_val
+            return_code = nf90_inq_varid(file_id,  trim(var_name_tmp), var_id)
+            if (return_code .eq. 0) then 
+                var_name_select = var_name_tmp
+                exit
+            end if
+        end do
+        !------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------
+        ! Check variable assignment
+        if (var_name_select .eq. '') then
+            call mprintf(.true., iERROR, 'Variable name not correctly defined. Check your input datasets')
+        else
+            call mprintf(.true., iINFO_Verbose, 'Select variable '//trim(var_name_select)//' in netcdf file')
+        endif
+        !------------------------------------------------------------------------------------
+        
+        end subroutine HMC_Tools_IO_CheckVar_NC
+#endif
+    !------------------------------------------------------------------------------------
 
     !------------------------------------------------------------------------------------
     ! Subroutine for getting 1d variable NC
@@ -218,7 +290,7 @@ contains
 #endif
     !------------------------------------------------------------------------------------
     
-        !------------------------------------------------------------------------------------
+    !------------------------------------------------------------------------------------
     ! Subroutine to put time double variable
 #ifdef LIB_NC
     subroutine HMC_Tools_IO_PutTime_DBL_NC(iFileID, iID_DimTime, &
@@ -279,7 +351,6 @@ contains
     end subroutine HMC_Tools_IO_PutTime_DBL_NC
 #endif
     !------------------------------------------------------------------------------------
-    
     
     !------------------------------------------------------------------------------------
     ! Subroutine to put time string variable

@@ -23,6 +23,7 @@ module HMC_Module_Data_Forcing_Gridded
 #ifdef LIB_NC
     use HMC_Module_Tools_IO,        only:   HMC_Tools_IO_Get2d_Binary_INT, &
                                             HMC_Tools_IO_Get2d_NC, &
+                                            HMC_Tools_IO_CheckVar_NC, &
                                             check
 #else
     use HMC_Module_Tools_IO,        only:   HMC_Tools_IO_Get2d_Binary_INT                                      
@@ -555,7 +556,8 @@ contains
                 
                 !------------------------------------------------------------------------------------------
                 ! RAIN
-                sVarName = 'Rain'
+                call HMC_Tools_IO_CheckVar_NC('Precipitation;Rain', iFileID, sVarName)
+                !sVarName = 'Rain'
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//trim(sVarName)//'!')
@@ -579,7 +581,8 @@ contains
                 
                 !------------------------------------------------------------------------------------------
                 ! INCOMING RADIATION
-                sVarName = 'IncRadiation'
+                call HMC_Tools_IO_CheckVar_NC('IncomingRadiation;IncRadiation', iFileID, sVarName)
+                !sVarName = 'IncRadiation'
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//trim(sVarName)//'!')
@@ -591,7 +594,8 @@ contains
                 
                 !------------------------------------------------------------------------------------------
                 ! RELATIVE HUMIDITY
-                sVarName = 'RelHumidity'
+                call HMC_Tools_IO_CheckVar_NC('RelativeHumidity;RelHumidity', iFileID, sVarName)
+                !sVarName = 'RelHumidity'
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//trim(sVarName)//'!')
@@ -603,7 +607,8 @@ contains
                 
                 !------------------------------------------------------------------------------------------
                 ! WIND 
-                sVarName = 'Wind'
+                call HMC_Tools_IO_CheckVar_NC('WindSpeed;Wind', iFileID, sVarName)
+                !sVarName = 'Wind'
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//trim(sVarName)//'!')
@@ -778,15 +783,12 @@ contains
         sFileNameData_Forcing = ''; sFileNameData_Forcing_Zip = ''; sTimeMonth = ''
         sTimeEndLAI = ''; sTimeEndFC = ''; sTimeStartLAI = ''; sTimeStartFC = '';
 
-        
-        
         ! Checking date
         write(sTimeMonth,'(A,A,A)') sTime(1:4), sTime(6:7), sTime(9:10)
         
         !write current date to new variable for checking LAI validity
         write(sTimeStartLAI,'(A,A,A)') sTime
         write(sTimeStartFC,'(A,A,A)') sTime
-
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------

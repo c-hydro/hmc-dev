@@ -538,7 +538,7 @@ contains
                                  sVarName, sVarNameLong, sVarDescription, &
                                  sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
                                  iCols, iRows, transpose(a2dVarLE))      
-
+                              
             ! LST
             sVarName = 'LST'; sVarNameLong = 'land_surface_temperature'; sVarDescription = 'land surface temperature';
             sVarUnits = 'K'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
