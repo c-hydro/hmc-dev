@@ -276,7 +276,7 @@ contains
             endif
             
             if ( all(oHMC_Vars(iID)%a3dSnowFall .eq. 0.0) ) then
-                oHMC_Vars(iID)%a3dSnowFall(:,:,int(iDaySteps)) =  a2dVarSnowFall
+                oHMC_Vars(iID)%a3dSnowFall(:,:,int(iDaySteps1Days)) =  a2dVarSnowFall
             else
                 ! Re-initializing 
                 do iStep=2, int(iDaySteps1Days)
@@ -284,9 +284,9 @@ contains
                 enddo
                 ! Updating with new field
                 where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
-                    oHMC_Vars(iID)%a3dSnowFall(:,:,int(iDaySteps)) =  a2dVarSnowFall
+                    oHMC_Vars(iID)%a3dSnowFall(:,:,int(iDaySteps1Days)) =  a2dVarSnowFall
                 elsewhere
-                    oHMC_Vars(iID)%a3dSnowFall(:,:,int(iDaySteps)) = -9999.0
+                    oHMC_Vars(iID)%a3dSnowFall(:,:,int(iDaySteps1Days)) = -9999.0
                 endwhere
             endif
             !-------------------------------------------------------------------------------------
@@ -514,9 +514,9 @@ contains
                 enddo
                 ! Updating with new field
                 where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
-                    oHMC_Vars(iID)%a3dMelting(:,:,int(iDaySteps)) =  a2dVarMeltingS
+                    oHMC_Vars(iID)%a3dMelting(:,:,int(iDaySteps1Days)) =  a2dVarMeltingS
                 elsewhere
-                    oHMC_Vars(iID)%a3dMelting(:,:,int(iDaySteps)) = -9999.0
+                    oHMC_Vars(iID)%a3dMelting(:,:,int(iDaySteps1Days)) = -9999.0
                 endwhere
             endif
 

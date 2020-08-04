@@ -153,7 +153,7 @@ contains
         a2dVarIncRad = oHMC_Vars(iID)%a2dK
         a2dVarRelHum = oHMC_Vars(iID)%a2dRHum
         a2dVarPa = oHMC_Vars(iID)%a2dPres
-
+        
         ! Extracting extra-dynamic forcing variable(s)
         a2dVarAlbedo = oHMC_Vars(iID)%a2dAlbedo
 
@@ -167,7 +167,7 @@ contains
         ! Info start
         call mprintf(.true., iINFO_Verbose, ' Phys :: Land surface model ... ' )
         !-------------------------------------------------------------------------------------
-        
+   
         !-------------------------------------------------------------------------------------
         ! Checking variable(s)
         where( a2dVarDEM.gt.0.0 )
@@ -418,13 +418,13 @@ contains
                                           ' H: '//sVarH//' [W/m^2] '// &
                                           ' LE: '//sVarLE//' [W/m^2]')
         !------------------------------------------------------------------------------------------
-        
+                                  
         !-----------------------------------------------------------------------------------------
         ! Debug
         if (iDEBUG.gt.0) then
             call mprintf(.true., iINFO_Extra, '') 
             call mprintf(.true., iINFO_Verbose, checkvar(a2dVarETUpd, a2iVarMask, 'ET END ') )
-            call mprintf(.true., iINFO_Extra, checkvar(a2dVarLSTUpd, a2iVarMask, 'VTOT END ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarVTot, a2iVarMask, 'VTOT END ') )
             call mprintf(.true., iINFO_Verbose, checkvar(a2dVarLSTUpd, a2iVarMask, 'LST END ') )
             call mprintf(.true., iINFO_Verbose, checkvar(a2dVarSM, a2iVarMask, 'SM ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarPit, a2iVarMask, 'PIT ') )

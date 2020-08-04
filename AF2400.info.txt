@@ -139,6 +139,16 @@ iDtData_Output_Point = 3600
 iDtData_State_Gridded = 3600
 ! Data state point dT [seconds]
 iDtData_State_Point = 3600
+
+! Data output generic subsets (1 = BASIC [Q, ET, SOIL_MOISTURE], 2 = EXTENDED [ALL])
+iActiveData_Output_Generic = 2
+! Data output flooding subsets (0 = NOT ACTIVE [-], 1 = ACTIVE [Qfloodleft, Qfloodright])
+iActiveData_Output_Flooding = 1
+! Data output snow subsets (0 = NOT ACTIVE [-], 1 = ACTIVE [SWE, MeltingS, RhoS, SnowFall, AlbedoS, AgeS, MeltingSDayCum])
+iActiveData_Output_Snow = 1
+
+! Hour for computing and dumping accumulated variable(s) [0 - 23]
+iAccumData_Output_Hour = 23
 ! -----------------------------------------------------------------------------------------------
 
 ! DATA INFO -------------------------------------------------------------------------------------

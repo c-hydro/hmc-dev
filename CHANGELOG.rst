@@ -4,9 +4,11 @@ Changelog
 
 Version 3.1.2 [2020-07-23]
 **************************
+- ADD: variable names checking in reading netcdf datasets;
 - ADD: parameters configuration for CN, WS and Fracturation;
 - ADD: variable time in state and outcome datasets;
 - FIX: restart mandatory flags for snow variables;
+- FIX: undefined time step variable in snow physics for unavailable datasets;
 - FIX: hydraulic structures bug in surface flow for channel fraction.
 
 Version 3.1.1 [2020-03-30]
