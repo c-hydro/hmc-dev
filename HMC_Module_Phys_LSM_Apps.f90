@@ -218,10 +218,13 @@ contains
         ! Static variable(s)
         dPiGreco = 3.14                     ! Pi greco
         dOmega = 1.0/(60.0*60.0*24.0)       ! Day length
-        dKDeltaMax = 2.0
         
+        ! LST maximum delta value to limit runge-kutta integration method
+        dKDeltaMax = oHMC_Namelist(iID)%dLSTDeltaMax 
+
         ! Extracting static variable(s)
         a2dVarDEM = oHMC_Vars(iID)%a2dDem
+        
         ! Info start
         !call mprintf(.true., iINFO_Extra, ' Phys :: Land surface model :: RK4 ... ' )
         
@@ -527,6 +530,9 @@ contains
             ! Thermal Inertia[J m^-2 K S^-(1/2)]
             a2dVarPit = sqrt(a2dVarC*a2dVarKs)
             
+            ! Thermal Inertia scaling (to reduce max values from 2500 to 600 --> temporary fixing)
+            a2dVarPit = a2dVarPit/15 + 430
+
         elsewhere
             a2dVarPit = 0.0
         endwhere
@@ -689,6 +695,9 @@ contains
         a2dVarLAI = oHMC_Vars(iID)%a2dLAI
         ! Load Static variable(s) --> not mandatory (if gridded data does not exist FC = f(LAI) )
         a2dVarFC = oHMC_Vars(iID)%a2dFC
+        
+        ! Info start
+        call mprintf(.true., iINFO_Extra, ' Phys :: Land surface model :: Jarvis Canopy Resistance ... ' )
         !------------------------------------------------------------------------------------------
 
         !------------------------------------------------------------------------------------------
@@ -758,7 +767,7 @@ contains
 
         ! Limitation for trees due to vapour deficit in the atmosphere 
         where (a2dVarDEM.ge.0.0 .and. a2dVarGd.ge.0.0)
-            a2dVarfDa = exp(-a2dVarGd * (a2dVarEAsat - a2dVarEA))
+            a2dVarfDa = exp(-a2dVarGd * 10 * (a2dVarEAsat - a2dVarEA))
         endwhere
 
         ! Computation of canopy resistance
@@ -767,13 +776,13 @@ contains
             ! (Sellers, P. J., A.Berry, J., Collatz, G. J., Field, C. B., Hall, F. G. (1992) Canopy reflectance,....)
             a2dVarRcan = exp(8.206-4.255*(a2dVarSM - a2dVarCtWP) / (dSMsat - a2dVarCtWP))
             a2dVarRcan_pot = exp(8.206-4.255)
-        elsewhere ((a2dVarDEM.gt.0.0) .and. (a2dVarGd.lt.0.0)) ! rocks, urban, open water
+        elsewhere ((a2dVarDEM.ge.0.0) .and. (a2dVarGd.lt.0.0)) ! rocks, urban, open water
             a2dVarRcan = a2dVarRSmin 
             a2dVarRcan_pot = a2dVarRSmin
-        elsewhere ((a2dVarDEM.gt.0.0) .and. (a2dVarLAI.lt.0.0)) ! LAI not valid - assumed urban
+        elsewhere ((a2dVarDEM.ge.0.0) .and. (a2dVarLAI.lt.0.0)) ! LAI not valid - assumed urban
             a2dVarRcan = a2dVarRSmin 
             a2dVarRcan_pot = a2dVarRSmin      
-        elsewhere (a2dVarDEM.gt.0.0) ! all vegetated pixels according to land cover map
+        elsewhere (a2dVarDEM.ge.0.0) ! all vegetated pixels according to land cover map
             a2dVarRcan = a2dVarFC * a2dVarRSmin / (a2dVarfS * a2dVarfDa * a2dVarBF * a2dVarLAI) + &
                         (1-a2dVarFC)*exp(8.206-4.255*(a2dVarSM - a2dVarCtWP) / (dSMsat - a2dVarCtWP))
             a2dVarRcan_pot = a2dVarFC * a2dVarRSmin / (a2dVarfS * a2dVarfDa * a2dVarLAI) + &
@@ -787,6 +796,9 @@ contains
             a2dVarRsurf = a2dVarRcan + a2dVarRatm
             a2dVarRsurf_pot = a2dVarRcan_pot + a2dVarRatm 
         endwhere
+        
+        ! Info end
+        call mprintf(.true., iINFO_Extra, ' Phys :: Land surface model :: Jarvis Canopy Resistance ... OK  ' )
         !------------------------------------------------------------------------------------------
        
     end subroutine HMC_Phys_LSM_Apps_Rsurf_Jarvis

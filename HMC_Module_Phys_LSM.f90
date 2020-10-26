@@ -264,8 +264,8 @@ contains
             a2dVarRhoW = 1000.0 - 0.019549*abs(a2dVarTa - 3.98)**1.68
             ! Vapor pressure [kPa] --> RelHum [%], Ta [C]
             a2dVarEA = (a2dVarRelHum)*0.611*exp(17.3*a2dVarTa/(237.3 + a2dVarTa))
-            ! Vapor pressure at saturation [kPa] --> RelHum [%], Ta [C]
-            a2dVarEAsat = (a2dVarRelHum)*0.611*exp(17.3*a2dVarTa/(237.3 + a2dVarTa))
+            ! Vapor pressure at saturation [kPa] --> Ta [C]
+            a2dVarEAsat = 0.611*exp(17.3*a2dVarTa/(237.3 + a2dVarTa))
             ! Atmospheric actual emissivity [%] --> ea[kPa]*10 = [millibars]
             a2dVarEpsA = 0.740 + 0.0049*a2dVarEA*10.0
             ! Air density [kg/m^3] --> Gas air constant R=0.288, Pa [kPa], Ta [K]
@@ -285,7 +285,7 @@ contains
   
         !-------------------------------------------------------------------------------------
         ! Subroutine for calculating Surface conductance/resistance for LE and H computation                                                                                      
-        if ( iFlagDynVeg.eq.0 ) then
+        if ( iFlagDynVeg .eq. 0 ) then
             ! Use constant CH
             call HMC_Phys_LSM_Apps_CH(iID, iRows, iCols, sTime, &
                               a2dVarDEM, &

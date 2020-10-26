@@ -219,36 +219,48 @@ contains
                                               iRowsF, iColsF, a2dVarTaF, &
                                               oHMC_Vars(iID)%a2dDem, &
                                               oHMC_Vars(iID)%a2iXIndex, oHMC_Vars(iID)%a2iYIndex)
+            
+            !call debug_2dVar(dble(oHMC_Vars(iID)%a2dDem), iRowsL, iColsL, 1)
+            !call debug_2dVar(dble(a2dVarTaL), iRowsL, iColsL, 2)
+            !call debug_2dVar(dble(a2dVarTaF), iRowsF, iColsF, 3)
+                                       
+                                              
             call HMC_Tools_Generic_SwitchGrid(oHMC_Namelist(iID)%iFlagGrid, &
                                               iRowsL, iColsL, a2dVarIncRadL, &
                                               iRowsF, iColsF, a2dVarIncRadF, &
                                               oHMC_Vars(iID)%a2dDem, &
                                               oHMC_Vars(iID)%a2iXIndex, oHMC_Vars(iID)%a2iYIndex)
+                                                                            
             call HMC_Tools_Generic_SwitchGrid(oHMC_Namelist(iID)%iFlagGrid, &
                                               iRowsL, iColsL, a2dVarWindL, &
                                               iRowsF, iColsF, a2dVarWindF, &
                                               oHMC_Vars(iID)%a2dDem, &
                                               oHMC_Vars(iID)%a2iXIndex, oHMC_Vars(iID)%a2iYIndex)
+                                              
             call HMC_Tools_Generic_SwitchGrid(oHMC_Namelist(iID)%iFlagGrid, &
                                               iRowsL, iColsL, a2dVarRelHumL, &
                                               iRowsF, iColsF, a2dVarRelHumF, &
                                               oHMC_Vars(iID)%a2dDem, &
                                               oHMC_Vars(iID)%a2iXIndex, oHMC_Vars(iID)%a2iYIndex)    
+                                              
             call HMC_Tools_Generic_SwitchGrid(oHMC_Namelist(iID)%iFlagGrid, &
                                               iRowsL, iColsL, a2dVarPaL, &
                                               iRowsF, iColsF, a2dVarPaF, &
                                               oHMC_Vars(iID)%a2dDem, &
-                                              oHMC_Vars(iID)%a2iXIndex, oHMC_Vars(iID)%a2iYIndex)                            
+                                              oHMC_Vars(iID)%a2iXIndex, oHMC_Vars(iID)%a2iYIndex)   
+
             call HMC_Tools_Generic_SwitchGrid(oHMC_Namelist(iID)%iFlagGrid, &
                                               iRowsL, iColsL, a2dVarAlbedoL, &
                                               iRowsF, iColsF, a2dVarAlbedoF, &
                                               oHMC_Vars(iID)%a2dDem, &
                                               oHMC_Vars(iID)%a2iXIndex, oHMC_Vars(iID)%a2iYIndex) 
+                                              
             call HMC_Tools_Generic_SwitchGrid(oHMC_Namelist(iID)%iFlagGrid, &
                                               iRowsL, iColsL, a2dVarLAIL, &
                                               iRowsF, iColsF, a2dVarLAIF, &
                                               oHMC_Vars(iID)%a2dDem, &
                                               oHMC_Vars(iID)%a2iXIndex, oHMC_Vars(iID)%a2iYIndex)  
+                                              
             call HMC_Tools_Generic_SwitchGrid(oHMC_Namelist(iID)%iFlagGrid, &
                                               iRowsL, iColsL, a2dVarFCL, &
                                               iRowsF, iColsF, a2dVarFCF, &

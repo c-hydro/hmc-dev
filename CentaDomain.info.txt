@@ -18,13 +18,13 @@ dWS = 3.6780000000000003e-09
 ! Fracturation average initialization [-]
 dFrac = 0.2374
 ! Maximum water capacity of the aquifer [mm] 
-dWTableHbr = 1000 
+dWTableHbr = 1500 
 ! Related to anisotropy between the vertical and horizontal saturated conductivity, and to soil porosity [-] 
-dKSatRatio = 5 
+dKSatRatio = 1 
 ! Subsoil maximum slope [perc] 
-dSlopeMax = 30 
+dSlopeMax = 70 
 ! Domain name 
-sDomainName = 'chapare' 
+sDomainName = 'CentaDomain' 
 ! ----------------------------------------------------------------------------------------------- 
 
 / 
@@ -63,24 +63,24 @@ iFlagTypeData_Restart_Gridded = 2
 ! Data type dynamic point restart (1 = ascii; 2 = unknown) 
 iFlagTypeData_Restart_Point = 1 
 
-! Type of model (1=Windows, 10=Linux) 
+! Type of model (0=Windows, 10=Linux) 
 iFlagOs = 10 
 ! Computing deep Flow (1=yes, 0=no) 
 iFlagFlowDeep = 1 
 ! Restart a run (1=yes, 0=no) 
-iFlagRestart = 1 
+iFlagRestart = 0
 ! Dynamic integration step of convolution (1=yes, 0=no) 
 iFlagVarDtPhysConv = 1 
 ! Computing snow (1=yes, 0=no) 
-iFlagSnow = 1 
+iFlagSnow = 1
 ! Computing snow assimilation (1=yes, 0=no) 
 iFlagSnowAssim = 0 
 ! Computing soil moisture assimilation (1=yes, 0=no) 
 iFlagSMAssim = 0 
 ! LAI mode (0=empiric relationship, 1=using data) 
-iFlagLAI = 1 
+iFlagLAI = 0 
 ! Albedo mode (0=static value, 1=dynamic monthly values) 
-iFlagAlbedo = 0
+iFlagAlbedo = 0 
 ! Coeff Resolution default mode (0=null ,1=empiric relationship) [--> VdA old cases set flag to zero] 
 iFlagCoeffRes = 0 
 ! WaterSources mode (0=deactivate, 1=activate) 
@@ -90,25 +90,25 @@ iFlagReleaseMass = 1
 ! Channel treatment type (1=channel network, 2=channel fraction)
 iFlagCType = 2
 ! Groundwater bedrock fracturation (0=deactivate, 1=activate)
-iFlagFrac = 0
+iFlagFrac = 1
 ! Vegetation Dynamic module (0=deactivate, 1=activate)
-iFlagDynVeg = 1
+iFlagDynVeg = 0
 ! Flooding Dynamic module (0=deactivate, 1=activate)
-iFlagFlood = 1 
+iFlagFlood = 0
 ! ----------------------------------------------------------------------------------------------- 
 
 ! GEOGRAPHICAL INFO ------------------------------------------------------------------------------ 
 ! Forcing data lower left angle coordinate 
-a1dGeoForcing = -16.803333333332997, -66.204166666667 
+a1dGeoForcing = -9999, -9999 
 ! Forcing data lat and lon cellsize 
-a1dResForcing = 0.0045, 0.0045 
-! Forcing data dimensions 
-a1iDimsForcing = 236, 176 
+a1dResForcing = -9999, -9999 
+! Forcing data dimensions numero di righe (Y nel mio NETCDF), numero di colonne (X nel mio NETCDF) 
+a1iDimsForcing = -9999, -9999 
 ! ----------------------------------------------------------------------------------------------- 
 
 ! DT INFO --------------------------------------------------------------------------------------- 
 ! Simulation length [hours] 
-iSimLength = 72 
+iSimLength = 48
 ! Model dT [seconds] 
 iDtModel = 3600 
 
@@ -132,18 +132,18 @@ iDtData_Forcing = 3600
 iDtData_Updating = 3600 
 
 ! Data output gridded dT [seconds] 
-iDtData_Output_Gridded = 3600 
+iDtData_Output_Gridded = 3600
 ! Data output point dT [seconds] 
-iDtData_Output_Point = 3600 
+iDtData_Output_Point = 3600
 ! Data state gridded dT [seconds] 
-iDtData_State_Gridded = 259200 
+iDtData_State_Gridded = 3600 
 ! Data state point dT [seconds] 
-iDtData_State_Point = 2592000 
+iDtData_State_Point = 3600 
 
 ! Data output generic subsets (1 = BASIC [Q, ET, SOIL_MOISTURE], 2 = EXTENDED [ALL])
 iActiveData_Output_Generic = 2
 ! Data output flooding subsets (0 = NOT ACTIVE [-], 1 = ACTIVE [Qfloodleft, Qfloodright])
-iActiveData_Output_Flooding = 1
+iActiveData_Output_Flooding = 0
 ! Data output snow subsets (0 = NOT ACTIVE [-], 1 = ACTIVE [SWE, MeltingS, RhoS, SnowFall, AlbedoS, AgeS, MeltingSDayCum])
 iActiveData_Output_Snow = 1
 
@@ -162,45 +162,45 @@ iTVeg = 720
 
 ! TIME INFO ------------------------------------------------------------------------------------- 
 ! Start time (yyyymmddHHMM format) 
-sTimeStart = 202007300100 
+sTimeStart = 200001010000 
 ! Re-start time (yyyymmddHHMM format) 
-sTimeRestart = 202007300000 
+sTimeRestart = 199912312300  
 ! ----------------------------------------------------------------------------------------------- 
 
 ! PATH(S) INFO ---------------------------------------------------------------------------------- 
 ! DATA STATIC 
 ! Static gridded data path (land data)  [Variable(s) --> DEM, CN, PNT, Choice, Area ... ]
-sPathData_Static_Gridded = '/home/fabio/Desktop/NetBeans_Workspace/DATA_HMC_V312/chapare/data_static/land/' 
+sPathData_Static_Gridded = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/alpimed/data_static/CentaDomain/land/' 
 ! Static point data path (point info file and dam Tank-Volume curve) [Variable(s) --> SectionFile, DamFile, IntakeFile, LakeFile, TankVolumeCurve] 
-sPathData_Static_Point = '/home/fabio/Desktop/NetBeans_Workspace/DATA_HMC_V312/chapare/data_static/point/' 
+sPathData_Static_Point = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/alpimed/data_static/CentaDomain/point/' 
 
 ! DATA DYNAMIC 
 ! Forcing gridded data path [Variable(s) --> Rain, AirTemperature, IncRadiation, Wind, AirPressure, Albedo, LAI] 
-sPathData_Forcing_Gridded = '/home/fabio/Desktop/NetBeans_Workspace/DATA_HMC_V312/chapare/data_dynamic/gridded/obs/$yyyy/$mm/$dd/' 
+sPathData_Forcing_Gridded = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/alpimed/data_dynamic/forcing/$yyyy/$mm/$dd/' 
 ! Forcing point data path [Variable(s) --> DamVolume] 
-sPathData_Forcing_Point = '/home/fabio/Desktop/NetBeans_Workspace/DATA_HMC_V312/chapare/data_dynamic/point/$yyyy/$mm/$dd/'
+sPathData_Forcing_Point = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/alpimed/data_dynamic/forcing/$yyyy/$mm/$dd/' 
 ! Forcing time-series data path [Variable(s) --> Turbinate] 
-sPathData_Forcing_TimeSeries = '/home/fabio/Desktop/NetBeans_Workspace/DATA_HMC_V312/chapare/data_dynamic/time_series/' 
+sPathData_Forcing_TimeSeries = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/alpimed/data_dynamic/forcing/$yyyy/$mm/$dd/' 
 
 ! Updating gridded data path [Variable(s) --> SnowCoverArea, SnowQuality, SnowMask, SnowHeight, SnowKernel, SoilMoistureValue, SoilMoistureGain] 
-sPathData_Updating_Gridded = '/home/fabio/Desktop/NetBeans_Workspace/DATA_HMC_V312/chapare/data_updating/' 
+sPathData_Updating_Gridded = '' 
 
 ! Output gridded data path 
-sPathData_Output_Gridded = '/home/fabio/Desktop/NetBeans_Workspace/DATA_HMC_V312/chapare/data_outcome/gridded/$yyyy/$mm/$dd/' 
+sPathData_Output_Gridded = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/alpimed/data_dynamic/outcome/gridded/$yyyy/$mm/$dd/' 
 ! Output point data path 
-sPathData_Output_Point = '/home/fabio/Desktop/NetBeans_Workspace/DATA_HMC_V312/chapare/data_outcome/point/$yyyy/$mm/$dd/' 
+sPathData_Output_Point = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/alpimed/data_dynamic/outcome/point/$yyyy/$mm/$dd/' 
 ! Output time-series data path 
-sPathData_Output_TimeSeries = '/home/fabio/Desktop/NetBeans_Workspace/DATA_HMC_V312/chapare/data_outcome/time_series/' 
+sPathData_Output_TimeSeries = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/alpimed/data_dynamic/outcome/time_series/' 
 
 ! State gridded data path 
-sPathData_State_Gridded = '/home/fabio/Desktop/NetBeans_Workspace/DATA_HMC_V312/chapare/data_state/$yyyy/$mm/$dd/' 
+sPathData_State_Gridded = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/alpimed/data_dynamic/state/$yyyy/$mm/$dd/' 
 ! State point data path 
-sPathData_State_Point = '/home/fabio/Desktop/NetBeans_Workspace/DATA_HMC_V312/chapare/data_state/$yyyy/$mm/$dd/'
+sPathData_State_Point = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/alpimed/data_dynamic/state/$yyyy/$mm/$dd/' 
 
 ! Restart gridded data path 
-sPathData_Restart_Gridded = '/home/fabio/Desktop/NetBeans_Workspace/DATA_HMC_V312/chapare/data_restart/' 
+sPathData_Restart_Gridded = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/alpimed/data_dynamic/restart/$yyyy/$mm/$dd/' 
 ! Restart point data path 
-sPathData_Restart_Point = '/home/fabio/Desktop/NetBeans_Workspace/DATA_HMC_V312/chapare/data_restart/' 
+sPathData_Restart_Point = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/alpimed/data_dynamic/restart/$yyyy/$mm/$dd/' 
 ! ----------------------------------------------------------------------------------------------- 
 
 / 
@@ -208,7 +208,7 @@ sPathData_Restart_Point = '/home/fabio/Desktop/NetBeans_Workspace/DATA_HMC_V312/
 &HMC_Snow 
 
 ! SNOW MODEL DEFAULT CONSTANTS ------------------------------------------------------------------ 
-! [-] 
+! Fusion Coefficient [-]
 a1dArctUp = 4.0, 4.0, 4.0, 4.0 
 ! Frequency to snow rhow max limit [1/day] --> no melting 
 a1dExpRhoLow = 0.0333, 0.025, 0.028571, 0.0333 
@@ -248,7 +248,7 @@ dWTableHUSoil = 150.0
 dWTableHUChannel = 5.0 
 ! Maximum slope BM for initializing watertable using beta [-] ---> fpen 
 dWTableSlopeBM = 0.2 
-! Watertable maximum height over the bedrock (considering the limit of maximum slope BM)  [mm] ---> fov 
+! Watertable maximum height over the bedrock (considering the limit of maximum slope BM) [mm] ---> fov 
 dWTableHOBedRock = 15.0 
 ! ----------------------------------------------------------------------------------------------- 
 
