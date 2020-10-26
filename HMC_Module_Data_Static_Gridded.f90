@@ -447,7 +447,8 @@ contains
          
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarLon, a2dVarLat 
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarDEM, a2dVarCN, a2dVarS, a2dVarVTotWP
-        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarAreaCell, a2dVarAlpha, a2dVarBeta
+        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarAreaCell
+        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarAlpha, a2dVarBeta, a2dVarWTMax
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarC1, a2dVarF2 
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarCostF, a2dVarCostF1, a2dVarCostChFix
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarCt, a2dVarCtWP, a2dVarCf, a2dVarUc, a2dVarUh 
@@ -481,7 +482,8 @@ contains
         a2iVarPNT = 0; a2iVarMask = 0; a2iVarChoice = 0; a2iVarArea = 0;
         a2dVarLon = 0.0; a2dVarLat = 0.0; 
         a2dVarDEM = 0.0; a2dVarCN = 0.0; a2dVarS = 0.0; a2dVarVTotWP = 0.0;
-        a2dVarAreaCell = 0.0; a2dVarAlpha = 0.0; a2dVarBeta = 0.0;
+        a2dVarAreaCell = 0.0; 
+        a2dVarAlpha = 0.0; a2dVarBeta = 0.0; a2dVarWTMax = -9999.0;
         a2dVarC1 = 0.0; a2dVarF2 = 0.0; 
         a2dVarCostF = 0.0; a2dVarCostF1 = 0.0; a2dVarCostChFix = 0.0;
         a2dVarCt = 0.0; a2dVarCf = 0.0; a2dVarUc = 0.0; a2dVarUh = 0.0;  
@@ -491,7 +493,7 @@ contains
         a2dVarCtWP = 0.0; a2dVarGd = 0.0; a2dVarRSmin = 0.0; a2dVarHveg = 0.0; a2dVarBareSoil = 0.0;
         a2dVarLevBankR = -9999.0; a2dVarLevBankL = -9999.0; a2dVarFirst = -9999.0;
         
-        dUc = -9999.0; dUh = -9999.0; dCt = -9999.0; dCf = -9999.0; dCN= -9999.0; dWS = -9999.0; dFrac = -9999.0;
+        dUc = -9999.0; dUh = -9999.0; dCt = -9999.0; dCf = -9999.0; dCN = -9999.0; dWS = -9999.0; dFrac = -9999.0;
         
         iFlagCoeffRes = -9999; iFlagWS = -9999; iFlagFrac = -9999; iFlagCType = -9999; iFlagDynVeg = -9999; iFlagFlood = -9999;
         
@@ -643,17 +645,25 @@ contains
                 !------------------------------------------------------------------------------------------
                 
                 !------------------------------------------------------------------------------------------
-                ! ALPHA
+                ! WATERTABLE ALPHA
                 sVarName = 'Wt_Alpha'
                 call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .true., iErr)
                 a2dVarAlpha = transpose(a2dVar) 
-                !------------------------------------------------------------------------------------------
-                
-                !------------------------------------------------------------------------------------------
-                ! BETA
+
+                ! WATERTABLE BETA
                 sVarName = 'Wt_Beta'
                 call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .true., iErr)
                 a2dVarBeta = transpose(a2dVar)
+
+                ! WATERTABLE MAX
+                sVarName = 'Wt_Max'
+                call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
+                if (iErr /= 0) then
+                    call mprintf(.true., iWARN, 'WT maximum data not found. Initializing with default values.')   
+                    a2dVarWTMax = -9999.0
+                else
+                    a2dVarWTMax = transpose(a2dVar)
+                endif
                 !------------------------------------------------------------------------------------------
                 
                 !------------------------------------------------------------------------------------------
@@ -978,17 +988,25 @@ contains
             !------------------------------------------------------------------------------------------
 
             !------------------------------------------------------------------------------------------
-            ! ALPHA
+            ! WATERTABLE ALPHA
             sFileName = trim(sPathData)//trim(sDomainName)//'.alpha.txt'
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .true., iErr)
             a2dVarAlpha = reshape(a2dVar, (/iRows, iCols/))
-            !------------------------------------------------------------------------------------------
 
-            !------------------------------------------------------------------------------------------
-            ! BETA
+            ! WATERTABLE BETA
             sFileName = trim(sPathData)//trim(sDomainName)//'.beta.txt'
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .true., iErr)
             a2dVarBeta = reshape(a2dVar, (/iRows, iCols/))
+
+            ! WATERTABLE MAX [mm]
+            sFileName = trim(sPathData)//trim(sDomainName)//'.wt_max.txt'
+            call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
+            if (iErr /= 0) then 
+                call mprintf(.true., iWARN, ' WT maximum data not found. Initializing WT maximum data with default values.')
+                a2dVarWTMax = -9999.0
+            else
+                a2dVarWTMax = reshape(a2dVar, (/iRows, iCols/))
+            endif
             !------------------------------------------------------------------------------------------
 
             !------------------------------------------------------------------------------------------
@@ -1064,7 +1082,7 @@ contains
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
             if (iErr /= 0) then 
                 call mprintf(.true., iWARN, ' Mask data not found. Initializing Mask with default values.')
-                where(a2dVarDEM.gt.0.0)
+                where(a2dVarDEM .gt. 0.0)
                     a2iVarMask = 1 
                 endwhere
             else
@@ -1277,6 +1295,7 @@ contains
         a2dVarUc = nullborder2DVar(a2dVarUc, -9999.0)
         a2dVarAlpha = nullborder2DVar(a2dVarAlpha, -9999.0)
         a2dVarBeta = nullborder2DVar(a2dVarBeta, -9999.0)
+        a2dVarWTMax = nullborder2DVar(a2dVarWTMax, -9999.0)
         a2iVarMask = int(nullborder2DVar(float(a2iVarMask), -9999.0))
         a2iVarChoice = int(nullborder2DVar(float(a2iVarChoice), -9999.0))
         a2iVarPNT = int(nullborder2DVar(float(a2iVarPNT), -9999.0))
@@ -1537,8 +1556,9 @@ contains
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarUc, a2iVarMask, 'UC ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarUh, a2iVarMask, 'UH ') )
             call mprintf(.true., iINFO_Extra, checkvar(float(a2iVarNature), a2iVarMask, 'NATURE ') )
-            call mprintf(.true., iINFO_Extra, checkvar(a2dVarAlpha, a2iVarMask, 'ALPHA ') )
-            call mprintf(.true., iINFO_Extra, checkvar(a2dVarBeta, a2iVarMask, 'BETA ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarAlpha, a2iVarMask, 'Watertable ALPHA ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarBeta, a2iVarMask, 'Watertable BETA ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarWTMax, a2iVarMask, 'Watertable MAX ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarCon, a2iVarMask, 'CON ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarCostF, a2iVarMask, 'COSTF ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarCostF1, a2iVarMask, 'COSTF1 ') )
@@ -1589,6 +1609,7 @@ contains
         oHMC_Vars(iID)%a2dDem = a2dVarDEM
         oHMC_Vars(iID)%a2dAlpha = a2dVarAlpha
         oHMC_Vars(iID)%a2dBeta = a2dVarBeta
+        oHMC_Vars(iID)%a2dWTableMax = a2dVarWTMax
         
         oHMC_Vars(iID)%a2dS = a2dVarS
         oHMC_Vars(iID)%a2dVTotWP = a2dVarVTotWP
@@ -1632,10 +1653,11 @@ contains
         real(kind = 4) :: dVarWTableHUSoil, dVarWTableHUChannel, dVarWTableSlopeBM, dVarWTableHOBedRock
         real(kind = 4) :: dVarWTableAlphaMin, dVarWTableAlphaMax
         
+        integer(kind = 4), dimension (iRows, iCols)      :: a2iVarMask
         real(kind = 4), dimension (iRows, iCols)         :: a2iVarChoice
         real(kind = 4), dimension (iRows, iCols)         :: a2dVarDEM, a2dVarAlpha
         
-        real(kind = 4), dimension (iRows, iCols)         :: a2dVarWTable, a2dVarWTableMax
+        real(kind = 4), dimension (iRows, iCols)         :: a2dVarWTable, a2dVarWTableMax, a2dVarWTableMax_Tmp
         !------------------------------------------------------------------------------------------
 
         !------------------------------------------------------------------------------------------
@@ -1648,15 +1670,19 @@ contains
         dVarWTableSlopeBM = 0.0     ! fpen
         dVarWTableHOBedRock = 0.0   ! f0v
                 
-        a2dVarWTable = 0.0; a2dVarWTableMax = 0.0;
+        a2dVarWTable = 0.0; a2dVarWTableMax = 0.0; a2dVarWTableMax_Tmp = 0.0;
         a2dVarAlpha = 0.0; 
         !------------------------------------------------------------------------------------------
 
         !------------------------------------------------------------------------------------------
         ! Variable(s) from global declaration (namelist and variable(s)
         a2dVarDEM = oHMC_Vars(iID)%a2dDEM
+        a2iVarMask = oHMC_Vars(iID)%a2iMask
+        
         a2iVarChoice = oHMC_Vars(iID)%a2iChoice
         a2dVarAlpha = oHMC_Vars(iID)%a2dAlpha
+        
+        a2dVarWTableMax = oHMC_Vars(iID)%a2dWTableMax
         
         dVarDEMMin = oHMC_Vars(iID)%dDEMMin
         dVarDEMMax = oHMC_Vars(iID)%dDEMMax
@@ -1673,16 +1699,25 @@ contains
 
         ! Info start
         call mprintf(.true., iINFO_Verbose, ' Data :: Static gridded :: Get watertable information ... ' )
+        
+        ! Debug
+        if (iDEBUG.gt.0) then
+            call mprintf(.true., iINFO_Extra, ' ======== WATERTABLE START ========== ') 
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarWTable, a2iVarMask, 'Watertable VALUES') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarWTableMax, a2iVarMask, 'Watertable MAX ') )
+            call mprintf(.true., iINFO_Extra, '') 
+        endif   
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
-        ! Calculating alpha min and max
+        ! Calculate alpha min and max
         dVarAlphaMin = minval( minval( a2dVarAlpha, DIM = 1, MASK=a2dVarAlpha.gt.0.001 ),DIM = 1 )
         dVarAlphaMax = maxval( maxval( a2dVarAlpha, DIM = 1, MASK=a2dVarAlpha.gt.0.001 ), DIM = 1 )
         
-        ! Calculatin max angle for having a watertable definition                        
-        dVarAlphaExtreme = 3.14/180*dVarSlopeMax                       
-        ! Updating alpha max and watertable h min (using angles)
+        ! Calculate max angle for having a watertable definition                        
+        dVarAlphaExtreme = 3.14/180*dVarSlopeMax   
+        
+        ! Update alpha max and watertable h min (using angles)
         if(dVarAlphaMax.gt.dVarAlphaExtreme)then
             dVarAlphaMax = dVarAlphaExtreme
             dVarWTableHMin = 0
@@ -1690,17 +1725,23 @@ contains
         !------------------------------------------------------------------------------------------
 
         !------------------------------------------------------------------------------------------
-        ! Defining watertable max values
-        where(a2dVarDEM.gt.0)
-            a2dVarWTableMax = dVarWTableHMax*(1 - (tan(a2dVarAlpha) - &
+        ! Define default watertable max values
+        where(a2dVarDEM .gt. 0)
+            a2dVarWTableMax_Tmp = dVarWTableHMax*(1 - (tan(a2dVarAlpha) - &
                                   tan(dVarAlphaMin))/(tan(dVarAlphaMax) - & 
                                   tan(dVarAlphaMin))*(1 - dVarWTableHMin/dVarWTableHMax))
         endwhere
-        
-        ! Checking limits
-        where( (a2dVarDEM.gt.0.0).and.(a2dVarWTableMax.gt.dVarWTableHMax) )
-            a2dVarWTableMax = dVarWTableHMax
+        ! Check default watertable values limits
+        where( (a2dVarDEM.gt.0.0) .and. (a2dVarWTableMax_Tmp .gt. dVarWTableHMax) )
+            a2dVarWTableMax_Tmp = dVarWTableHMax
         endwhere
+        
+        ! Update watertable maximum values using default relationship where dataset is not defined
+        where( (a2dVarDEM .gt. 0) .and. (a2dVarWTableMax .lt. 0.0) )
+            a2dVarWTableMax = a2dVarWTableMax_Tmp    
+        endwhere
+        
+        ! Check watertable maximum limits 
         where( (a2dVarDEM.gt.0.0).and.(a2dVarWTableMax.lt.0.0) )
             a2dVarWTableMax = 0.0 
         endwhere
@@ -1713,7 +1754,7 @@ contains
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
-        ! Defining watertable values
+        ! Define watertable values
 	where( a2dVarDEM.gt.0.0 )
 		a2dVarWTable = (dVarWTableHMax - dVarWTableHUSoil)*((tan(a2dVarAlpha) - &
                                    tan(dVarAlphaMin))/(tan(dVarAlphaMax) - tan(dVarAlphaMin))) & 
@@ -1732,7 +1773,7 @@ contains
         ! Riempimento WT in mm sotto i canali
 	where( a2iVarChoice.eq.1 )  a2dVarWTable = a2dVarDEM - dVarWTableHUChannel/1000.0
 
-        ! Checking watertable limits
+        ! Check watertable limits
         ! Upper limit
         where(a2dVarWTable.gt.a2dVarDEM)
                 a2dVarWTable = a2dVarDEM
@@ -1743,8 +1784,15 @@ contains
         endwhere
         !------------------------------------------------------------------------------------------
         
-        !------------------------------------------------------------------------------------------
-        ! Updating variable(s) to global declaration (WTable, WTableMax
+        !------------------------------------------------------------------------------------
+        ! Debug
+        if (iDEBUG.gt.0) then
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarWTable, a2iVarMask, 'Watertable VALUES') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarWTableMax, a2iVarMask, 'Watertable MAX ') )
+            call mprintf(.true., iINFO_Extra, ' ========= WATERTABLE END =========== ') 
+        endif
+        
+        ! Updating variable(s) to global declaration (WTable, WTableMax)
         oHMC_Vars(iID)%a2dWTable = a2dVarWTable
         oHMC_Vars(iID)%a2dWTableMax = a2dVarWTableMax
         

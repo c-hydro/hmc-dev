@@ -101,6 +101,8 @@ contains
         real(kind = 4)          :: dTRef, dEpsS, dSigma, dBFMin, dBFMax
         real(kind = 4)          :: dZRef, dG, dCp, dRd, dRhoS, dRhoW, dCpS, dCpW
         real(kind = 4)          :: dKq, dKw, dKo, dPorS, dFqS 
+        real(kind = 4)          :: dLSTDeltaMax
+        
         real(kind = 4)          :: dTV, dDamSpillH
         real(kind = 4)          :: dSMGain
         
@@ -217,6 +219,7 @@ contains
                                         dTRef, iTdeepShift, dEpsS, dSigma, dBFMin, dBFMax, &
                                         dZRef, dG, dCp, dRd, dRhoS, dRhoW, dCpS, dCpW, & 
                                         dKq, dKw, dKo, dPorS, dFqS, &
+                                        dLSTDeltaMax, &
                                         dTV, dDamSpillH, &
                                         dSMGain
                                         
@@ -284,6 +287,7 @@ contains
         dZRef = -9999.0; dG = -9999.0; dCp = -9999.0; dRd = -9999.0; dRhoS = -9999.0; 
         dRhoW = -9999.0; dCpS = -9999.0; dCpW = -9999.0; 
         dKq = -9999.0; dKw = -9999.0; dKo = -9999.0; dPorS = -9999.0; dFqS = -9999.0;
+        dLSTDeltaMax = -9999.0
         dTV = -9999.0; dDamSpillH = -9999.0
         dSMGain = -9999.0;
         
@@ -701,6 +705,13 @@ contains
         oHMC_Namelist_Init%dKo = dKo
         oHMC_Namelist_Init%dPorS = dPorS
         oHMC_Namelist_Init%dFqS = dFqS
+        
+        if (dLSTDeltaMax .eq. -9999) then  ! backward compatibility with older version of info file (without lst delta max value)
+            oHMC_Namelist_Init%dLSTDeltaMax = 20               ! default mode without lst delta max value definition
+        else
+            oHMC_Namelist_Init%dLSTDeltaMax = dLSTDeltaMax
+        endif
+        
         oHMC_Namelist_Init%dTV = dTV
         oHMC_Namelist_Init%dDamSpillH = dDamSpillH
         
@@ -745,7 +756,7 @@ contains
             oHMC_Namelist_Init%iActiveData_Output_Flooding = 0
         endif
         
-        if (( oHMC_Namelist_Init%iFlagFlood .eq. 0 ) .and. ( oHMC_Namelist_Init%iActiveData_Output_Snow .eq. 1 )) then
+        if (( oHMC_Namelist_Init%iFlagSnow .eq. 0 ) .and. ( oHMC_Namelist_Init%iActiveData_Output_Snow .eq. 1 )) then
             call mprintf(.true., iWARN, ' Snow is not activated; deactivate the dumping of snow output ')
             oHMC_Namelist_Init%iActiveData_Output_Snow = 0
         endif

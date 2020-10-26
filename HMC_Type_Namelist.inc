@@ -59,6 +59,7 @@ TYPE HMC_Type_Namelist
     real(kind = 4)          :: dTRef, dEpsS, dSigma, dBFMin, dBFMax
     real(kind = 4)          :: dZRef, dG, dCp, dRd, dRhoS, dRhoW, dCpS, dCpW
     real(kind = 4)          :: dKq, dKw, dKo, dPorS, dFqS 
+    real(kind = 4)          :: dLSTDeltaMax
     
     real(kind = 4)          :: dWTableHMin, dWTableHUSoil, dWTableHUChannel, dWTableSlopeBM, dWTableHOBedRock
     
@@ -67,8 +68,7 @@ TYPE HMC_Type_Namelist
     
     character(len = 19)     :: sTimeStart
     character(len = 19)     :: sTimeRestart
-    !character(len = 19)     :: sTimeStatus
-    
+
     integer(kind = 4), allocatable,         dimension(:) :: a1iDimsForcing
     real(kind = 4), allocatable,            dimension(:) :: a1dGeoForcing
     real(kind = 4), allocatable,            dimension(:) :: a1dResForcing

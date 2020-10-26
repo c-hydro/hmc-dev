@@ -248,7 +248,7 @@ dWTableHUSoil = 150.0
 dWTableHUChannel = 5.0
 ! Maximum slope BM for initializing watertable using beta [-]
 dWTableSlopeBM = 0.2
-! Watertable maximum height over the bedrock (considering the limit of maximum slope BM)  [mm]
+! Watertable maximum height over the bedrock (considering the limit of maximum slope BM) [mm]
 dWTableHOBedRock = 15.0
 ! -----------------------------------------------------------------------------------------------
 
@@ -274,6 +274,8 @@ dSigma = 0.00000005576
 dBFMin = 0.0
 ! Max value beta function
 dBFMax = 1.0
+! LST maximum delta to limit runge-kutta integration method [K]
+dLSTDeltaMax = 40.0
 
 ! Z reference for wind [m]
 dZRef = 2.0
@@ -341,11 +343,11 @@ sCommandCreateFolder = 'mkdir -p path'
 
 ! INFO MODEL ------------------------------------------------------------------------------------
 ! Release version     (x.x.x)
-sReleaseVersion = '3.1.2'
+sReleaseVersion = '3.1.3'
 ! Author(s)         (Surname N.)
 sAuthorNames = 'Delogu F., Silvestro F., Gabellani S., Basso V., Libertino A., Ercolani G.'
 ! Release Date      (yyyy/mm/dd)
-sReleaseDate = '2020/07/23'
+sReleaseDate = '2020/10/26'
 ! -----------------------------------------------------------------------------------------------
 
 /
