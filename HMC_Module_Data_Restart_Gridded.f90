@@ -40,7 +40,7 @@ module HMC_Module_Data_Restart_Gridded
                                             HMC_Tools_Generic_UnzipFile, &
                                             HMC_Tools_Generic_RemoveFile, &
                                             transpose3Dvar, &
-                                            checkdomainvar
+                                            checkdomainvar, getProcessID
     
     ! Implicit none for all subroutines in this module
     implicit none
@@ -439,12 +439,12 @@ contains
                                       
         !------------------------------------------------------------------------------------------
         ! Variable(s)
-        integer(kind = 4)                        :: iID                  
+        integer(kind = 4)                       :: iID                  
                                   
         character(len = 256), intent(in)        :: sPathData_Restart
-        character(len = 700)                     :: sFileNameData_Restart, sFileNameData_Restart_Zip
-        character(len = 700)                     :: sCommandUnzipFile
-        character(len = 256)                     :: sVarName
+        character(len = 700)                    :: sFileNameData_Restart, sFileNameData_Restart_Zip, sFileNameData_Temp
+        character(len = 700)                    :: sCommandUnzipFile
+        character(len = 256)                    :: sVarName
         integer(kind = 4), intent(in)           :: iRows, iCols
         integer(kind = 4), intent(in)           :: iDaySteps, iTMarkedSteps
         integer(kind = 4), intent(in)           :: iFlagSnow, iFlagCType
@@ -480,7 +480,7 @@ contains
         real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarLat
         real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarLon
         
-        character(len = 256)    :: sVarUnits
+        character(len = 256)    :: sVarUnits, sPID
         integer(kind = 4)       :: iErr
         integer(kind = 4)       :: iFileID
         real(kind = 4)          :: dScaleFactor
@@ -505,7 +505,7 @@ contains
         
         dScaleFactor = 0.0
         
-        bCheckRestart = .false.; 
+        bCheckRestart = .false.; sPID = '';
         
         bCheckVar = .true.; bCheckVarS = .true.
         !------------------------------------------------------------------------------------------
@@ -515,14 +515,22 @@ contains
         sCommandUnzipFile = oHMC_Namelist(iID)%sCommandUnzipFile
         ! Info start
         call mprintf(.true., iINFO_Extra, ' Data :: Restart gridded :: NetCDF ... ' )
+        
+        ! Get unique process ID
+        sPID = adjustl(getProcessID())
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
         ! Filename restart (example: hmc.state.201404300000.nc)
         sFileNameData_Restart = trim(sPathData_Restart)//"hmc.state-grid."// &
-        sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
-        sTime(12:13)//sTime(15:16)// &
-        ".nc"
+            sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+            sTime(12:13)//sTime(15:16)// &
+            ".nc"
+        ! Create Filename with unique PID number to avoid simultaneously access to the same Forcing file       
+        sFileNameData_Temp = trim(sPathData_Restart)//"hmc.state-grid."// &
+            sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+            sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
+            ".nc"  
 
         ! Info netCDF filename
         call mprintf(.true., iINFO_Basic, ' Get filename (restart gridded): '//trim(sFileNameData_Restart)//' ... ' )
@@ -545,12 +553,12 @@ contains
             ! Unzip file
             call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
                                              sFileNameData_Restart_Zip, &
-                                             sFileNameData_Restart, .true.)
+                                             sFileNameData_Temp, .true.)
             !------------------------------------------------------------------------------------------
         
             !------------------------------------------------------------------------------------------
             ! Opening netCDF file
-            iErr = nf90_open(trim(sFileNameData_Restart), NF90_NOWRITE, iFileID)
+            iErr = nf90_open(trim(sFileNameData_Temp), NF90_NOWRITE, iFileID)
             if (iErr /= 0) then
                 
                 !------------------------------------------------------------------------------------------
@@ -840,6 +848,9 @@ contains
 
                 ! Closing netcdf file (drops db)
                 iErr = nf90_close(iFileID)
+                
+                ! Remove uncompressed file (to save space on disk)
+                call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
                 !------------------------------------------------------------------------------------------
                     
                 !------------------------------------------------------------------------------------------
@@ -925,7 +936,7 @@ contains
         integer(kind = 4)                       :: iID                  
                                   
         character(len = 700), intent(in)        :: sPathData_Restart
-        character(len = 700)                    :: sFileNameData_Restart, sFileNameData_Restart_Zip
+        character(len = 700)                    :: sFileNameData_Restart, sFileNameData_Restart_Zip, sFileNameData_Temp
         character(len = 700)                    :: sCommandUnzipFile
         character(len = 256)                    :: sVarName
         integer(kind = 4), intent(in)           :: iRows, iCols
@@ -961,7 +972,7 @@ contains
         real(kind = 4), dimension(iRows, iCols, iDaySteps*5),   intent(out)    :: a3dVarTaC_5Days
         real(kind = 4), dimension(iRows, iCols),                intent(out)    :: a2dVarWSRunoff
         
-        character(len = 256)    :: sVarUnits
+        character(len = 256)    :: sVarUnits, sPID
         integer(kind = 4)       :: iErr
         integer(kind = 4)       :: iFileID
         
@@ -989,6 +1000,9 @@ contains
         sCommandUnzipFile = oHMC_Namelist(iID)%sCommandUnZipFile
         ! Info start
         call mprintf(.true., iINFO_Extra, ' Data :: Restart gridded :: Binary ... ' )
+        
+        ! Get unique process ID
+        sPID = adjustl(getProcessID())
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -1003,35 +1017,9 @@ contains
             sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
             sTime(12:13)//sTime(15:16)// &
             ".bin"  
-        call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
-
-        ! Checking file input availability
-        sFileNameData_Restart_Zip = trim(sFileNameData_Restart)//'.gz'
-        inquire (file = sFileNameData_Restart_Zip, exist = bFileExist)
-        if ( .not. bFileExist ) then
-            call mprintf(.true., iWARN, ' Problem opening uncompressed binary file: '// &
-                         trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values' )
-            a2dVar = -9999.0
-            bCheckVar = bCheckVar .and. .false.
-        else
-            ! Unzip file
-            call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
-                                             sFileNameData_Restart_Zip, &
-                                             sFileNameData_Restart, .true.)
-            ! Read binary data
-            a2dVar = -9999.0
-            call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
-            bCheckVar = bCheckVar .and. .true.
-        endif
-        a2dVarVTot = a2dVar
-        !------------------------------------------------------------------------------------------
-
-        !------------------------------------------------------------------------------------------
-        ! VRet  (example: Ret_201405010000.bin.gz)
-        iScaleFactor = 10000
-        sFileNameData_Restart = trim(sPathData_Restart)//"Ret_"// &
+        sFileNameData_Temp = trim(sPathData_Restart)//"V_"// &
             sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
-            sTime(12:13)//sTime(15:16)// &
+            sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
             ".bin"  
         call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
 
@@ -1047,11 +1035,53 @@ contains
             ! Unzip file
             call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
                                              sFileNameData_Restart_Zip, &
-                                             sFileNameData_Restart, .true.)
+                                             sFileNameData_Temp, .true.)
             ! Read binary data
             a2dVar = -9999.0
-            call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
+            call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Temp, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
             bCheckVar = bCheckVar .and. .true.
+            
+            ! Remove uncompressed file (to save space on disk)
+            call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
+            
+        endif
+        a2dVarVTot = a2dVar
+        !------------------------------------------------------------------------------------------
+
+        !------------------------------------------------------------------------------------------
+        ! VRet  (example: Ret_201405010000.bin.gz)
+        iScaleFactor = 10000
+        sFileNameData_Restart = trim(sPathData_Restart)//"Ret_"// &
+            sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+            sTime(12:13)//sTime(15:16)// &
+            ".bin"  
+        sFileNameData_Temp = trim(sPathData_Restart)//"Ret_"// &
+            sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+            sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
+            ".bin"  
+        call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
+
+        ! Checking file input availability
+        sFileNameData_Restart_Zip = trim(sFileNameData_Restart)//'.gz'
+        inquire (file = sFileNameData_Restart_Zip, exist = bFileExist)
+        if ( .not. bFileExist ) then
+            call mprintf(.true., iWARN, ' Problem opening uncompressed binary file: '// &
+                         trim(sFileNameData_Restart_Zip)//' --> Undefined restart data values' )
+            a2dVar = -9999.0
+            bCheckVar = bCheckVar .and. .false.
+        else
+            ! Unzip file
+            call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
+                                             sFileNameData_Restart_Zip, &
+                                             sFileNameData_Temp, .true.)
+            ! Read binary data
+            a2dVar = -9999.0
+            call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Temp, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
+            bCheckVar = bCheckVar .and. .true.
+            
+            ! Remove uncompressed file (to save space on disk)
+            call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
+            
         endif
         a2dVarVRet = a2dVar
         !------------------------------------------------------------------------------------------
@@ -1067,6 +1097,10 @@ contains
                 sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
                 sTime(12:13)//sTime(15:16)// &
                 ".bin"  
+            sFileNameData_Temp = trim(sPathData_Restart)//"Wlc_"// &
+                sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+                sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
+                ".bin"  
             call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
 
             ! Checking file input availability
@@ -1081,11 +1115,15 @@ contains
                 ! Unzip file
                 call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
                                                  sFileNameData_Restart_Zip, &
-                                                 sFileNameData_Restart, .true.)
+                                                 sFileNameData_Temp, .true.)
                 ! Read binary data
                 a2dVar = -9999.0
-                call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
+                call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Temp, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
                 bCheckVar = bCheckVar .and. .true.
+                
+                ! Remove uncompressed file (to save space on disk)
+                call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
+                
             endif
             a2dVarHydroC = a2dVar
             !------------------------------------------------------------------------------------------
@@ -1097,6 +1135,10 @@ contains
                 sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
                 sTime(12:13)//sTime(15:16)// &
                 ".bin"  
+            sFileNameData_Temp = trim(sPathData_Restart)//"Wlh_"// &
+                sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+                sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
+                ".bin" 
             call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
 
             ! Checking file input availability
@@ -1111,11 +1153,15 @@ contains
                 ! Unzip file
                 call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
                                                  sFileNameData_Restart_Zip, &
-                                                 sFileNameData_Restart, .true.)
+                                                 sFileNameData_Temp, .true.)
                 ! Read binary data
                 a2dVar = -9999.0
-                call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
+                call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Temp, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
                 bCheckVar = bCheckVar .and. .true.
+                
+                ! Remove uncompressed file (to save space on disk)
+                call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
+                
             endif
             a2dVarHydroH = a2dVar
             !------------------------------------------------------------------------------------------
@@ -1127,6 +1173,10 @@ contains
                 sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
                 sTime(12:13)//sTime(15:16)// &
                 ".bin"  
+            sFileNameData_Temp = trim(sPathData_Restart)//"Qup_"// &
+                sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+                sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
+                ".bin" 
             call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
 
             ! Checking file input availability
@@ -1141,11 +1191,15 @@ contains
                 ! Unzip file
                 call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
                                                  sFileNameData_Restart_Zip, &
-                                                 sFileNameData_Restart, .true.)
+                                                 sFileNameData_Temp, .true.)
                 ! Read binary data
                 a2dVar = -9999.0
-                call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
+                call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Temp, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
                 bCheckVar = bCheckVar .and. .true.
+                
+                ! Remove uncompressed file (to save space on disk)
+                call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
+                
             endif
             a2dVarQup = a2dVar
             !------------------------------------------------------------------------------------------
@@ -1159,7 +1213,11 @@ contains
             sFileNameData_Restart = trim(sPathData_Restart)//"Wl_"// &
                 sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
                 sTime(12:13)//sTime(15:16)// &
-                ".bin"  
+                ".bin" 
+            sFileNameData_Temp = trim(sPathData_Restart)//"Wl_"// &
+                sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+                sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
+                ".bin" 
             call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
 
             ! Checking file input availability
@@ -1174,11 +1232,15 @@ contains
                 ! Unzip file
                 call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
                                                  sFileNameData_Restart_Zip, &
-                                                 sFileNameData_Restart, .true.)
+                                                 sFileNameData_Temp, .true.)
                 ! Read binary data
                 a2dVar = -9999.0
-                call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
+                call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Temp, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
                 bCheckVar = bCheckVar .and. .true.
+                
+                ! Remove uncompressed file (to save space on disk)
+                call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
+                
             endif
             a2dVarHydro = a2dVar
             !------------------------------------------------------------------------------------------
@@ -1193,6 +1255,10 @@ contains
             sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
             sTime(12:13)//sTime(15:16)// &
             ".bin"  
+        sFileNameData_Temp = trim(sPathData_Restart)//"Rou_"// &
+            sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+            sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
+            ".bin" 
         call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
 
         ! Checking file input availability
@@ -1207,11 +1273,15 @@ contains
             ! Unzip file
             call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
                                              sFileNameData_Restart_Zip, &
-                                             sFileNameData_Restart, .true.)
+                                             sFileNameData_Temp, .true.)
             ! Read binary data
             a2dVar = -9999.0
-            call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
+            call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Temp, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
             bCheckVar = bCheckVar .and. .true.
+            
+            ! Remove uncompressed file (to save space on disk)
+            call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
+            
         endif
         a2dVarRouting = a2dVar
         !------------------------------------------------------------------------------------------
@@ -1223,6 +1293,10 @@ contains
             sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
             sTime(12:13)//sTime(15:16)// &
             ".bin"  
+        sFileNameData_Temp = trim(sPathData_Restart)//"DFE_"// &
+            sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+            sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
+            ".bin" 
         call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
 
         ! Checking file input availability
@@ -1237,11 +1311,15 @@ contains
             ! Unzip file
             call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
                                              sFileNameData_Restart_Zip, &
-                                             sFileNameData_Restart, .true.)
+                                             sFileNameData_Temp, .true.)
             ! Read binary data
             a2dVar = -9999.0
-            call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
+            call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Temp, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
             bCheckVar = bCheckVar .and. .true.
+            
+            ! Remove uncompressed file (to save space on disk)
+            call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
+            
         endif
         a2dVarFlowDeep = a2dVar
         !------------------------------------------------------------------------------------------
@@ -1253,6 +1331,10 @@ contains
             sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
             sTime(12:13)//sTime(15:16)// &
             ".bin"  
+        sFileNameData_Temp = trim(sPathData_Restart)//"Vw_"// &
+            sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+            sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
+            ".bin" 
         call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
 
         ! Checking file input availability
@@ -1267,11 +1349,15 @@ contains
             ! Unzip file
             call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
                                              sFileNameData_Restart_Zip, &
-                                             sFileNameData_Restart, .true.)
+                                             sFileNameData_Temp, .true.)
             ! Read binary data
             a2dVar = -9999.0
-            call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
+            call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Temp, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
             bCheckVar = bCheckVar .and. .true.
+            
+            ! Remove uncompressed file (to save space on disk)
+            call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
+            
         endif
         a2dVarWTable = a2dVar
         !------------------------------------------------------------------------------------------
@@ -1283,6 +1369,10 @@ contains
             sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
             sTime(12:13)//sTime(15:16)// &
             ".bin"  
+        sFileNameData_Temp = trim(sPathData_Restart)//"Ts_"// &
+            sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+            sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
+            ".bin" 
         call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
 
         ! Checking file input availability
@@ -1297,11 +1387,15 @@ contains
             ! Unzip file
             call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
                                              sFileNameData_Restart_Zip, &
-                                             sFileNameData_Restart, .true.)
+                                             sFileNameData_Temp, .true.)
             ! Read binary data
             a2dVar = -9999.0
-            call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
+            call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Temp, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
             bCheckVar = bCheckVar .and. .true.
+            
+            ! Remove uncompressed file (to save space on disk)
+            call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
+
         endif
         a2dVarLST = a2dVar
         !------------------------------------------------------------------------------------------
@@ -1313,6 +1407,10 @@ contains
             sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
             sTime(12:13)//sTime(15:16)// &
             ".bin"  
+        sFileNameData_Temp = trim(sPathData_Restart)//"Tmk_"// &
+            sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+            sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
+            ".bin" 
         call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
 
         ! Checking file input availability
@@ -1327,12 +1425,16 @@ contains
             ! Unzip file
             call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
                                              sFileNameData_Restart_Zip, &
-                                             sFileNameData_Restart, .true.)
+                                             sFileNameData_Temp, .true.)
             ! Read binary data
             a3dVar1 = -9999.0
-            call HMC_Tools_IO_Get3d_Binary(sFileNameData_Restart, a3dVar1, &
+            call HMC_Tools_IO_Get3d_Binary(sFileNameData_Temp, a3dVar1, &
                                            iRows, iCols, iTMarkedSteps, iScaleFactor, .true., iErr) 
             bCheckVar = bCheckVar .and. .true.
+            
+            ! Remove uncompressed file (to save space on disk)
+            call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
+            
         endif
         a3dVarTaKMarked = a3dVar1
         !------------------------------------------------------------------------------------------
@@ -1344,6 +1446,10 @@ contains
             sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
             sTime(12:13)//sTime(15:16)// &
             ".bin"  
+        sFileNameData_Temp = trim(sPathData_Restart)//"T24_"// &
+            sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+            sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
+            ".bin" 
         call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
 
         ! Checking file input availability
@@ -1358,12 +1464,16 @@ contains
             ! Unzip file
             call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
                                              sFileNameData_Restart_Zip, &
-                                             sFileNameData_Restart, .true.)
+                                             sFileNameData_Temp, .true.)
             ! Read binary data
             a3dVar2 = -9999.0
-            call HMC_Tools_IO_Get3d_Binary(sFileNameData_Restart, a3dVar2, &
+            call HMC_Tools_IO_Get3d_Binary(sFileNameData_Temp, a3dVar2, &
                                            iRows, iCols, iDaySteps, iScaleFactor, .true., iErr) 
             bCheckVar = bCheckVar .and. .true.
+            
+            ! Remove uncompressed file (to save space on disk)
+            call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
+            
         endif
         a3dVarTaK24 = a3dVar2
         !------------------------------------------------------------------------------------------
@@ -1374,7 +1484,11 @@ contains
         sFileNameData_Restart = trim(sPathData_Restart)//"WS_"// &
             sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
             sTime(12:13)//sTime(15:16)// &
-            ".bin"  
+            ".bin" 
+        sFileNameData_Temp = trim(sPathData_Restart)//"WS_"// &
+            sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+            sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
+            ".bin" 
         call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
 
         ! Checking file input availability
@@ -1389,11 +1503,15 @@ contains
             ! Unzip file
             call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
                                              sFileNameData_Restart_Zip, &
-                                             sFileNameData_Restart, .true.)
+                                             sFileNameData_Temp, .true.)
             ! Read binary data
             a2dVar = -9999.0
-            call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .false., iErr) 
+            call HMC_Tools_IO_Get2d_Binary_INT(sFileNameData_Temp, a2dVar, iRows, iCols, iScaleFactor, .false., iErr) 
             bCheckVar = bCheckVar .and. .true.
+            
+            ! Remove uncompressed file (to save space on disk)
+            call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
+            
         endif
         a2dVarWSRunoff = a2dVar
         !------------------------------------------------------------------------------------------
@@ -1409,6 +1527,10 @@ contains
                 sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
                 sTime(12:13)//sTime(15:16)// &
                 ".bin"  
+            sFileNameData_Temp = trim(sPathData_Restart)//"SWE_"// &
+                sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+                sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
+                ".bin" 
             call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
 
             ! Checking file input availability
@@ -1424,11 +1546,15 @@ contains
                 ! Unzip file
                 call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
                                              sFileNameData_Restart_Zip, &
-                                             sFileNameData_Restart, .true.)
+                                             sFileNameData_Temp, .true.)
                 ! Read binary data
                 a2dVar = -9999.0
-                call HMC_Tools_IO_Get2d_Binary_DBL(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
+                call HMC_Tools_IO_Get2d_Binary_DBL(sFileNameData_Temp, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
                 bCheckVarS = bCheckVarS .and. .true.
+                
+                ! Remove uncompressed file (to save space on disk)
+                call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
+                
             endif
             a2dVarSWE = a2dVar
             !------------------------------------------------------------------------------------------
@@ -1439,7 +1565,11 @@ contains
             sFileNameData_Restart = trim(sPathData_Restart)//"Density_"// &
                 sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
                 sTime(12:13)//sTime(15:16)// &
-                ".bin"  
+                ".bin"
+            sFileNameData_Temp = trim(sPathData_Restart)//"Density_"// &
+                sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+                sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
+                ".bin" 
             call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
 
             ! Checking file input availability
@@ -1455,11 +1585,15 @@ contains
                 ! Unzip file
                 call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
                                              sFileNameData_Restart_Zip, &
-                                             sFileNameData_Restart, .true.)
+                                             sFileNameData_Temp, .true.)
                 ! Read binary data
                 a2dVar = -9999.0
-                call HMC_Tools_IO_Get2d_Binary_DBL(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
+                call HMC_Tools_IO_Get2d_Binary_DBL(sFileNameData_Temp, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
                 bCheckVarS = bCheckVarS .and. .true.
+                
+                ! Remove uncompressed file (to save space on disk)
+                call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
+                
             endif
             a2dVarRhoS = a2dVar
             !------------------------------------------------------------------------------------------
@@ -1471,6 +1605,10 @@ contains
                 sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
                 sTime(12:13)//sTime(15:16)// &
                 ".bin"  
+            sFileNameData_Temp = trim(sPathData_Restart)//"AlbedoS_"// &
+                sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+                sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
+                ".bin" 
             call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
 
             ! Checking file input availability
@@ -1486,11 +1624,15 @@ contains
                 ! Unzip file
                 call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
                                              sFileNameData_Restart_Zip, &
-                                             sFileNameData_Restart, .true.)
+                                             sFileNameData_Temp, .true.)
                 ! Read binary data
                 a2dVar = -9999.0
-                call HMC_Tools_IO_Get2d_Binary_DBL(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
+                call HMC_Tools_IO_Get2d_Binary_DBL(sFileNameData_Temp, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
                 bCheckVarS = bCheckVarS .and. .true.
+                
+                ! Remove uncompressed file (to save space on disk)
+                call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
+                
             endif
             a2dVarAlbedoS = a2dVar
             !------------------------------------------------------------------------------------------
@@ -1502,6 +1644,10 @@ contains
                 sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
                 sTime(12:13)//sTime(15:16)// &
                 ".bin"  
+            sFileNameData_Temp = trim(sPathData_Restart)//"Age_"// &
+                sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+                sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
+                ".bin" 
             call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
 
             ! Checking file input availability
@@ -1517,11 +1663,15 @@ contains
                 ! Unzip file
                 call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
                                              sFileNameData_Restart_Zip, &
-                                             sFileNameData_Restart, .true.)
+                                             sFileNameData_Temp, .true.)
                 ! Read binary data
                 a2dVar = -9999.0
-                call HMC_Tools_IO_Get2d_Binary_DBL(sFileNameData_Restart, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
+                call HMC_Tools_IO_Get2d_Binary_DBL(sFileNameData_Temp, a2dVar, iRows, iCols, iScaleFactor, .true., iErr) 
                 bCheckVarS = bCheckVarS .and. .true.
+                
+                ! Remove uncompressed file (to save space on disk)
+                call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
+                
             endif
             a2iVarAgeS = int(a2dVar)
             !------------------------------------------------------------------------------------------
@@ -1533,6 +1683,10 @@ contains
                 sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
                 sTime(12:13)//sTime(15:16)// &
                 ".bin"  
+            sFileNameData_Temp = trim(sPathData_Restart)//"Ta_1Days_"// &
+                sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+                sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
+                ".bin" 
             call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
 
             ! Checking file input availability
@@ -1548,12 +1702,16 @@ contains
                 ! Unzip file
                 call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
                                                  sFileNameData_Restart_Zip, &
-                                                 sFileNameData_Restart, .true.)
+                                                 sFileNameData_Temp, .true.)
                 ! Read binary data
                 a3dVar3 = -9999.0
-                call HMC_Tools_IO_Get3d_Binary(sFileNameData_Restart, a3dVar3, &
+                call HMC_Tools_IO_Get3d_Binary(sFileNameData_Temp, a3dVar3, &
                                                iRows, iCols, iDaySteps, iScaleFactor, .true., iErr) 
                 bCheckVarS = bCheckVarS .and. .true.
+                
+                ! Remove uncompressed file (to save space on disk)
+                call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
+                
             endif
             a3dVarTaC_1Days = a3dVar3
             !------------------------------------------------------------------------------------------
@@ -1565,6 +1723,10 @@ contains
                 sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
                 sTime(12:13)//sTime(15:16)// &
                 ".bin"  
+            sFileNameData_Temp = trim(sPathData_Restart)//"Ta_5Days_"// &
+                sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
+                sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
+                ".bin" 
             call mprintf(.true., iINFO_Extra, ' Get filename: '//trim(sFileNameData_Restart) )
 
             ! Checking file input availability
@@ -1580,12 +1742,16 @@ contains
                 ! Unzip file
                 call HMC_Tools_Generic_UnzipFile(sCommandUnzipFile, &
                                                  sFileNameData_Restart_Zip, &
-                                                 sFileNameData_Restart, .true.)
+                                                 sFileNameData_Temp, .true.)
                 ! Read binary data
                 a3dVar4 = -9999.0
-                call HMC_Tools_IO_Get3d_Binary(sFileNameData_Restart, a3dVar4, &
+                call HMC_Tools_IO_Get3d_Binary(sFileNameData_Temp, a3dVar4, &
                                                iRows, iCols, iDaySteps*5, iScaleFactor, .true., iErr) 
                 bCheckVarS = bCheckVarS .and. .true.
+                
+                ! Remove uncompressed file (to save space on disk)
+                call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
+                
             endif
             a3dVarTaC_5Days = a3dVar4
             !------------------------------------------------------------------------------------------

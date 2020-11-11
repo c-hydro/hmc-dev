@@ -6,6 +6,7 @@ Version 3.1.3 [2020-10-26]
 **************************
 - ADD: the distributed static layer of the watertable maximum in the list of optional static information( {domain}.wt_max.txt or variable Wt_Max in the netcdf file);
 - ADD: the variable of namelist to set the maximum delta of LST in the runge-kutta integration method (dLSTDeltaMax);
+- ADD: add pid process to binary files for multiprocess model execution;
 - FIX: in the namelist, the flag of snow physics to correctly set the model execution; 
 - FIX: some bugs in the Jarvis method to compute canopy resistence (units of datasets, operative conditions ... );
 - FIX: the maximum delta of the soil temperature in the integration of LST by Runge-Kutta method in order to avoid some physics incongruences.
