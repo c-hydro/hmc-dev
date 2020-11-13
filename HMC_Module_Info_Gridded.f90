@@ -546,8 +546,7 @@ contains
                     ! Remove uncompressed file (to save space on disk)
                     call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, &
                                                       sFileName_Temp, .false.)
-                !--------------------------------------------------------------------------------
-                    
+
                     ! Info
                     call mprintf(.true., iINFO_Main, ' Define forcing geographical data  ... OK ')
 

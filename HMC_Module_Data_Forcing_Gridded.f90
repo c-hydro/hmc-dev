@@ -581,7 +581,8 @@ contains
                 
                 !------------------------------------------------------------------------------------------
                 ! AIR TEMPERATURE
-                sVarName = 'AirTemperature'
+                call HMC_Tools_IO_CheckVar_NC('AirTemperature;Air_Temperature', iFileID, sVarName)
+                !sVarName = 'AirTemperature'
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//trim(sVarName)//'!')
@@ -593,7 +594,7 @@ contains
                 
                 !------------------------------------------------------------------------------------------
                 ! INCOMING RADIATION
-                call HMC_Tools_IO_CheckVar_NC('IncomingRadiation;IncRadiation', iFileID, sVarName)
+                call HMC_Tools_IO_CheckVar_NC('Incoming_Radiation;IncomingRadiation;IncRadiation', iFileID, sVarName)
                 !sVarName = 'IncRadiation'
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if(iErr /= 0) then
@@ -606,7 +607,7 @@ contains
                 
                 !------------------------------------------------------------------------------------------
                 ! RELATIVE HUMIDITY
-                call HMC_Tools_IO_CheckVar_NC('RelativeHumidity;RelHumidity', iFileID, sVarName)
+                call HMC_Tools_IO_CheckVar_NC('Relative_Humidity;RelativeHumidity;RelHumidity', iFileID, sVarName)
                 !sVarName = 'RelHumidity'
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if(iErr /= 0) then
