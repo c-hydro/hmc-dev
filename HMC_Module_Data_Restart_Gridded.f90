@@ -703,7 +703,8 @@ contains
                     a2dVarLST = transpose(a2dVar)
                     bCheckVar = bCheckVar .and. .true. 
                 endif
-
+                
+                               
                 ! Tmk
                 sVarName = 'Tmk';
                 call HMC_Tools_IO_Get3d_NC((sVarName), iFileID, a3dVar1, sVarUnits, dScaleFactor, &
