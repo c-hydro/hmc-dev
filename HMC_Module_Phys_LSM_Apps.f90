@@ -531,7 +531,7 @@ contains
             a2dVarPit = sqrt(a2dVarC*a2dVarKs)
             
             ! Thermal Inertia scaling (to reduce max values from 2500 to 600 --> temporary fixing)
-            a2dVarPit = a2dVarPit/15 + 430
+            a2dVarPit = a2dVarPit/5 + 1500
 
         elsewhere
             a2dVarPit = 0.0

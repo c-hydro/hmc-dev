@@ -12,6 +12,7 @@ Version 3.1.3 [2020-10-26]
 - FIX: the maximum delta of the soil temperature in the integration of LST by Runge-Kutta method in order to avoid some physics incongruences.
 - FIX: the scaling of thermal inertia to obtain a reduction of the expected maximum value.
 - FIX: the dimensions name in state output filename (south_north, east_west).
+- FIX: bug in iterations of the LST Runge-Kutta method.
 
 Version 3.1.2 [2020-07-23]
 **************************
