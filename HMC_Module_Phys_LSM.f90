@@ -63,18 +63,15 @@ contains
         real(kind = 4),  dimension(iRows, iCols) :: a2dVarVTot
         real(kind = 4),  dimension(iRows, iCols) :: a2dVarLST
         
-        real(kind = 4), dimension(iRows, iCols) :: a2dVarTa, &
-                                             a2dVarIncRad, a2dVarWind, & 
-                                             a2dVarRelHum, a2dVarPa, &
-                                             a2dVarAlbedo
+        real(kind = 4), dimension(iRows, iCols) :: a2dVarTa, a2dVarIncRad, a2dVarWind, &
+                                                   a2dVarRelHum, a2dVarPa, a2dVarAlbedo
         
         real(kind = 4), dimension(iRows, iCols) :: a2dVarTaK, a2dVarSM
         real(kind = 4), dimension(iRows, iCols) :: a2dVarPit, a2dVarRb
         
-        real(kind = 4), dimension(iRows, iCols) :: a2dVarLambda, a2dVarRhoW, &
-                                             a2dVarEA, a2dVarEAsat, a2dVarEpsA, a2dVarRhoA
+        real(kind = 4), dimension(iRows, iCols) :: a2dVarLambda, a2dVarRhoW, a2dVarEA, a2dVarEAsat, a2dVarEpsA, a2dVarRhoA
 
-        real(kind = 4), dimension(iRows, iCols) :: a2dVarLSTPStep, a2dVarLSTUpd, a2dVarETUpd
+        real(kind = 4), dimension(iRows, iCols) :: a2dVarLSTPStep, a2dVarLSTUpd, a2dVarLSTTmp, a2dVarETUpd
         
         real(kind = 4), dimension(iRows, iCols) :: a2dVarTDeep, a2dVarBF, a2dVarCH, a2dVarEpsS, a2dVarBF_BareSoil, a2dVarBareSoil 
         
@@ -83,14 +80,14 @@ contains
         real(kind = 4), dimension(iRows, iCols) :: a2dVarRn, a2dVarH, a2dVarLE, a2dVarG
         real(kind = 4), dimension(iRows, iCols) :: a2dVarEF
         real(kind = 4), dimension(iRows, iCols) :: a2dVarSnowMask
-        real(kind = 4), dimension(iRows, iCols) :: a2dVarLST_Diff
+        !real(kind = 4), dimension(iRows, iCols) :: a2dVarLST_Diff
         
         real(kind = 4)              :: dVarMeanLST, dVarMeanH, dVarMeanLE
         real(kind = 4)              :: dVarMeanEF, dVarMeanET, dVarMeanRn   
-        real(kind = 4)              :: dVarLST_DiffMax
+        !real(kind = 4)              :: dVarLST_DiffMax
         
-        character(len = 6)               :: sDtDelta
-        character(len = 10)              :: sVarLST, sVarRn, sVarH, sVarLE
+        character(len = 6)              :: sDtDelta
+        character(len = 10)             :: sVarLST, sVarRn, sVarH, sVarLE
         character(len = 10), parameter  :: sFMTVarLST = "(F5.1)"
         character(len = 10), parameter  :: sFMTVarRn = "(F6.1)"
         character(len = 10), parameter  :: sFMTVarH = "(F6.1)"
@@ -102,12 +99,12 @@ contains
         ! Local variable(s) initialization
         a2iVarMask = 0; a2dVarSM = 0.0; a2dVarTaK = 0.0;
         
-        a2dVarBF = 0.0;         ! Beta function
+        a2dVarBF = 0.0;          ! Beta function
         a2dVarBF_BareSoil = 0.0; ! Beta function for bare soil 
-        a2dVarPit = 0.0;        ! Thermal Inertia
-        a2dVarRb = -0.9;        ! Richardson number
-        a2dVarCH = 0.0;         ! CH
-        a2dVarTDeep = 0.0;      ! Deep soil temperature
+        a2dVarPit = 0.0;         ! Thermal Inertia
+        a2dVarRb = -0.9;         ! Richardson number
+        a2dVarCH = 0.0;          ! CH
+        a2dVarTDeep = 0.0;       ! Deep soil temperature
        
         a2dVarLambda = 0.0; a2dVarRhoW = 0.0; a2dVarEA = 0.0; a2dVarEAsat = 0.0;
         a2dVarEpsA = 0.0; a2dVarRhoA = 0.0; 
@@ -116,7 +113,7 @@ contains
         
         a2dVarRn = 0.0; a2dVarH = 0.0; a2dVarLE = 0.0; a2dVarG = 0.0; 
 
-        a2dVarLSTPStep = 0.0; a2dVarLSTUpd = 0.0;
+        a2dVarLSTPStep = 0.0; a2dVarLSTUpd = 0.0; a2dVarLSTTmp = 0.0;
         a2dVarET = 0.0; a2dVarETpot = 0.0; a2dVarETUpd = 0.0; a2dVarEF = 0.0;
         a2dVarSnowMask = 0.0
         
@@ -125,7 +122,7 @@ contains
         
         iDtZero = 0; iDtUpd = 0;
         
-        a2dVarLST_Diff = 0.0; dVarLST_DiffMax = 12.0;
+        !a2dVarLST_Diff = 0.0; dVarLST_DiffMax = 12.0;
         !-------------------------------------------------------------------------------------
         
         !-------------------------------------------------------------------------------------
@@ -312,14 +309,18 @@ contains
         elsewhere
             a2dVarRn = 0.0
         endwhere
-
         !-----------------------------------------------------------------------------------------
 
         !-----------------------------------------------------------------------------------------
         ! Calculating land surface temperature using runge-kutta (LST updating)
-        iDtDelta = MIN(int(int(iDtDataForcing)),900)
-        !iDtDelta = int(int(iDtDataForcing)/4) 
-        !do iIntStep = 1,  int(iDtDataForcing), iDtDelta
+        iDtDelta = MIN(int(int(iDtDataForcing)), 900)
+
+        where( a2dVarDEM.gt.0.0 )
+            a2dVarLSTTmp = a2dVarLSTPStep
+        elsewhere
+            a2dVarLSTTmp = 0.0
+        endwhere
+        
         do iIntStep = 1,  int(iDtDataForcing)/int(iDtDelta)
 
             call HMC_Phys_LSM_Apps_RK4( iID, iRows, iCols, & 
@@ -329,22 +330,23 @@ contains
                                            a2dVarRn, &
                                            a2dVarRelHum, a2dVarWind, a2dVarTaK, a2dVarPa, & 
                                            a2dVarLambda, a2dVarEA, a2dVarRhoA, &
-                                           a2dVarLSTPStep, a2dVarLSTUpd )
-
+                                           a2dVarLSTTmp, a2dVarLSTUpd )
+            a2dVarLSTTmp = a2dVarLSTUpd                         
         enddo
         
         ! Check LST update delta
-        where(a2dVarDem.gt.0.0)
-            a2dVarLST_Diff = abs(a2dVarLSTUpd - a2dVarLSTPStep)
-        elsewhere
-            a2dVarLST_Diff = 0.0
-        endwhere
+        !where(a2dVarDem.gt.0.0)
+        !    a2dVarLST_Diff = abs(a2dVarLSTUpd - a2dVarLSTPStep)
+        !elsewhere
+        !    a2dVarLST_Diff = 0.0
+        !endwhere
         
         ! LST checking
         where(a2dVarDem.gt.0.0)
-                where(a2dVarLST_Diff.gt.dVarLST_DiffMax*iDtDataForcing/3600.0) ! Where dLST is too large put old LST
-                        a2dVarLSTUpd = a2dVarLSTPStep	
-                endwhere
+            
+                !where(a2dVarLST_Diff.gt.dVarLST_DiffMax*iDtDataForcing/3600.0) ! Where dLST is too large put old LST
+                !        a2dVarLSTUpd = a2dVarLSTPStep	
+                !endwhere
 
                 where(a2dVarLSTUpd.lt.273.15 - 70.0) ! Where LST is too small put old LST
                         a2dVarLSTUpd = a2dVarLSTPStep	
