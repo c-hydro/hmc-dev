@@ -7,8 +7,8 @@
 
 !******************************************************************************************
 ! HYDROLOGICAL MODEL CONTINUUM
-! Version 3.1.3
-! Date: 2020/10/26
+! Version 3.1.4
+! Date: 2021/03/08
 !
 ! 
 ! 0) COMMAND LINE:
@@ -20,21 +20,24 @@
 !       ./Continuum.x marche.info.txt
 !
 ! 1) SET NETCDF LIBRARY CONFIGURATION:
-! Add in: Project --> Properties --> Linker --> Libraries
+!
+! /home/fabio/Documents/Work_Area/Code_Development/Library/nc4_fortran-4.4.3_HMC
+!
+! Add in: Project --> Properties --> Linker --> Libraries --> Add library
 !   netcdff.a and netcdff.so (note double f for fortran libraries)
 ! Add in: Project --> Properties --> Linker --> Additional Options:
-!   -I/home/fabio/Documents/Work_Area/Code_Development/Library/nc4_fortran-4.4.2/include/ 
-!   -L/home/fabio/Documents/Work_Area/Code_Development/Library/nc4_fortran-4.4.2/lib/ 
+!   -I/home/fabio/Documents/Work_Area/Code_Development/Library/nc4_fortran-4.4.3_HMC/include/ 
+!   -L/home/fabio/Documents/Work_Area/Code_Development/Library/nc4_fortran-4.4.3_HMC/lib/ 
 !   -lnetcdff -lnetcdff   
 ! Add in: Project --> Properties --> Fortran Compiler --> Additional Options:
-!   -I//home/fabio/Documents/Work_Area/Code_Development/Library/nc4_fortran-4.4.2/include/ 
-!   -L/home/fabio/Documents/Work_Area/Code_Development/Library/nc4_fortran-4.4.2/lib/ 
+!   -I/home/fabio/Documents/Work_Area/Code_Development/Library/nc4_fortran-4.4.3_HMC/include/ 
+!   -L/home/fabio/Documents/Work_Area/Code_Development/Library/nc4_fortran-4.4.3_HMC/lib/ 
 !   -lnetcdff -lnetcdff
 ! Add in: Project --> Properties --> Fortran Compiler --> Additional Options:
 !   gfortran: -cpp -DLIB_NC
 !   ifort: -fpp -DLIB_NC            
 ! Add in: Project --> Properties --> Run --> Environment --> NewValue
-!   LD_LIBRARY_PATH $LD_LIBRARY_PATH:/home/fabio/Documents/Work_Area/Code_Development/Library/nc4_fortran-4.4.2/lib/
+!   LD_LIBRARY_PATH $LD_LIBRARY_PATH:/home/fabio/Documents/Work_Area/Code_Development/Library/nc4_fortran-4.4.3_HMC/lib/
 !
 ! 2) SET COMMAND LINE OPTION:
 ! Add in: Project --> Properties --> Debug --> Debug Command

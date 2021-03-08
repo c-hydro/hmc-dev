@@ -2,6 +2,12 @@
 Changelog
 =========
 
+Version 3.1.4 [2021-03-08]
+**************************
+- ADD: the flag settings for switching on/off the energy-balance physics;
+- ADD: the forcing datasets of actual and potential evapotranspiration according with the flag settings of energy balance physics;
+- FIX: bugs in reading intake info file.
+
 Version 3.1.3 [2020-10-26]
 **************************
 - ADD: the distributed static layer of the watertable maximum in the list of optional static information( {domain}.wt_max.txt or variable Wt_Max in the netcdf file);
@@ -9,9 +15,9 @@ Version 3.1.3 [2020-10-26]
 - ADD: add pid process to binary files for multiprocess model execution;
 - FIX: in the namelist, the flag of snow physics to correctly set the model execution; 
 - FIX: some bugs in the Jarvis method to compute canopy resistence (units of datasets, operative conditions ... );
-- FIX: the maximum delta of the soil temperature in the integration of LST by Runge-Kutta method in order to avoid some physics incongruences.
-- FIX: the scaling of thermal inertia to obtain a reduction of the expected maximum value.
-- FIX: the dimensions name in state output filename (south_north, east_west).
+- FIX: the maximum delta of the soil temperature in the integration of LST by Runge-Kutta method in order to avoid some physics incongruences;
+- FIX: the scaling of thermal inertia to obtain a reduction of the expected maximum value;
+- FIX: the dimensions name in state output filename (south_north, east_west);
 - FIX: bug in iterations of the LST Runge-Kutta method.
 
 Version 3.1.2 [2020-07-23]

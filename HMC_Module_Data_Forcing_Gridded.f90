@@ -189,7 +189,7 @@ contains
 
             endif
             !------------------------------------------------------------------------------------------
-            
+                 
             !------------------------------------------------------------------------------------------
             ! Debug
             if (iDEBUG.gt.0) then
@@ -214,16 +214,12 @@ contains
                                               iRowsF, iColsF, a2dVarRainF, &
                                               oHMC_Vars(iID)%a2dDem, &
                                               oHMC_Vars(iID)%a2iXIndex, oHMC_Vars(iID)%a2iYIndex)
+                                              
             call HMC_Tools_Generic_SwitchGrid(oHMC_Namelist(iID)%iFlagGrid, &
                                               iRowsL, iColsL, a2dVarTaL, &
                                               iRowsF, iColsF, a2dVarTaF, &
                                               oHMC_Vars(iID)%a2dDem, &
-                                              oHMC_Vars(iID)%a2iXIndex, oHMC_Vars(iID)%a2iYIndex)
-            
-            !call debug_2dVar(dble(oHMC_Vars(iID)%a2dDem), iRowsL, iColsL, 1)
-            !call debug_2dVar(dble(a2dVarTaL), iRowsL, iColsL, 2)
-            !call debug_2dVar(dble(a2dVarTaF), iRowsF, iColsF, 3)
-                                       
+                                              oHMC_Vars(iID)%a2iXIndex, oHMC_Vars(iID)%a2iYIndex)        
                                               
             call HMC_Tools_Generic_SwitchGrid(oHMC_Namelist(iID)%iFlagGrid, &
                                               iRowsL, iColsL, a2dVarIncRadL, &

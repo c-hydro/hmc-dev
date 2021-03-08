@@ -89,7 +89,7 @@ contains
 
         ! Extracting dynamic state variable(s)
         a2dVarVTot = oHMC_Vars(iID)%a2dVTot         ! Total soil volume
-        a2dVarET = oHMC_Vars(iID)%a2dET             ! Evapotranspiration ==> drom LST phys
+        a2dVarET = oHMC_Vars(iID)%a2dET             ! Evapotranspiration ==> from LST phys
         a2dVarETPot = oHMC_Vars(iID)%a2dETPot       ! Potential Evapotranspiration == from LST phys
 
         ! Compute soil water content at wilting point - minimum threshold for evapotranspiration

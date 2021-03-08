@@ -326,10 +326,13 @@ contains
             open(unit=1,file=sFileName, status='old')
             read(1,*) sText
             read(1,*) sText
-
+            
             ! Cycle(s) on release(s)
             iCatchTot = 1
             do iI = 1, iNRelease
+                
+                ! Comment line 
+                read(1,*) sText
                 
                 ! Release section name
                 read(1,*) a1sVarNameRelease(iI)
