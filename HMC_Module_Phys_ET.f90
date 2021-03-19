@@ -36,7 +36,7 @@ contains
         real(kind = 4), dimension (iRows, iCols)         :: a2dVarET, a2dVarVTot, a2dVarETPot
         real(kind = 4), dimension (iRows, iCols)         :: a2dVarVRet, a2dVarVTotWP
         
-        real(kind = 4)              :: dVarET, dVarAE, dVarETLake, dVarETTot
+        real(kind = 4)              :: dVarET, dVarAE, dVarETLake, dVarETTot, dVarETPot
         
         integer(kind = 4), dimension (iRows, iCols)         :: a2iVarMask, a2iVarChoice
         real(kind = 4), dimension (iRows, iCols)            :: a2dVarDEM, a2dVarAreaCell, a2dVarCtWP
@@ -53,7 +53,7 @@ contains
         
         character(len = 19)                                 :: sTime
         
-        character(len = 10)                                 :: sVarAE, sVarET, sVarETTot
+        character(len = 10)                                 :: sVarAE, sVarET, sVarETTot, sVarETPot
         character(len = 10), parameter                      :: sFMTVarET = "(F7.4)"
         !------------------------------------------------------------------------------------------
         
@@ -63,6 +63,7 @@ contains
         a2dVarAE = 0.0; a2dVarET = 0.0; a2dVarETPot = 0.0; 
         a2dVarVRet = 0.0; a2dVarVTot = 0.0; a2dVarVTotWP = 0.0;
         dVarAE = 0.0; dVarET = 0.0; dVarETLake = 0.0; a2dVarAEres = 0.0;
+        dVarETTot = 0.0; dVarETPot = 0.0;
         
         a2iVarXYDam = 0; a1dVarCodeDam = 0.0; a1dVarVDam = 0.0; 
         a2iVarXYLake = 0; a1dVarCodeLake = 0.0; a1dVarVLake = 0.0;
@@ -89,8 +90,8 @@ contains
 
         ! Extracting dynamic state variable(s)
         a2dVarVTot = oHMC_Vars(iID)%a2dVTot         ! Total soil volume
-        a2dVarET = oHMC_Vars(iID)%a2dET             ! Evapotranspiration ==> from LST phys
-        a2dVarETPot = oHMC_Vars(iID)%a2dETPot       ! Potential Evapotranspiration == from LST phys
+        a2dVarET = oHMC_Vars(iID)%a2dET             ! Evapotranspiration ==> from LST phys or forcing dataset
+        a2dVarETPot = oHMC_Vars(iID)%a2dETPot       ! Potential Evapotranspiration == from LST phys or forcing dataset
 
         ! Compute soil water content at wilting point - minimum threshold for evapotranspiration
         a2dVarVTotWP = oHMC_Vars(iID)%a2dVTotWP
@@ -108,6 +109,7 @@ contains
             call mprintf(.true., iINFO_Extra, ' ========= EVAPOTRANSPIRATION START =========== ')  
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarET, a2iVarMask, 'ET START ') )   
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarAE, a2iVarMask, 'AE START ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarETPot, a2iVarMask, 'ET.POT START ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarVTot, a2iVarMask, 'VTOT START ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarVRet, a2iVarMask, 'VRET START ') )
             call mprintf(.true., iINFO_Extra, '') 
@@ -223,6 +225,7 @@ contains
         ! Calculating control variable(s) 
         dVarAE = sum(a2dVarAE, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
         dVarET = sum(a2dVarET, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
+        dVarETPot = sum(a2dVarETPot, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
         dVarETTot = dVarETTot + dVarAE
         !------------------------------------------------------------------------------------------
         
@@ -232,9 +235,10 @@ contains
         write(sVarET, sFMTVarET) dVarET
         write(sVarETTot, sFMTVarET) dVarETTot
         call mprintf(.true., iINFO_Basic, ' Phys :: EVT :: AvgValue :: '// &
-                                          ' AE: '//sVarAE//' [mm] '// &
-                                          ' ET: '//sVarET//' [mm] '// &
-                                          ' ET Tot: '//sVarETTot//' [mm]')
+                                          ' AEvt: '//sVarAE//' [mm] '// &
+                                          ' PEvt: '//sVarETPot//' [mm] '// &
+                                          ' Evt: '//sVarET//' [mm] '// &
+                                          ' Evt Tot: '//sVarETTot//' [mm]')
         !------------------------------------------------------------------------------------------
                                           
         !------------------------------------------------------------------------------------------
@@ -243,6 +247,7 @@ contains
             call mprintf(.true., iINFO_Extra, '') 
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarET, a2iVarMask, 'ET END ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarAE, a2iVarMask, 'AE END ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarETPot, a2iVarMask, 'ET.POT END ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarVTot, a2iVarMask, 'VTOT END ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarVRet, a2iVarMask, 'VRET END ') )
             call mprintf(.true., iINFO_Extra, ' ========= EVAPOTRANSPIRATION END =========== ')  

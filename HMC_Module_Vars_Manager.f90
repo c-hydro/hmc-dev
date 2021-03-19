@@ -214,8 +214,8 @@ contains
         
         ! Dynamic ET variable(s)
         allocate( oHMC_Vars(iID)%a2dAE              (iRows, iCols) ) 
-        allocate( oHMC_Vars(iID)%a2dET              (iRows, iCols) )
-        allocate( oHMC_Vars(iID)%a2dETpot           (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dET              (iRows, iCols) )    ! in ET module AET == ET
+        allocate( oHMC_Vars(iID)%a2dETpot           (iRows, iCols) )    ! 
         allocate( oHMC_Vars(iID)%a2dAEpot           (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a3dAE              (iRows, iCols, iDaySteps) )
         allocate( oHMC_Vars(iID)%a3dAEpot           (iRows, iCols, iDaySteps) )

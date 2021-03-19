@@ -332,34 +332,45 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Writing dynamic point variable(s) in netCDF output file
-        ! Section discharge
-        sVarName = 'Discharge'; sVarNameLong = 'section_discharge'; sVarDescription = 'outlet section discharge';
-        sVarUnits = 'm^3/s'; sVarCoords = 'x y'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
-        call HMC_Tools_IO_Put1d_NC(iFileID, iID_Dim_Section, & 
-                             sVarName, sVarNameLong, sVarDescription, &
-                             sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
-                             iNSection, a1dVarQoutSection)
-        ! Mean point variable(s)
-        sVarName = 'AnalysisVar'; sVarNameLong = 'analysis_variable'; sVarDescription = 'analysis variable(s) at each timestep';
-        sVarUnits = ''; sVarCoords = 'x y'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
-        call HMC_Tools_IO_Put2d_NC(iFileID, iID_Dim_Var, iID_Dim_Analysis, & 
-                             sVarName, sVarNameLong, sVarDescription, &
-                             sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
-                             iNVar, iNAnalysis, a2dVarAnalysisValue)
-        ! Dam volume
-        sVarName = 'VDam'; sVarNameLong = 'dam_volume'; sVarDescription = 'dam volume';
-        sVarUnits = 'm^3'; sVarCoords = 'x y'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
-        call HMC_Tools_IO_Put1d_NC(iFileID, iID_Dim_Dam, & 
-                             sVarName, sVarNameLong, sVarDescription, &
-                             sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
-                             iNDam, a1dVarVDam)
-        ! Dam level
-        sVarName = 'LDam'; sVarNameLong = 'dam_level'; sVarDescription = 'dam level';
-        sVarUnits = 'm'; sVarCoords = 'x y'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
-        call HMC_Tools_IO_Put1d_NC(iFileID, iID_Dim_Dam, & 
-                             sVarName, sVarNameLong, sVarDescription, &
-                             sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
-                             iNDam, a1dVarHDam)                                   
+        ! POINT SECTIONS DISCHARGE
+        if (iNSection .gt. 0) then
+            sVarName = 'Discharge'; sVarNameLong = 'section_discharge'; sVarDescription = 'outlet section discharge';
+            sVarUnits = 'm^3/s'; sVarCoords = 'x y'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+            call HMC_Tools_IO_Put1d_NC(iFileID, iID_Dim_Section, & 
+                                 sVarName, sVarNameLong, sVarDescription, &
+                                 sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
+                                 iNSection, a1dVarQoutSection)
+        endif
+        
+        ! POINT DAMS VOLUME
+        if (iNDam .gt. 0) then
+            sVarName = 'VDam'; sVarNameLong = 'dam_volume'; sVarDescription = 'dam volume';
+            sVarUnits = 'm^3'; sVarCoords = 'x y'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+            call HMC_Tools_IO_Put1d_NC(iFileID, iID_Dim_Dam, & 
+                                 sVarName, sVarNameLong, sVarDescription, &
+                                 sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
+                                 iNDam, a1dVarVDam)
+        endif
+        
+        ! POINT DAMS LEVEL
+        if (iNDam .gt. 0) then
+            sVarName = 'LDam'; sVarNameLong = 'dam_level'; sVarDescription = 'dam level';
+            sVarUnits = 'm'; sVarCoords = 'x y'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+            call HMC_Tools_IO_Put1d_NC(iFileID, iID_Dim_Dam, & 
+                                 sVarName, sVarNameLong, sVarDescription, &
+                                 sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
+                                 iNDam, a1dVarHDam) 
+        endif
+        
+        ! POINT ANALYSIS VARIABLE(S)
+        if (iDEBUG.gt.0) then
+            sVarName = 'AnalysisVar'; sVarNameLong = 'analysis_variable'; sVarDescription = 'analysis variable(s) at each timestep';
+            sVarUnits = ''; sVarCoords = 'x y'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+            call HMC_Tools_IO_Put2d_NC(iFileID, iID_Dim_Var, iID_Dim_Analysis, & 
+                                 sVarName, sVarNameLong, sVarDescription, &
+                                 sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
+                                 iNVar, iNAnalysis, a2dVarAnalysisValue)
+        endif
         !------------------------------------------------------------------------------------------
                              
         !------------------------------------------------------------------------------------------
@@ -424,67 +435,80 @@ contains
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
-        ! Info start
+        ! Writing dynamic point variable(s) in ASCII output file
         call mprintf(.true., iINFO_Extra, ' Data :: Output point :: ASCII ... ' )
         ! Info filename(s) at each time step
         call mprintf(.true., iINFO_Verbose, ' Save (result point) at time: '//trim(sTime)//' ... ')
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
-        ! Writing dynamic point variable(s) in ASCII output file
-        
         ! POINT SECTION(S) DISCHARGE
-        sFileNameData_Output = trim(sPathData_Output)//"hmc.discharge."// &
-                           sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
-                           ".txt"  
-        ! Check and remove old file
-        inquire (file = trim(sFileNameData_Output), exist = bFileExist, iostat = iRet)   
-        if ( bFileExist ) then              
-            call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Output, .false.)  
+        if (iNSection .gt. 0) then
+            sFileNameData_Output = trim(sPathData_Output)//"hmc.discharge."// &
+                               sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
+                               ".txt"  
+            ! Check and remove old file
+            inquire (file = trim(sFileNameData_Output), exist = bFileExist, iostat = iRet)   
+            if ( bFileExist ) then              
+                call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Output, .false.)  
+            endif
+            ! Save file                        
+            call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
+            call HMC_Tools_IO_Put1d_ASCII(sFileNameData_Output, a1dVarQoutSection, iNSection, .true., iErr, sFMTDischarge)
         endif
-        ! Save file                        
-        call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
-        call HMC_Tools_IO_Put1d_ASCII(sFileNameData_Output, a1dVarQoutSection, iNSection, .true., iErr, sFMTDischarge)
-
-        ! POINT MEAN VARIABLE(S)
-        sFileNameData_Output = trim(sPathData_Output)//"hmc.var-analysis."// &
-                           sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
-                           ".txt"    
-        ! Check and remove old file
-        inquire (file = trim(sFileNameData_Output), exist = bFileExist, iostat = iRet)   
-        if ( bFileExist ) then              
-            call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Output, .false.)  
-        endif    
-        ! Save file
-        call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
-        call HMC_Tools_IO_Put2d_ASCII(sFileNameData_Output, a2dVarAnalysisValue, &
-                                      iNVar, iNAnalysis, .true., iErr, sFMTVarAnalysis)
-
-        ! POINT DAM(S) VOLUME
-        sFileNameData_Output = trim(sPathData_Output)//"hmc.vdam."// &
-                           sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
-                           ".txt"  
-        ! Check and remove old file
-        inquire (file = trim(sFileNameData_Output), exist = bFileExist, iostat = iRet)   
-        if ( bFileExist ) then              
-            call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Output, .false.)  
-        endif    
-        ! Save file                  
-        call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
-        call HMC_Tools_IO_Put1d_ASCII(sFileNameData_Output, a1dVarVDam, iNDam, .true., iErr, sFMTVarVDam)
+        !------------------------------------------------------------------------------------------
         
+        !------------------------------------------------------------------------------------------
+        ! POINT DAM(S) VOLUME
+        if (iNDam .gt. 0) then
+            sFileNameData_Output = trim(sPathData_Output)//"hmc.vdam."// &
+                               sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
+                               ".txt"  
+            ! Check and remove old file
+            inquire (file = trim(sFileNameData_Output), exist = bFileExist, iostat = iRet)   
+            if ( bFileExist ) then              
+                call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Output, .false.)  
+            endif    
+            ! Save file                  
+            call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
+            call HMC_Tools_IO_Put1d_ASCII(sFileNameData_Output, a1dVarVDam, iNDam, .true., iErr, sFMTVarVDam)
+        endif
+        !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
         ! POINT DAM(S) LEVEL
-        sFileNameData_Output = trim(sPathData_Output)//"hmc.ldam."// &
-                           sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
-                           ".txt"  
-        ! Check and remove old file
-        inquire (file = trim(sFileNameData_Output), exist = bFileExist, iostat = iRet)   
-        if ( bFileExist ) then              
-            call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Output, .false.)  
-        endif    
-        ! Save file
-        call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
-        call HMC_Tools_IO_Put1d_ASCII(sFileNameData_Output, a1dVarHDam, iNDam, .true., iErr, sFMTVarHDam)
+        if (iNDam .gt. 0) then
+            sFileNameData_Output = trim(sPathData_Output)//"hmc.ldam."// &
+                               sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
+                               ".txt"  
+            ! Check and remove old file
+            inquire (file = trim(sFileNameData_Output), exist = bFileExist, iostat = iRet)   
+            if ( bFileExist ) then              
+                call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Output, .false.)  
+            endif    
+            ! Save file
+            call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
+            call HMC_Tools_IO_Put1d_ASCII(sFileNameData_Output, a1dVarHDam, iNDam, .true., iErr, sFMTVarHDam)
+        
+        endif
+        !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
+        ! POINT ANALYSIS VARIABLE(S)
+        if (iDEBUG.gt.0) then
+            sFileNameData_Output = trim(sPathData_Output)//"hmc.var-analysis."// &
+                               sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
+                               ".txt"    
+            ! Check and remove old file
+            inquire (file = trim(sFileNameData_Output), exist = bFileExist, iostat = iRet)   
+            if ( bFileExist ) then              
+                call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Output, .false.)  
+            endif    
+            ! Save file
+            call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
+            call HMC_Tools_IO_Put2d_ASCII(sFileNameData_Output, a2dVarAnalysisValue, &
+                                          iNVar, iNAnalysis, .true., iErr, sFMTVarAnalysis)
+        endif
         !------------------------------------------------------------------------------------------
 
         !------------------------------------------------------------------------------------------

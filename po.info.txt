@@ -24,7 +24,7 @@ dKSatRatio = 1
 ! Subsoil maximum slope [%]
 dSlopeMax = 30
 ! Domain name
-sDomainName = "PoBasin"
+sDomainName = "po"
 ! -----------------------------------------------------------------------------------------------
 
 /
@@ -95,6 +95,8 @@ iFlagFrac = 1
 iFlagDynVeg = 0
 ! Flooding Dynamic module (0=deactivate, 1=activate)
 iFlagFlood = 0
+! Energy Balance module (0=deactivate, 1=activate)
+iFlagEnergyBalance = 0
 ! -----------------------------------------------------------------------------------------------
 
 ! GEOGRAPHICAL INFO ------------------------------------------------------------------------------
@@ -343,11 +345,11 @@ sCommandCreateFolder = 'mkdir -p path'
 
 ! INFO MODEL ------------------------------------------------------------------------------------
 ! Release version     (x.x.x)
-sReleaseVersion = '3.1.3'
+sReleaseVersion = '3.1.4'
 ! Author(s)         (Surname N.)
 sAuthorNames = 'Delogu F., Silvestro F., Gabellani S., Basso V., Libertino A., Ercolani G.'
 ! Release Date      (yyyy/mm/dd)
-sReleaseDate = '2020/10/26'
+sReleaseDate = '2021/03/08'
 ! ----------------------------------------------------------------------------------------------- 
 
 / 

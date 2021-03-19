@@ -1,8 +1,7 @@
 !******************************************************************************************
-! EUPL
-! Code Version 1.0
+! EUPL - Version 1.2
 ! This code is distributed following the European Union Public Licence:
-! https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
+! https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
 !******************************************************************************************
 
 !******************************************************************************************

@@ -67,6 +67,7 @@ contains
         integer(kind = 4)       :: iFlagFrac
         integer(kind = 4)       :: iFlagDynVeg
         integer(kind = 4)       :: iFlagFlood
+        integer(kind = 4)       :: iFlagEnergyBalance
         
         logical                 :: bGridCheck
 
@@ -189,7 +190,7 @@ contains
                                         iFlagCType, &
                                         iFlagFrac, &
                                         iFlagDynVeg, &
-                                        iFlagFlood, &                                        
+                                        iFlagFlood, iFlagEnergyBalance, &                                        
                                         a1dGeoForcing, a1dResForcing, a1iDimsForcing, &
                                         iScaleFactor, iTcMax, iTVeg, &
                                         iSimLength, iDtModel, &
@@ -250,7 +251,7 @@ contains
         iFlagCType = -9999;
         iFlagFrac = -9999;
         iFlagDynVeg = -9999;
-        iFlagFlood = -9999;
+        iFlagFlood = -9999; iFlagEnergyBalance = -9999;
         a1dGeoForcing = -9999.0; a1dResForcing = -9999.0; a1iDimsForcing = -9999; 
         iScaleFactor = -9999; iTcMax = -9999; iTVeg = -9999; iTc = -9999; 
         iSimLength = -9999; iDtModel = -9999; 
@@ -475,13 +476,19 @@ contains
         if (iFlagDynVeg .eq. -9999) then  ! backward compatibility with older version of info file (without Vegtype flag)
             oHMC_Namelist_Init%iFlagDynVeg = 0               ! dynamic vegetation module not activated
         else
-            oHMC_Namelist_Init%iFlagDynVeg = iFlagDynVeg      ! dynamic vegetation module
+            oHMC_Namelist_Init%iFlagDynVeg = iFlagDynVeg     ! dynamic vegetation module
         endif
 
         if (iFlagFlood .eq. -9999) then  ! backward compatibility with older version of info file (without Flooding flag)
             oHMC_Namelist_Init%iFlagFlood = 0               ! flooding module not activated
         else
             oHMC_Namelist_Init%iFlagFlood = iFlagFlood      ! flooding vegetation module
+        endif
+        
+        if (iFlagEnergyBalance .eq. -9999) then  ! backward compatibility with older version of info file (without EnergyBalance flag)
+            oHMC_Namelist_Init%iFlagEnergyBalance = 1               ! energy-balance module activated
+        else
+            oHMC_Namelist_Init%iFlagEnergyBalance = iFlagEnergyBalance      
         endif
         
         ! Geographical land and forcing info

@@ -10,7 +10,7 @@
     dUh = 1.5
     dWS = 3.6780000000000003e-09
     dWTableHbr = 500
-    sDomainName = "CentaDomain"
+    sDomainName = "IGAD_D10"
 /
 &HMC_Namelist
     a1dDemStep = 1,10,100,1000
@@ -39,10 +39,11 @@
     iFlagDebugLevel = 3
     iFlagDebugSet = 0
     iFlagDynVeg = 0
+    iFlagEnergyBalance = 1
     iFlagFlood = 0
     iFlagFlowDeep = 1
     iFlagFrac = 0
-    iFlagLAI = 0
+    iFlagLAI = 1
     iFlagOs = 10
     iFlagReleaseMass = 1
     iFlagRestart = 1
@@ -64,24 +65,24 @@
     iFlagVarDtPhysConv = 1
     iFlagWS = 0
     iScaleFactor = 10
-    iSimLength = 86
+    iSimLength = 99
     iTVeg = 720
     iTcMax = 2
-    sPathData_Forcing_Gridded = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_liguria/run/obs-centa_domain/deterministic/forcing/gridded/$yyyy/$mm/$dd/"
-    sPathData_Forcing_Point = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_liguria/run/obs-centa_domain/deterministic/forcing/point/$yyyy/$mm/$dd/"
-    sPathData_Forcing_TimeSeries = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_liguria/run/obs-centa_domain/deterministic/forcing/timeseries/"
-    sPathData_Output_Gridded = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_liguria/run/obs-centa_domain/deterministic/outcome/gridded/$yyyy/$mm/$dd/"
-    sPathData_Output_Point = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_liguria/run/obs-centa_domain/deterministic/outcome/point/$yyyy/$mm/$dd/"
-    sPathData_Output_TimeSeries = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_liguria/run/obs-centa_domain/deterministic/outcome/timeseries/"
-    sPathData_Restart_Gridded = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_liguria/run/obs-centa_domain/deterministic/restart/"
-    sPathData_Restart_Point = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_liguria/run/obs-centa_domain/deterministic/restart/"
-    sPathData_State_Gridded = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_liguria/run/obs-centa_domain/deterministic/state/gridded/$yyyy/$mm/$dd/"
-    sPathData_State_Point = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_liguria/run/obs-centa_domain/deterministic/state/point/$yyyy/$mm/$dd/"
-    sPathData_Static_Gridded = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_liguria/data/data_static/CentaDomain/gridded/"
-    sPathData_Static_Point = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_liguria/data/data_static/CentaDomain/point/"
-    sPathData_Updating_Gridded = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_liguria/run/obs-centa_domain/deterministic/forcing/gridded/$yyyy/$mm/$dd/"
-    sTimeRestart = "202009282300"
-    sTimeStart = "202009290000"
+    sPathData_Forcing_Gridded = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_igad/run/igad_obs/deterministic/forcing/gridded/$yyyy/$mm/$dd/"
+    sPathData_Forcing_Point = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_igad/run/igad_obs/deterministic/forcing/point/$yyyy/$mm/$dd/"
+    sPathData_Forcing_TimeSeries = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_igad/run/igad_obs/deterministic/forcing/timeseries/"
+    sPathData_Output_Gridded = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_igad/run/igad_obs/deterministic/outcome/gridded/$yyyy/$mm/$dd/"
+    sPathData_Output_Point = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_igad/run/igad_obs/deterministic/outcome/point/$yyyy/$mm/$dd/"
+    sPathData_Output_TimeSeries = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_igad/run/igad_obs/deterministic/outcome/timeseries/"
+    sPathData_Restart_Gridded = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_igad/run/igad_obs/deterministic/restart/"
+    sPathData_Restart_Point = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_igad/run/igad_obs/deterministic/restart/"
+    sPathData_State_Gridded = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_igad/run/igad_obs/deterministic/state/gridded/$yyyy/$mm/$dd/"
+    sPathData_State_Point = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_igad/run/igad_obs/deterministic/state/point/$yyyy/$mm/$dd/"
+    sPathData_Static_Gridded = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_igad/data/data_static/IGAD_D10/gridded/"
+    sPathData_Static_Point = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_igad/data/data_static/IGAD_D10/point/"
+    sPathData_Updating_Gridded = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_igad/run/igad_obs/deterministic/forcing/gridded/$yyyy/$mm/$dd/"
+    sTimeRestart = "202103062300"
+    sTimeStart = "202103070000"
 /
 &HMC_Snow
     a1dAltRange = 1500.0,2000.0,2500.0,2500.0
@@ -137,7 +138,7 @@
     sCommandZipFile = "gzip -f filenameunzip > LogZip.txt"
 /
 &HMC_Info
-    sAuthorNames = "Delogu F., Silvestro F., Gabellani S., Basso V., Libertino A., Ercolani G."
-    sReleaseDate = "2020/10/28"
-    sReleaseVersion = "3.1.3"
+    sAuthorNames = "Delogu F., Silvestro F., Gabellani S., Libertino A., Ercolani G."
+    sReleaseDate = "2021/03/08"
+    sReleaseVersion = "3.1.4"
 /
