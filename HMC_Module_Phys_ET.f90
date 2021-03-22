@@ -232,6 +232,7 @@ contains
         !------------------------------------------------------------------------------------------
         ! ET information time step
         write(sVarAE, sFMTVarET) dVarAE
+        write(sVarETPot, sFMTVarET) dVarETPot
         write(sVarET, sFMTVarET) dVarET
         write(sVarETTot, sFMTVarET) dVarETTot
         call mprintf(.true., iINFO_Basic, ' Phys :: EVT :: AvgValue :: '// &
