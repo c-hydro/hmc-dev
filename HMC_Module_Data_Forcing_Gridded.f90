@@ -219,8 +219,8 @@ contains
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarAlbedoF, oHMC_Vars(iID)%a2iMask, 'ALBEDO START') )
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarLAIF, oHMC_Vars(iID)%a2iMask, 'LAI START') )
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarFCF, oHMC_Vars(iID)%a2iMask, 'FRACT.VEG.COVER START') )
-                call mprintf(.true., iINFO_Extra, checkvar(a2dVarAEvtF, oHMC_Vars(iID)%a2iMask, 'ACTUAL EVT START') )
-                call mprintf(.true., iINFO_Extra, checkvar(a2dVarPEvtF, oHMC_Vars(iID)%a2iMask, 'POTENTIAL EVT START') )
+                call mprintf(.true., iINFO_Extra, checkvar(a2dVarAEvtF, oHMC_Vars(iID)%a2iMask, 'EVT.ACT START') )
+                call mprintf(.true., iINFO_Extra, checkvar(a2dVarPEvtF, oHMC_Vars(iID)%a2iMask, 'EVT.POT. START') )
                 call mprintf(.true., iINFO_Extra, '')
             endif
             !------------------------------------------------------------------------------------------
@@ -302,6 +302,8 @@ contains
             a2dVarWindL = check2Dvar(a2dVarWindL,               oHMC_Vars(iID)%a2iMask,     0.0,    80.0,   0.0 ) 
             a2dVarRelHumL = check2Dvar(a2dVarRelHumL,           oHMC_Vars(iID)%a2iMask,     0.0,    100.0,  0.0 )
             a2dVarPaL = check2Dvar(a2dVarPaL,                   oHMC_Vars(iID)%a2iMask,     50.0,   101.3,  101.3 )
+            a2dVarAEvtL = check2Dvar(a2dVarAEvtL,               oHMC_Vars(iID)%a2iMask,     0.0,    50.0,   0.0 )
+            a2dVarPEvtL = check2Dvar(a2dVarPEvtL,               oHMC_Vars(iID)%a2iMask,     0.0,    50.0,   0.0 )
             !------------------------------------------------------------------------------------------
             
         else
@@ -383,7 +385,7 @@ contains
         else
             oHMC_Vars(iID)%a2dETPot = 0.0 
         endif
-        
+         
         ! Air pressure
         if ( .not. all(a2dVarPaL.eq.101.3) ) then
             oHMC_Vars(iID)%a2dPres = a2dVarPaL
@@ -499,6 +501,8 @@ contains
             call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dAlbedo, oHMC_Vars(iID)%a2iMask, 'ALBEDO END') )
             call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dLAI, oHMC_Vars(iID)%a2iMask, 'LAI END') )
             call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dFC, oHMC_Vars(iID)%a2iMask, 'FRACT.VEG.COVER END') )
+            call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dETpot, oHMC_Vars(iID)%a2iMask, 'EVT.POT END') )
+            call mprintf(.true., iINFO_Extra, checkvar(oHMC_Vars(iID)%a2dET, oHMC_Vars(iID)%a2iMask, 'EVT.ACT END') )
             call mprintf(.true., iINFO_Extra, ' ========= FORCING GRIDDED END =========== ')
         endif
         
@@ -807,7 +811,6 @@ contains
                     oHMC_Vars(iID)%sTimeMaxLAI = sTimeEndLAI
                 
                 endif               
-                
                 !------------------------------------------------------------------------------------------
                 
                 !------------------------------------------------------------------------------------------
