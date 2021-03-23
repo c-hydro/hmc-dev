@@ -12,8 +12,10 @@ module HMC_Module_Vars_Manager
     
     !------------------------------------------------------------------------------------
     ! External module(s) and implicit none
-    use HMC_Module_Namelist,    only: oHMC_Namelist
-    use HMC_Module_Vars_Loader,  only: oHMC_Vars
+    use HMC_Module_Namelist,        only: oHMC_Namelist
+    use HMC_Module_Vars_Loader,     only: oHMC_Vars
+    
+    use HMC_Module_Tools_Time,      only: HMC_Tools_Time_GetNewDate
     
     use HMC_Module_Tools_Debug
     
@@ -41,7 +43,6 @@ contains
         integer(kind = 4)    :: iDaySteps, iTMarkedSteps 
         integer(kind = 4)    :: iNData
         integer(kind = 4)    :: iETime
-
         !------------------------------------------------------------------------------------ 
         
         !------------------------------------------------------------------------------------ 
@@ -297,7 +298,8 @@ contains
 
         !------------------------------------------------------------------------------------ 
         ! Variable(s)
-        integer(kind = 4) :: iID
+        integer(kind = 4)       :: iID
+        character(len = 19)     :: sTimeMaxLAI, sTimeMaxFC
         !------------------------------------------------------------------------------------
 	
         !------------------------------------------------------------------------------------
@@ -314,6 +316,8 @@ contains
         oHMC_Vars(iID)%bFileUnitTSQ = .false.
         oHMC_Vars(iID)%iFileUnitTSVDam = -9999
         oHMC_Vars(iID)%bFileUnitTSVDam = .false.
+        
+        oHMC_Vars(iID)%bInitLAI = .false.
         
         ! Finist to initialize scalar variable(s)
         call mprintf(.true., iINFO_Main, ' Initialize scalar variable(s) ... OK ')
@@ -441,9 +445,13 @@ contains
         ! Time information
         oHMC_Vars(iID)%sTimeStep = ''
         oHMC_Vars(iID)%iTime = -1
-        oHMC_Vars(iID)%sTimeMaxLAI = oHMC_Namelist(iID)%sTimeStart
-        oHMC_Vars(iID)%sTimeMaxFC = oHMC_Namelist(iID)%sTimeStart
-
+        
+        call HMC_Tools_Time_GetNewDate(sTimeMaxLAI, oHMC_Namelist(iID)%sTimeStart, &
+            nint(real(oHMC_Namelist(iID)%iTVeg * oHMC_Namelist(iID)%iDtModel)))
+        oHMC_Vars(iID)%sTimeMaxLAI = sTimeMaxLAI
+        call HMC_Tools_Time_GetNewDate(sTimeMaxFC, oHMC_Namelist(iID)%sTimeStart, &
+            nint(real(oHMC_Namelist(iID)%iTVeg * oHMC_Namelist(iID)%iDtModel)))
+        oHMC_Vars(iID)%sTimeMaxFC = sTimeMaxFC
         
         ! Dynamic forcing variable(s)
         oHMC_Vars(iID)%a2dRain = 0.0            ! Rain                  [mm]        --> Forcing

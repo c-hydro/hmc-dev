@@ -70,6 +70,8 @@ contains
         
         real(kind = 4)              :: dVarLAI, dVarAlbedo
         
+        character(len = 19)         :: sTimeEndLAI, sTimeStartLAI
+        
         real(kind = 4), dimension(iRowsEndL - iRowsStartL + 1, &
                                   iColsEndL - iColsStartL + 1) ::   a2dVarRainL, a2dVarTaL, &
                                                                     a2dVarIncRadL, a2dVarWindL, & 
@@ -113,6 +115,8 @@ contains
         a2dVarWindL = -9999.0; a2dVarRelHumL = -9999.0; a2dVarPaL = -9999.0;
         a2dVarAlbedoL = -9999.0; a2dVarLAIL = -9999.0; a2dVarFCL = -9999.0;
         a2dVarAEvtL = -9999.0; a2dVarPEvtL = -9999.0;
+        
+        sTimeEndLAI = ''; sTimeStartLAI = '';
         !------------------------------------------------------------------------------------------
                                                                                                 
         !------------------------------------------------------------------------------------------
@@ -131,6 +135,9 @@ contains
         iScaleFactor = oHMC_Namelist(iID)%iScaleFactor
         iFlagDynVeg = oHMC_Namelist(iID)%iFlagDynVeg
         iFlagEnergyBalance = oHMC_Namelist(iID)%iFlagEnergyBalance
+        
+        sTimeEndLAI = oHMC_Vars(iID)%sTimeMaxLAI
+        write(sTimeStartLAI,'(A,A,A)') sTime
 
         ! Info start
         call mprintf(.true., iINFO_Extra, ' Data :: Forcing gridded ... ' )
@@ -398,10 +405,32 @@ contains
         ! LAI          
         if ( all(a2dVarLAIL.eq.-9999.0) ) then
             if (iFlagDynVeg.eq.1) then
-                call mprintf(.true., iERROR, ' LAI valid values not found. Programm stopped!')
+                if (sTimeStartLAI .eq. sTimeEndLAI) then
+                    call mprintf(.true., iERROR, ' Dynamic Vegetation Phys activated -- LAI valid values not found.'// &
+                        ' LAI was valid until '//sTimeEndLAI//' -- Programm STOPPED!')
+                else
+                    if ( (all(oHMC_Vars(iID)%a2dLAI .eq. -9999.0)) .and. ( .not. oHMC_Vars(iID)%bInitLAI) ) then 
+                        call HMC_Tools_Time_MonthVal(oHMC_Namelist(iID)%a1dLAIMonthly, sTimeMonth, dVarLAI)
+                        a2dVarLAIL = dVarLAI 
+                        
+                        oHMC_Vars(iID)%bInitLAI = .true.
+                        call mprintf(.true., iWarn, ' Dynamic Vegetation Phys activated -- LAI valid values not found.'// &
+                        ' LAI initialized using a default monthly value. This condition will be allowed until: '//sTimeEndLAI) 
+                    else
+                        if ( oHMC_Vars(iID)%bInitLAI ) then
+                            call mprintf(.true., iWarn, ' Dynamic Vegetation Phys activated -- LAI valid values not found.'// &
+                            ' LAI was defined by the default monthly value.'// &
+                            ' LAI valid until: '//sTimeEndLAI//' -- Actual TimeStep: '//sTime)
+                        else
+                            call mprintf(.true., iWarn, ' Dynamic Vegetation Phys activated -- LAI valid values not found.'// &
+                            ' LAI was defined by the forcing datasets.'// &
+                            ' LAI valid until: '//sTimeEndLAI//' -- Actual TimeStep: '//sTime)
+                        endif
+                    endif 
+                endif
             else
                 call mprintf(.true., iWARN, ' All LAI values are undefined!'// &
-                                            ' LAI will be initialized using monthly mean information!')
+                                            ' LAI will be initialized using a default monthly value!')
                 call HMC_Tools_Time_MonthVal(oHMC_Namelist(iID)%a1dLAIMonthly, sTimeMonth, dVarLAI)
                 a2dVarLAIL = dVarLAI  
             endif
@@ -550,7 +579,7 @@ contains
         sCommandUnzipFile = oHMC_Namelist(iID)%sCommandUnzipFile
         sCommandRemoveFile = oHMC_Namelist(iID)%sCommandRemoveFile
         
-        !Get global parameters
+        ! Get global parameters
         sTimeEndLAI = oHMC_Vars(iID)%sTimeMaxLAI
         sTimeEndFC = oHMC_Vars(iID)%sTimeMaxFC
         iFlagDynVeg = oHMC_Namelist(iID)%iFlagDynVeg
@@ -747,17 +776,27 @@ contains
                 
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//trim(sVarName)//'!')
-                                        
-                    if (sTimeEndLAI .eq. sTimeStartLAI) then
+                    
+                    if (iFlagDynVeg .eq. 1) then
+                        if (sTimeEndLAI .eq. sTimeStartLAI) then
 
-                        a2dVarLAI = -9999.0;
-                        ! Update time period within which LAI is still valid  - 1 model step because it is
-                        ! obtained from climatology
-                        call HMC_Tools_Time_GetNewDate(sTimeEndLAI, sTimeStartLAI, nint(real(iDtModel)))
-                        oHMC_Vars(iID)%sTimeMaxLAI = sTimeEndLAI
+                            a2dVarLAI = -9999.0;
+                            call mprintf(.true., iWARN , ' Dynamic Vegetation Phys activated --'// &
+                                ' LAI was valid until: '//sTimeEndLAI//'. LAI is mandatory.')
+
+                            ! Update time period within which LAI is still valid  - 1 model step because it is
+                            ! obtained from climatology
+                            ! call HMC_Tools_Time_GetNewDate(sTimeEndLAI, sTimeStartLAI, nint(real(iDtModel)))
+                            ! oHMC_Vars(iID)%sTimeMaxLAI = sTimeEndLAI
+                        else
+                            call mprintf(.true., iWARN , ' Dynamic Vegetation Phys activated --'// &
+                                ' Using previous valid LAI! LAI valid until: '//sTimeEndLAI)
+                            a2dVarLAI = oHMC_Vars(iID)%a2dLAI
+                        endif
                     else
-                        call mprintf(.true., iWARN , ' Using previous valid LAI! LAI valid until '//sTimeEndLAI)
-                        a2dVarLAI = oHMC_Vars(iID)%a2dLAI
+                        call mprintf(.true., iWARN , ' Dynamic Vegetation Phys not activated --'// &
+                            ' Using previous valid LAI!')
+                            a2dVarLAI = oHMC_Vars(iID)%a2dLAI
                     endif
 
                 else
@@ -778,15 +817,22 @@ contains
                 
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//trim(sVarName)//'!')
-                                        
-                    if (sTimeEndFC .eq. sTimeStartFC) then
-                        a2dVarFC = -9999.0;
-!                        update time period within which LAI is still valid  - 1 model step because it is obtained from climatology
-                        call HMC_Tools_Time_GetNewDate(sTimeEndFC, sTimeStartFC, nint(real(iDtModel)))
-                        oHMC_Vars(iID)%sTimeMaxFC = sTimeEndFC
+                    
+                    if (iFlagDynVeg .eq. 1) then
+                        if (sTimeEndFC .eq. sTimeStartFC) then
+                            a2dVarFC = -9999.0;
+                            call mprintf(.true., iWARN , ' Dynamic Vegetation Phys activated --'// &
+                                ' FC was valid until: '//sTimeEndFC//'. FC is not mandatory.')
+                            
+                            ! update time period within which LAI is still valid - 1 model step because it is obtained from climatology
+                            ! call HMC_Tools_Time_GetNewDate(sTimeEndFC, sTimeStartFC, nint(real(iDtModel)))
+                            ! oHMC_Vars(iID)%sTimeMaxFC = sTimeEndFC
+                        else
+                            call mprintf(.true., iWARN , ' Dynamic Vegetation Phys activated -- Using previous valid FC ')
+                            a2dVarFC = oHMC_Vars(iID)%a2dFC
+                        endif
                     else
-                        call mprintf(.true., iWARN , ' Using previous valid; FC valid until '//sTimeEndFC)
-                        a2dVarFC = oHMC_Vars(iID)%a2dFC
+                        a2dVarFC = -9999.0
                     endif
 
                 else
@@ -1226,8 +1272,7 @@ contains
             sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
             ".bin" 
         call mprintf(.true., iINFO_Extra, ' Get filename (forcing gridded): '//trim(sFileNameData_Forcing) )
-
-        
+  
         ! Checking file input availability
         sFileNameData_Forcing_Zip = trim(sFileNameData_Forcing)//'.gz'
         inquire (file = sFileNameData_Forcing_Zip, exist = bFileExist)
@@ -1235,15 +1280,25 @@ contains
 
             call mprintf(.true., iWARN, ' Problem opening uncompressed binary file: '// &
                          trim(sFileNameData_Forcing_Zip))
+            
+            if (iFlagDynVeg .eq. 1) then             
+                if (sTimeEndLAI.eq.sTimeStartLAI) then
+  
+                    a2dVar = -9999.0;
+                    call mprintf(.true., iWARN , ' Dynamic Vegetation Phys activated --'// &
+                                ' LAI was valid until: '//sTimeEndLAI)
 
-            if (sTimeEndLAI.eq.sTimeStartLAI) then
-                call mprintf(.true., iWARN, ' --> Undefined data forcing values')
-                a2dVar = -9999.0;
-                !update time period within which LAI is still valid  - 1 model step becasue it is obtained from climatology
-                call HMC_Tools_Time_GetNewDate(sTimeEndLAI, sTimeStartLAI, nint(real(iDtModel)))
-                oHMC_Vars(iID)%sTimeMaxLAI = sTimeEndLAI                
+                    ! update time period within which LAI is still valid  - 1 model step becasue it is obtained from climatology
+                    ! call HMC_Tools_Time_GetNewDate(sTimeEndLAI, sTimeStartLAI, nint(real(iDtModel)))
+                    ! oHMC_Vars(iID)%sTimeMaxLAI = sTimeEndLAI       
+                else
+                    call mprintf(.true., iWARN , ' Dynamic Vegetation Phys activated --'// &
+                        ' Using previous valid LAI! LAI valid until: '//sTimeEndLAI)
+                    a2dVar = oHMC_Vars(iID)%a2dLAI
+                endif
             else
-                call mprintf(.true., iWARN, ' --> Using previous valid LAI')
+                call mprintf(.true., iWARN , ' Dynamic Vegetation Phys not activated --'// &
+                        ' Using previous valid LAI!')
                 a2dVar = oHMC_Vars(iID)%a2dLAI
             endif
 
@@ -1276,8 +1331,7 @@ contains
             sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
             ".bin" 
         call mprintf(.true., iINFO_Extra, ' Get filename (forcing gridded): '//trim(sFileNameData_Forcing) )
-
-        
+  
         ! Checking file input availability
         sFileNameData_Forcing_Zip = trim(sFileNameData_Forcing)//'.gz'
         inquire (file = sFileNameData_Forcing_Zip, exist = bFileExist)

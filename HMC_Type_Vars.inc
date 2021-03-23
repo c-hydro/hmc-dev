@@ -12,7 +12,7 @@ TYPE HMC_Type_Vars
     integer(kind = 4)                   :: iDtIntegr, iDtIntegrPStep
     
     ! Logical variable(s)
-    logical                             :: bLogLAI, bLogAlbedo      
+    logical                             :: bLogLAI, bLogAlbedo, bInitLAI      
     
     ! HMC STATIC VARIABLE(S) - 1D, 2D
     ! Land variable(s)

@@ -7,6 +7,7 @@ Version 3.1.4 [2021-03-08]
 - ADD: the flag settings for switching on/off the energy-balance physics;
 - ADD: the forcing datasets of actual and potential evapotranspiration according with the flag settings of energy balance physics;
 - FIX: bugs in reading intake info file;
+- FIX: bugs in managing LAI datasets in different vegetation physics modules;
 - FIX: bugs in creating empty files of dams and analysis.
 
 Version 3.1.3 [2020-10-26]
