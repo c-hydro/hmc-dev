@@ -117,6 +117,25 @@ contains
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
+        ! Calculating control variable(s) 
+        dVarAE = sum(a2dVarET, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
+        dVarET = sum(a2dVarET, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
+        dVarETPot = sum(a2dVarETPot, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
+        dVarETTot = dVarETTot + dVarAE
+
+        ! ET information time step
+        write(sVarAE, sFMTVarET) dVarAE
+        write(sVarETPot, sFMTVarET) dVarETPot
+        write(sVarET, sFMTVarET) dVarET
+        write(sVarETTot, sFMTVarET) dVarETTot
+        call mprintf(.true., iINFO_Basic, ' Phys :: EVT START :: AvgValue :: '// &
+                                          ' AEvt: '//sVarAE//' [mm] '// &
+                                          ' PEvt: '//sVarETPot//' [mm] '// &
+                                          ' Evt: '//sVarET//' [mm] '// &
+                                          ' Evt Tot: '//sVarETTot//' [mm]')
+        !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
         ! Lake and dam ET updating
         
         ! Dam updating
@@ -194,6 +213,10 @@ contains
                 a2dVarAE = a2dVarAEres
             endwhere
             
+            where( a2dVarAE .lt. 0.0)
+                a2dVarAE = 0.0
+            endwhere
+            
             where( (a2dVarVTot - a2dVarVTotWP) .gt. a2dVarAE )
                 a2dVarVTot = a2dVarVTot - a2dVarAE
                 a2dVarAE = a2dVarVRet + a2dVarAE
@@ -206,6 +229,10 @@ contains
             a2dVarVRet = 0.0       
             
         elsewhere (a2dVarDEM.gt.0.0 .and. a2iVarChoice.le.1) ! Retention == 0.0 not on lakes
+            
+            where( a2dVarAE .lt. 0.0)
+                a2dVarAE = 0.0
+            endwhere
             
             where ((a2dVarVTot - a2dVarVTotWP).gt.a2dVarAE)
                 ! tolgo evt da a2dV solo quando "non piove" cio� a2dRetention=0 
@@ -227,15 +254,13 @@ contains
         dVarET = sum(a2dVarET, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
         dVarETPot = sum(a2dVarETPot, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
         dVarETTot = dVarETTot + dVarAE
-        !------------------------------------------------------------------------------------------
-        
-        !------------------------------------------------------------------------------------------
+
         ! ET information time step
         write(sVarAE, sFMTVarET) dVarAE
         write(sVarETPot, sFMTVarET) dVarETPot
         write(sVarET, sFMTVarET) dVarET
         write(sVarETTot, sFMTVarET) dVarETTot
-        call mprintf(.true., iINFO_Basic, ' Phys :: EVT :: AvgValue :: '// &
+        call mprintf(.true., iINFO_Basic, ' Phys :: EVT END :: AvgValue :: '// &
                                           ' AEvt: '//sVarAE//' [mm] '// &
                                           ' PEvt: '//sVarETPot//' [mm] '// &
                                           ' Evt: '//sVarET//' [mm] '// &

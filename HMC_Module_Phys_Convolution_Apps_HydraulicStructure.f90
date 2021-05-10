@@ -90,7 +90,7 @@ contains
         oHMC_Vars(iID)%a1dHDam = a1dVarHDam
         oHMC_Vars(iID)%a1dLDam = a1dVarLDam
         oHMC_Vars(iID)%a1dCoeffDam = a1dVarCoeffDam
- 
+
         ! Info end
         if (iDEBUG.gt.0) then
             call mprintf(.true., iINFO_Extra, ' Phys :: Convolution :: HydraulicStructure ... OK' )

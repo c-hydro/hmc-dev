@@ -448,8 +448,13 @@ contains
             a2dVarLSTUpd = -9999.0
             
             ! Update variables by using forcing datasets
-            a2dVarETUpd = a2dVarET
-            a2dVarETpotUpd = a2dVarETpot
+            !where( (a2dVarDEM.gt.0.0) .and. (a2dVarET.ge.0.0) )
+                a2dVarETUpd = a2dVarET
+                a2dVarETpotUpd = a2dVarETpot
+            !elsewhere( a2dVarDEM.gt.0.0 )
+            !    a2dVarETUpd = 0.0
+            !    a2dVarETpotUpd = 0.0
+            !endwhere
             !-----------------------------------------------------------------------------------------
             
         endif

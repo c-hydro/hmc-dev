@@ -293,7 +293,7 @@ contains
                                               oHMC_Vars(iID)%a2dDem, &
                                               oHMC_Vars(iID)%a2iXIndex, oHMC_Vars(iID)%a2iYIndex)  
             !------------------------------------------------------------------------------------------
-                                            
+                                       
             !------------------------------------------------------------------------------------------
             ! Check variable(s) limits and domain
             a2dVarRainL = check2Dvar(a2dVarRainL,               oHMC_Vars(iID)%a2iMask,     0.0,    850.0,  0.0)
@@ -305,7 +305,7 @@ contains
             a2dVarAEvtL = check2Dvar(a2dVarAEvtL,               oHMC_Vars(iID)%a2iMask,     0.0,    50.0,   0.0 )
             a2dVarPEvtL = check2Dvar(a2dVarPEvtL,               oHMC_Vars(iID)%a2iMask,     0.0,    50.0,   0.0 )
             !------------------------------------------------------------------------------------------
-            
+  
         else
             
             !------------------------------------------------------------------------------------------
@@ -385,7 +385,7 @@ contains
         else
             oHMC_Vars(iID)%a2dETPot = 0.0 
         endif
-         
+        
         ! Air pressure
         if ( .not. all(a2dVarPaL.eq.101.3) ) then
             oHMC_Vars(iID)%a2dPres = a2dVarPaL
@@ -771,8 +771,8 @@ contains
                     endif
                 endif
                 !------------------------------------------------------------------------------------------
-                
 
+                
                 !------------------------------------------------------------------------------------------
                 ! LAI
                 sVarName = 'LAI'

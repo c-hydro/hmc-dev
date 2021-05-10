@@ -66,12 +66,17 @@ contains
             endwhere
             
             ! Check snow albedo boundaries conditions
-            where( (a2dVarDem.ge.0.0) .and. (a2dVarAlbedoS.le.0.0) )
-                a2dVarAlbedoS = 0.4
+            where( (a2dVarDem.ge.0.0) .and. (a2dVarAlbedoS.le.0.5) )
+                a2dVarAlbedoS = 0.5
             endwhere
-            where( (a2dVarDem.ge.0.0) .and. (a2dVarAlbedoS.gt.1.0) )
-                a2dVarAlbedoS = 0.99 
+            where( (a2dVarDem.ge.0.0) .and. (a2dVarAlbedoS.gt.0.95) )
+                a2dVarAlbedoS = 0.95
             endwhere
+            
+            ! Update albedo where Age is 0!
+            where( (a2dVarDem.ge.0.0) .and. (a2iVarAgeS.eq.0) )
+                a2dVarAlbedoS = 0.95 
+            endwhere  
             
             ! Set snow albedo glaciers condition
             where( (a2dVarDem.ge.0.0) .and. (a2iVarNature.eq.iGlacierValue) )
@@ -129,7 +134,7 @@ contains
             
             ! Snow age re-initialization with SWE equal to 0.0 (without snow --> no data value)
             where( (a2dVarDem.ge.0.0) .and. (a2dVarSWE.eq.0.0) )
-                a2iVarAgeS = -9999
+                a2iVarAgeS = 0
             endwhere
 
         endif
@@ -384,7 +389,7 @@ contains
         ! Stefan-Boltzmann Constant [MJ/(m^2 h-1 K^(-4))]
         dVarSigma = dVarSigma/iDaySteps1Days
         !------------------------------------------------------------------------------------------
-                  
+        
         !------------------------------------------------------------------------------------------
         ! Info start
         call mprintf(.true., iINFO_Extra, ' Phys :: Snow :: MeltingOL ... ' )
@@ -393,6 +398,7 @@ contains
         !------------------------------------------------------------------------------------------
         ! Compute snow melting first coefficient
         a2dVarMeltingSc = 1.7367*atan(0.27439*a2dVarTaCDays5 - 0.5988)-1.7367*3.14/2 + a2dVarArctUp 
+        
         ! Melting coefficient lower limit
         where(a2dVarMeltingSc.lt.0.3) a2dVarMeltingSc = 0.3 
         
@@ -427,11 +433,13 @@ contains
             a2dVarLW = -(dVarSigma*a2dVarCloudFactor)*(-0.02+0.261*(exp(-7.77*0.0001*a2dVarTa**2)))*(a2dVarTa + 273.2)**4
             a2dVarMeltingS = ((1000.0/(dVarRhoW*dVarLamba))*(a2dVarIncRad + a2dVarLW)) + a2dVarMeltingScG*a2dVarTa
             a2dVarMeltingS = a2dVarMeltingS/iDaySteps1Days
+        elsewhere
+            a2dVarMeltingS = 0.0
         endwhere
                 
         ! Check snow melting
         where (a2dVarMeltingS.lt.0.0) a2dVarMeltingS = 0.0
-              
+  
         ! Debug
         !call mprintf(.true., iINFO_Extra, checkvar(a2dVarIncRad, oHMC_Vars(iID)%a2iMask, 'INCRAD') ) 
         !call mprintf(.true., iINFO_Extra, checkvar(a2dVarLW, oHMC_Vars(iID)%a2iMask, 'LW') ) 

@@ -285,6 +285,10 @@ contains
                     read(20,*) a1dVarVDam(iD)
                     ! Blank space
                     read(20,*)
+                    
+                    write(*,'(I3,1X, I3, 1X, I3, 1X, F30.11,1X, F30.11)') iD, a2iVarXYDam(iD,2), a2iVarXYDam(iD,1), &
+                    a1dVarVDam(iD), a1dVarVMaxDam(iD)
+                    
                 enddo
                 
                 ! Write lake(s) data point
@@ -299,6 +303,10 @@ contains
                     read(20,*)a1dVarVMinLake(iL)
                     ! Lake volume 
                     read(20,*)a1dVarVLake(iL)
+                    
+                    write(*,'(I3,1X, I3, 1X, I3, 1X, F30.11,1X, F30.11)') iL, a2iVarXYLake(iL,2), a2iVarXYLake(iL,1), &
+                    a1dVarVLake(iL), a1dVarVMinLake(iL)
+                    
                 enddo
                 !------------------------------------------------------------------------------------------
                 

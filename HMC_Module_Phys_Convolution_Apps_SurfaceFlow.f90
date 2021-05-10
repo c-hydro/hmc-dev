@@ -394,6 +394,7 @@ contains
                 else
                     ! Punctual lake
                     a1dVarVDam(iD) = a1dVarVDam(iD) + a2dVarQDisOut(iI, iJ)/1000*(oHMC_Vars(iID)%a2dAreaCell(iI, iJ))
+                    !write(*,*) 'id, dam v, q ',iD, a1dVarVDam(iD), a2dVarQDisOut(iI, iJ)/1000*(oHMC_Vars(iID)%a2dAreaCell(iI, iJ))
                 endif
                 
                 a2dVarQDisOut(iI, iJ) = 0.0
@@ -474,7 +475,7 @@ contains
             enddo
         enddo				
         !------------------------------------------------------------------------------------------
-        
+
         !------------------------------------------------------------------------------------------
         ! Check catch availability
         if (iNCatch .gt. 0) then

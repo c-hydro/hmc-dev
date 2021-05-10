@@ -61,7 +61,7 @@ contains
         ! Variable(s) initialization 
         a2dVarQDisOut = 0.0; a2dVarQVolOut = 0.0; a2dVarQTot = 0.0; a2dVarQout = 0.0; 
 
-        a1dVarQoutSection = 0.0; 
+        a1dVarQoutSection = 0.0;
         
         ! Re-initializing Q distributed discharge matrix (in global memory)
         oHMC_Vars(iID)%a2dQout = 0.0;           ! Distributed discharge

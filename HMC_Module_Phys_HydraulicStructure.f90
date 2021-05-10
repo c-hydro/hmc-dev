@@ -185,6 +185,8 @@ contains
                         
                     ! Discharge in [mm]
                     a1dVarQoutDam(iD) = a1dVarQoutDam(iD)*1000*dDt/(oHMC_Vars(iID)%a2dAreaCell(iI,iJ))
+                    
+                    !write(*,*) a1dVarQoutDam(iD)
 
                     if (a1dVarVDam(iD) .lt. 0.0) then
                         a1dVarVDam(iD) = 0.0
@@ -417,6 +419,9 @@ contains
         !------------------------------------------------------------------------------------------
 
         !------------------------------------------------------------------------------------------
+        ! Initialize variable(s)
+        a1dVarQoutLake = 0.0
+        
         ! Check lake availability
         if (iNLake .gt. 0) then
             

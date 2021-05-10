@@ -346,13 +346,14 @@ contains
             ! Debug                            
             ! call mprintf(.true., iINFO_Extra, checkvar(a2dVarAlbedoS, a2iVarMask, 'ALBEDOS') )                              
             !-------------------------------------------------------------------------------------
-                           
+
             !-------------------------------------------------------------------------------------                         
             ! Compute SWE and update Rain
             where( (a2dVarDEM.ge.0.0) .and. (a2dVarRain.gt.0.0) )
                 a2dVarSWE = a2dVarSWE + (1 - a2dVarSepCoeff)*a2dVarRain	
                 a2dVarRain = a2dVarSepCoeff*a2dVarRain
             endwhere
+            where(a2dVarSWE.lt.0.0) a2dVarSWE = 0.0 ! just in case         
             !-------------------------------------------------------------------------------------
 
             !-------------------------------------------------------------------------------------
@@ -366,7 +367,7 @@ contains
                                               a2dVarAlbedoS, a2dVarSWE, &
                                               a2dVarMeltingS, a2dVarMeltingSc)
             !-------------------------------------------------------------------------------------
-                                              
+            
             !-------------------------------------------------------------------------------------                                   
             ! Compute SWE, melting and rain
             where( (a2dVarDem.ge.0.0) .and. (a2dVarSWE.gt.0.0) .and. &
@@ -383,7 +384,7 @@ contains
                 a2dVarRain = a2dVarRain + a2dVarMeltingS
                 
             endwhere
-             
+
             ! Compute SWE, melting and rain for glacier(s) conditionn
             where( (a2dVarDem.ge.0.0) .and. (a2iVarNature.eq.iGlacierValue) )
                 
@@ -392,7 +393,7 @@ contains
                 a2dVarRain = a2dVarRain + a2dVarMeltingS
 
             endwhere
-                      
+
             ! Check SWE values
             where( (a2dVarDem.ge.0.0) .and. (a2dVarSWE.lt.0.0) ) a2dVarSWE = 0.0  
             !-------------------------------------------------------------------------------------
