@@ -6,17 +6,22 @@
 
 !******************************************************************************************
 ! HYDROLOGICAL MODEL CONTINUUM
-! Version 3.1.4
-! Date: 2021/03/08
+! Version 3.1.5
+! Date: 2021/06/25
 !
 ! 
 ! 0) COMMAND LINE:
-!   TYPE 1:
-!       ./Continuum.x --> parameter(s): uc=20 uh= 1.5 ct=0.5 cf=0.02 domain=marche cpi=0.3 Rf=1 Vmax=500 slopemax=70
+!   TYPE 1 [VERSION < 3.x.x]:
+!       ./Continuum.x --> parameter(s): uc=20 uh=1.5 ct=0.5 cf=0.02 domain=marche cpi=0.3 Rf=1 Vmax=500 slopemax=70
 !       ./Continuum.x 20 1.5 0.5 0.02 marche 0.3 500 1 70
+!   TYPE 1 [VERSION >= 3.x.x]:
+!       ./Continuum.x --> parameter(s): uc=20 uh=1.5 ct=0.5 cf=0.02 domain=marche cpi=0.3 Rf=1 Vmax=500 slopemax=70
+!                                       cn=60.01 dFrac=0.0 ws=3.6780000000000003e-09 wdl=3.6780000000000003e-09
+!       ./Continuum.x 20 1.5 0.5 0.02 marche 0.3 500 1 70 60.01 0.0 3.6780000000000003e-09 3.6780000000000003e-09
 !   TYPE 2:
 !       ./Continuum.x --> parameter(s): file.info.txt
 !       ./Continuum.x marche.info.txt
+!
 !
 ! 1) SET NETCDF LIBRARY CONFIGURATION:
 !
@@ -124,6 +129,7 @@ program HMC_Main
     integer(kind = 4)               :: iNLake, iNDam, iNPlant, iNJoint, iNCatch, iNRelease
     integer(kind = 4)               :: iDaySteps, iTMarkedSteps
     real(kind = 4)                  :: dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax
+    real(kind = 4)                  :: dCN, dFrac, dWS, dWDL
     character(len = 256)            :: sDomainName
 
     integer(kind = 4)               :: iDtModel, iDtPhysConv
@@ -156,6 +162,7 @@ program HMC_Main
     iNPlant = -9999; iNJoint = -9999; iNCatch = -9999; iNRelease = -9999;
     dUc = 0.0; dUh = 0.0; dCt = 0.0; dCf = 0.0; dCPI = 0.0; 
     dWTableHbr = 0.0; dKSatRatio = 0.0; dSlopeMax = 0.0; sDomainName = ""; 
+    dCN  = 0.0; dFrac = 0.0; dWS = 0.0; dWDL = 0.0;
     sTimeOld = ""; sTimeForcing = ""; sTimeUpdating = ""; sTimeRestart = ""; sTimeNew = ""; 
     sTimeOutput_Gridded = ""; sTimeOutput_Point = ""; 
     sTimeState_Gridded = "";  sTimeState_Point = ""; 
@@ -175,6 +182,7 @@ program HMC_Main
     !------------------------------------------------------------------------------------------
     ! Read command line argument(s)
     call HMC_Args_Read(dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax, &
+                       dCN, dFrac, dWS, dWDL, &
                        sDomainName, &
                        sFileInfo, iArgsType)
     !------------------------------------------------------------------------------------------
@@ -182,9 +190,10 @@ program HMC_Main
     !------------------------------------------------------------------------------------------
     ! Read namelist file
     call HMC_Namelist_Read(dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax, &
-                          sDomainName, & 
-                          sFileInfo, iArgsType, &
-                          oHMC_Namelist(iID))
+                           dCN, dFrac, dWS, dWDL, &
+                           sDomainName, & 
+                           sFileInfo, iArgsType, &
+                           oHMC_Namelist(iID))
                           
     ! Start simulation message
     call mprintf(.true., iINFO_Basic, ' SIMULATION START :: Time: ' //trim(sDateRunStart)//' '//trim(sTimeRunStart) )

@@ -674,6 +674,8 @@ contains
                 endif
                 !------------------------------------------------------------------------------------------
                 
+                
+                
                 !------------------------------------------------------------------------------------------
                 ! INCOMING RADIATION
                 call HMC_Tools_IO_CheckVar_NC('Incoming_Radiation;IncomingRadiation;IncRadiation', iFileID, sVarName)
@@ -686,6 +688,10 @@ contains
                     a2dVarIncRad = transpose(a2dVar)
                 endif
                 !------------------------------------------------------------------------------------------
+                
+                call debug_2dVar(dble(a2dVarTa), iRows, iCols, 1)
+                call debug_2dVar(dble(a2dVarIncRad), iRows, iCols, 2)
+                
                 
                 !------------------------------------------------------------------------------------------
                 ! RELATIVE HUMIDITY

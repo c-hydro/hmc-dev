@@ -427,12 +427,16 @@ contains
         integer(kind = 4)       :: iFileID, iErr
         
         integer(kind = 4)       :: iDomainPixels, iTc, iTcSeconds, iTcMax, iETime, iNTime
-        integer(kind = 4)       :: iFlagCoeffRes, iFlagWS, iFlagFrac, iFlagCType, iFlagDynVeg, iFlagFlood
+        integer(kind = 4)       :: iFlagCoeffRes
+        integer(kind = 4)       :: iFlagWS, iFlagWDL, iFlagFrac
+        integer(kind = 4)       :: iFlagCType, iFlagDynVeg, iFlagFlood
         real(kind = 4)          :: dDxM, dDyM, dDEMMax, dDEMMin, dDEMStepMean
         real(kind = 4)          :: dDomainArea
+        real(kind = 4)          :: dDtDataForcing
         
         real(kind = 4)          :: dUc, dUh, dCt, dCf
-        real(kind = 4)          :: dCN, dWS, dFrac
+        real(kind = 4)          :: dCN, dWS, dWDL, dFrac
+        real(kind = 4)          :: dWTLossMax
         
         character(len = 256)    :: sVarName
         character(len = 256)    :: sVarUnits
@@ -452,7 +456,7 @@ contains
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarC1, a2dVarF2 
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarCostF, a2dVarCostF1, a2dVarCostChFix
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarCt, a2dVarCtWP, a2dVarCf, a2dVarUc, a2dVarUh 
-        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarCoeffResol, a2dVarCoeffWS
+        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarCoeffResol, a2dVarCoeffWS, a2dVarCoeffWDL
         real(kind = 4),     dimension (100)             :: a1dVarFCN
         
         !vegetation static parameters
@@ -487,15 +491,18 @@ contains
         a2dVarC1 = 0.0; a2dVarF2 = 0.0; 
         a2dVarCostF = 0.0; a2dVarCostF1 = 0.0; a2dVarCostChFix = 0.0;
         a2dVarCt = 0.0; a2dVarCf = 0.0; a2dVarUc = 0.0; a2dVarUh = 0.0;  
-        a2dVarCoeffResol = 0.0; a2dVarCoeffWS = 0.0;
+        a2dVarCoeffResol = 0.0; a2dVarCoeffWS = 0.0; a2dVarCoeffWDL = 0.0;
         a1dVarFCN = 0.0
         a2dVarFrac = 0.0; a2dVarWidthC = -9999.0;
         a2dVarCtWP = 0.0; a2dVarGd = 0.0; a2dVarRSmin = 0.0; a2dVarHveg = 0.0; a2dVarBareSoil = 0.0;
         a2dVarLevBankR = -9999.0; a2dVarLevBankL = -9999.0; a2dVarFirst = -9999.0;
         
-        dUc = -9999.0; dUh = -9999.0; dCt = -9999.0; dCf = -9999.0; dCN = -9999.0; dWS = -9999.0; dFrac = -9999.0;
+        dUc = -9999.0; dUh = -9999.0; dCt = -9999.0; dCf = -9999.0; dCN = -9999.0; 
+        dWS = -9999.0; dWDL = -9999.0; dFrac = -9999.0;
         
-        iFlagCoeffRes = -9999; iFlagWS = -9999; iFlagFrac = -9999; iFlagCType = -9999; iFlagDynVeg = -9999; iFlagFlood = -9999;
+        iFlagCoeffRes = -9999; 
+        iFlagWS = -9999; iFlagWDL = -9999; iFlagFrac = -9999; 
+        iFlagCType = -9999; iFlagDynVeg = -9999; iFlagFlood = -9999;
         
         iPixCount = 0
         !------------------------------------------------------------------------------------------
@@ -506,8 +513,9 @@ contains
         sDomainName = oHMC_Namelist(iID)%sDomainName
         sPathData = oHMC_Namelist(iID)%sPathData_Static_Gridded
         iTypeData = oHMC_Namelist(iID)%iFlagTypeData_Static
-        ! Get iT max for
+        ! Get the corrivation time and the forcing dt
         iTcMax = oHMC_Namelist(iID)%iTcMax
+        dDtDataForcing = dble(oHMC_Namelist(iID)%iDtData_Forcing)
         
         ! Get mean parameter(s)
         dCt = oHMC_Namelist(iID)%dCt
@@ -516,8 +524,10 @@ contains
         dUc = oHMC_Namelist(iID)%dUc 
         dCN = oHMC_Namelist(iID)%dCN
         dWS = oHMC_Namelist(iID)%dWS
+        dWDL = oHMC_Namelist(iID)%dWDL
         dFrac = oHMC_Namelist(iID)%dFrac
-
+        dWTLossMax = oHMC_Namelist(iID)%dWTLossMax
+        
         ! Flag to set coeff resolution map default mode
         iFlagCoeffRes = oHMC_Namelist(iID)%iFlagCoeffRes
         ! Flag to activate/deactivate water sources map
@@ -755,7 +765,7 @@ contains
                 !------------------------------------------------------------------------------------------
             
                 !------------------------------------------------------------------------------------------
-                ! Water source map
+                ! Watertable sources map
                 sVarName = 'WS'
                 if (iFlagWS .eq. 1) then
                     call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
@@ -763,11 +773,28 @@ contains
                         call mprintf(.true., iWARN, ' CoeffWS data not found. Initializing CoeffWS with default values.')
                         a2dVarCoeffWS = dWS
                     else
-                        a2dVarCoeffWS = int(transpose(a2dVar))
+                        a2dVarCoeffWS = transpose(a2dVar)
                     endif
                 else
-                    call mprintf(.true., iWARN, ' WaterSources not activated. CoeffWS is null.')
+                    call mprintf(.true., iWARN, ' Watertable sources not activated. CoeffWS is null.')
                     a2dVarCoeffWS = 0.0
+                endif   
+                !------------------------------------------------------------------------------------------
+                
+                !------------------------------------------------------------------------------------------
+                ! Watertable deep losses map
+                sVarName = 'WDL'
+                if (iFlagWDL .eq. 1) then
+                    call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
+                    if (iErr /= 0) then
+                        call mprintf(.true., iWARN, ' CoeffWDL data not found. Initializing CoeffDL with default values.')
+                        a2dVarCoeffWDL = dWDL
+                    else
+                        a2dVarCoeffWDL = transpose(a2dVar)
+                    endif
+                else
+                    call mprintf(.true., iWARN, ' Watertable deep losses not activated. CoeffWDL is null.')
+                    a2dVarCoeffWDL = 0.0
                 endif   
                 !------------------------------------------------------------------------------------------
                 
@@ -1141,7 +1168,7 @@ contains
             !------------------------------------------------------------------------------------------
             
             !------------------------------------------------------------------------------------------
-            ! Water sources map
+            ! Watertable sources map
             if (iFlagWS .eq. 1) then
                 sFileName = trim(sPathData)//trim(sDomainName)//'.ws.txt'
                 call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
@@ -1154,8 +1181,27 @@ contains
                     a2dVarCoeffWS = reshape(a2dVar, (/iRows, iCols/))
                 endif
             else
-                call mprintf(.true., iWARN, ' WaterSources not activated. CoeffWS is null.')
+                call mprintf(.true., iWARN, ' Watertable sources not activated. CoeffWS is null.')
                 a2dVarCoeffWS = 0.0
+            endif
+            !------------------------------------------------------------------------------------------
+            
+            !------------------------------------------------------------------------------------------
+            ! Watertable deep losses map
+            if (iFlagWDL .eq. 1) then
+                sFileName = trim(sPathData)//trim(sDomainName)//'.wdl.txt'
+                call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
+                if (iErr /= 0) then 
+                    call mprintf(.true., iWARN, ' CoeffWDL data not found. Initializing CoeffWDL with average values.')
+                    where(a2dVarDEM.gt.0.0)
+                        a2dVarCoeffWDL = dWDL
+                    endwhere
+                else
+                    a2dVarCoeffWDL = reshape(a2dVar, (/iRows, iCols/))
+                endif
+            else
+                call mprintf(.true., iWARN, ' Watertable deep losses not activated. CoeffWDL is null.')
+                a2dVarCoeffWDL = 0.0
             endif
             !------------------------------------------------------------------------------------------
             
@@ -1300,6 +1346,7 @@ contains
         a2iVarChoice = int(nullborder2DVar(float(a2iVarChoice), -9999.0))
         a2iVarPNT = int(nullborder2DVar(float(a2iVarPNT), -9999.0))
         a2dVarCoeffWS = nullborder2DVar(a2dVarCoeffWS, -9999.0)
+        a2dVarCoeffWDL = nullborder2DVar(a2dVarCoeffWDL, -9999.0)
         a2dVarFrac = nullborder2DVar(a2dVarFrac, -9999.0)
         a2dVarWidthC = nullborder2DVar(a2dVarWidthC, -9999.0)
         a2dVarLevBankR = nullborder2DVar(a2dVarLevBankR, -9999.0)
@@ -1440,13 +1487,43 @@ contains
         !------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------
-        ! Check water sources coefficient map limit(s)
+        ! Check watertable sources coefficient map lower limit
         where (a2dVarCoeffWS.lt.0.0 .and. a2dVarCoeffWS.ne.-9999.0)
             a2dVarCoeffWS = 0.0
         endwhere
-        where (a2dVarCoeffWS.gt.0.99)
-            a2dVarCoeffWS = 0.0
+        
+        ! Check watertable deep losses sources coefficient map lower limit
+        where (a2dVarCoeffWDL.lt.0.0 .and. a2dVarCoeffWDL.ne.-9999.0)
+            a2dVarCoeffWDL = 0.0
         endwhere
+        
+        if (dWTLossMax .lt. 0) then
+            call mprintf(.true., iWARN, ' Watertable maximum losses < 0. Set to 0.0')
+            dWTLossMax = 0.0
+        endif
+        if (dWTLossMax .gt. 1) then
+            call mprintf(.true., iWARN, ' Watertable maximum losses > 1. Set to 1.0')
+            dWTLossMax = 1.0
+        endif
+        
+        if ( .not. all(a2dVarCoeffWS*dDtDataForcing .le. dWTLossMax)) then
+            call mprintf(.true., iError, ' The water loss due to the watertable sources '// & 
+            'is higher then the maximum allowed losses.')
+        endif   
+        
+        if ( .not. all(a2dVarCoeffWDL*dDtDataForcing .le. dWTLossMax)) then
+            call mprintf(.true., iError, ' The water loss due to the watertable deep losses '// & 
+            'is higher then the maximum allowed losses.')
+        endif   
+        
+        if ( .not. all(a2dVarCoeffWS*dDtDataForcing + a2dVarCoeffWDL*dDtDataForcing .le. dWTLossMax)) then
+            call mprintf(.true., iError, ' The water loss due to the watertable sources and the '// &
+            'watertable deep losses is higher then the maximum allowed losses.')
+        endif   
+        
+        !where (a2dVarCoeffWS.gt.0.99) ! 
+        !    a2dVarCoeffWS = 0.0
+        !endwhere
         !------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------
@@ -1567,6 +1644,7 @@ contains
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarF2, a2iVarMask, 'F2 ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarCoeffResol, a2iVarMask, 'CRES ') )   
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarCoeffWS, a2iVarMask, 'WS ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarCoeffWDL, a2iVarMask, 'WDL ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarWidthC, a2iVarMask, 'WIDTHC ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarFrac, a2iVarMask, 'FRAC ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarLevBankL, a2iVarMask, 'LEFT BANKS ') )
@@ -1622,6 +1700,7 @@ contains
         
         oHMC_Vars(iID)%a2dCoeffResol = a2dVarCoeffResol
         oHMC_Vars(iID)%a2dCoeffWS = a2dVarCoeffWS
+        oHMC_Vars(iID)%a2dCoeffWDL = a2dVarCoeffWDL
         
         oHMC_Vars(iID)%a2dWidthC = a2dVarWidthC
         oHMC_Vars(iID)%a2dFrac = a2dVarFrac

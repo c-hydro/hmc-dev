@@ -2,29 +2,31 @@
 
 ! PARAMETER(S) INFO -----------------------------------------------------------------------------
 ! Friction coefficient in channels [m^0.5 s^-1]
-dUc = 43.08
+dUc=15
 ! Flow motion coefficient in hillslopes [s^-1]
-dUh = 6.9479999999999995
+dUh=0.5
 ! Mean field capacity [-]
-dCt = 0.3728
+dCt=0.47
 ! Infiltration capacity at saturation [-]
-dCf = 0.01568
-! Soil humidity average initialization [-]
-dCPI = 0.45
-! Curve Number [%]
-dCN = 56.01
-! Water sources [-]
-dWS = 3.6780000000000003e-09
-! Fracturation [-]
-dFrac = 0.2374
-! Maximum water capacity of the aquifer [mm]
-dWTableHbr = 763.7
-! Related to anisotropy between the vertical and horizontal saturated conductivity, and to soil porosity [-]
-dKSatRatio = 1
-! Subsoil maximum slope [%]
-dSlopeMax = 30
+dCf=0.052
 ! Domain name
-sDomainName = "po"
+sDomainName="PoBasin"
+! Soil humidity average initialization [-]
+dCPI=0.65
+! Maximum water capacity of the aquifer [mm]
+dWTableHbr=3000
+! Related to anisotropy between the vertical and horizontal saturated conductivity, and to soil porosity [-]
+dKSatRatio=1
+! Subsoil maximum slope [%]
+dSlopeMax=70
+! Curve Number average initialization [-]
+dCN = 60.01
+! Fracturation average initialization [-]
+dFrac = 0.0
+! Watertable sources average initialization [1/t]
+dWS = 3.6780000000000003e-09
+! Watertable deep losses average initialization [1/t]
+dWDL = 3.6780000000000003e-09
 ! -----------------------------------------------------------------------------------------------
 
 /
@@ -63,12 +65,12 @@ iFlagTypeData_Restart_Gridded = 2
 ! Data type dynamic point restart (1 = ascii; 2 = unknown)
 iFlagTypeData_Restart_Point = 1
 
-! Type of model (0=Windows, 10=Linux) 
-iFlagOs = 10
+! Type of model (1=Windows, 10=Linux)
+iFlagOs=10
 ! Computing deep Flow (1=yes, 0=no)
 iFlagFlowDeep = 1
 ! Restart a run (1=yes, 0=no)
-iFlagRestart = 1
+iFlagRestart=0
 ! Dynamic integration step of convolution (1=yes, 0=no)
 iFlagVarDtPhysConv = 1
 ! Computing snow (1=yes, 0=no)
@@ -78,25 +80,27 @@ iFlagSnowAssim = 0
 ! Computing soil moisture assimilation (1=yes, 0=no)
 iFlagSMAssim = 0
 ! LAI mode (0=empiric relationship, 1=using data)
-iFlagLAI = 1
+iFlagLAI = 0
 ! Albedo mode (0=static value, 1=dynamic monthly values)
 iFlagAlbedo = 0
 ! Coeff Resolution default mode (0=null ,1=empiric relationship) [--> VdA old cases set flag to zero]
-iFlagCoeffRes = 0
-! WaterSources mode (0=deactivate, 1=activate)
+iFlagCoeffRes = 1
+! Watertable sources mode (0=deactivate, 1=activate)
 iFlagWS = 1
+! Watertable deep losses mode (0=deactivate, 1=activate)
+iFlagWDL = 1
 ! Release MassBalance control (0=deactivate, 1=activate)
 iFlagReleaseMass = 1
 ! Channel treatment type (1=channel network, 2=channel fraction)
-iFlagCType = 2
+iFlagCType = 1
 ! Groundwater bedrock fracturation (0=deactivate, 1=activate)
-iFlagFrac = 1
+iFlagFrac = 0
 ! Vegetation Dynamic module (0=deactivate, 1=activate)
 iFlagDynVeg = 0
 ! Flooding Dynamic module (0=deactivate, 1=activate)
 iFlagFlood = 0
 ! Energy Balance module (0=deactivate, 1=activate)
-iFlagEnergyBalance = 0
+iFlagEnergyBalance = 1
 ! -----------------------------------------------------------------------------------------------
 
 ! GEOGRAPHICAL INFO ------------------------------------------------------------------------------
@@ -109,15 +113,15 @@ a1iDimsForcing=205 397
 ! -----------------------------------------------------------------------------------------------
 
 ! DT INFO ---------------------------------------------------------------------------------------
-! Simulation length [hours]   [ Set back to 35064 for 1/1/2016 to 31/12/2019]
-iSimLength = 24
+! Simulation length [hours]
+iSimLength=24
 ! Model dT [seconds]
-iDtModel = 3600
+iDtModel=3600
 
 ! Method to compute physics integration step (1=scalar, 2=linear) [1 for old and actual case-study, 2 is experimental]
 iDtPhysMethod = 1
 ! Physics convolution integration dT [seconds]
-iDtPhysConv = 50 
+iDtPhysConv = 30
 ! Dem average step range to select integration step [m]
 a1dDemStep = 1, 10, 100, 1000
 ! Minimum integration step range to select integration step [seconds]
@@ -130,7 +134,7 @@ a1dDtRatioStep = 3, 3, 3, 2
 ! Data forcing gridded and point dT [seconds]
 iDtData_Forcing = 3600
 
-! Data updating gridded dT [seconds] --> minimum common step between updating data
+! Data updating gridded dT [seconds] --> minimum commom step between updating data
 iDtData_Updating = 3600
 
 ! Data output gridded dT [seconds]
@@ -142,10 +146,10 @@ iDtData_State_Gridded = 3600
 ! Data state point dT [seconds]
 iDtData_State_Point = 3600
 
-! Data output generic subsets (1 = BASIC [Q, ET, SOIL_MOISTURE], 2 = EXTENDED [ALL])
+! Data output generic subsets (1 = BASIC [Q, ET, SOIL_MOISTURE], 2 = EXTENDED [ALL], 3 = DEBUG [ALL + RELATED TO DEBUG])
 iActiveData_Output_Generic = 1
 ! Data output flooding subsets (0 = NOT ACTIVE [-], 1 = ACTIVE [Qfloodleft, Qfloodright])
-iActiveData_Output_Flooding = 1
+iActiveData_Output_Flooding = 0
 ! Data output snow subsets (0 = NOT ACTIVE [-], 1 = ACTIVE [SWE, MeltingS, RhoS, SnowFall, AlbedoS, AgeS, MeltingSDayCum])
 iActiveData_Output_Snow = 0
 
@@ -155,54 +159,54 @@ iAccumData_Output_Hour = 23
 
 ! DATA INFO -------------------------------------------------------------------------------------
 ! Forcing data rescaling factor (permitted: 10 or 100 or 1000) --> used for binary data
-iScaleFactor = 10
+iScaleFactor=10
 ! Number of hours of routing after last observation (to undefined value = -9999)
-iTcMax = 1
+iTcMax = 6
 ! Number of iDtModel within which LAI should be updated (to undefined value = -9999)
-iTVeg = 720
+iTVeg = -9999
 ! -----------------------------------------------------------------------------------------------
 
 ! TIME INFO -------------------------------------------------------------------------------------
 ! Start time (yyyymmddHHMM format)
-sTimeStart = 201601020000
+sTimeStart=202104190000
 ! Re-start time (yyyymmddHHMM format)
-sTimeRestart = 201601012300
+sTimeRestart=202104182300
 ! -----------------------------------------------------------------------------------------------
 
 ! PATH(S) INFO ----------------------------------------------------------------------------------
 ! DATA STATIC
-! Static gridded data path [Variable(s) --> DEM, CN, PNT, Choice, Area ... ]
-sPathData_Static_Gridded = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/dte_hydrology/data_static/land/'
-! Static point data path [Variable(s) --> SectionFile, DamFile, IntakeFile, LakeFile, TankVolumeCurve]
-sPathData_Static_Point = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/dte_hydrology/data_static/point/'
+! Static gridded data path (land data)
+sPathData_Static_Gridded="/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_italy/data/data_static/land/"
+! Static point data path (point info file and dam Tank-Volume curve)
+sPathData_Static_Point="/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_italy/data/data_static/point/"
 
 ! DATA DYNAMIC
-! Forcing gridded data path [Variable(s) --> Rain, AirTemperature, IncRadiation, Wind, AirPressure, Albedo, LAI]
-sPathData_Forcing_Gridded = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/dte_hydrology/data_dynamic/forcing/gridded/$yyyy/$mm/$dd/'
-! Forcing point data path [Variable(s) --> DamVolume]
-sPathData_Forcing_Point = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/dte_hydrology/data_dynamic/forcing/point/'
-! Forcing time-series data path [Variable(s) --> Turbinate]
-sPathData_Forcing_TimeSeries = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/dte_hydrology/data_dynamic/forcing/time_series/'
+! Forcing gridded data path
+sPathData_Forcing_Gridded="/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_italy/data/data_dynamic/$yyyy/$mm/$dd/"
+! Forcing point data path
+sPathData_Forcing_Point="/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_italy/data/data_dynamic/$yyyy/$mm/$dd/"
+! Forcing time-series data path
+sPathData_Forcing_TimeSeries="/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_italy/data/data_dynamic/"
 
-! Updating gridded data path [Variable(s) --> SnowCoverArea, SnowQuality, SnowMask, SnowHeight, SnowKernel, SoilMoistureValue, SoilMoistureGain]
-sPathData_Updating_Gridded = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/dte_hydrology/data_updating/gridded/$yyyy/$mm/$dd/'
+! Updating gridded data path
+sPathData_Updating_Gridded="/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_italy/data/data_dynamic/$yyyy/$mm/$dd/"
 
 ! Output gridded data path
-sPathData_Output_Gridded = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/dte_hydrology/data_dynamic/outcome/gridded/$yyyy/$mm/$dd/'
+sPathData_Output_Gridded="/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_italy/archive/data_outcome/gridded/$yyyy/$mm/$dd/"
 ! Output point data path
-sPathData_Output_Point = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/dte_hydrology/data_dynamic/outcome/point/$yyyy/$mm/$dd/'
+sPathData_Output_Point="/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_italy/archive/data_outcome/point/$yyyy/$mm/$dd/"
 ! Output time-series data path
-sPathData_Output_TimeSeries = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/dte_hydrology/data_dynamic/outcome/time_series/'
+sPathData_Output_TimeSeries="/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_italy/archive/data_outcome/time-series/"
 
 ! State gridded data path
-sPathData_State_Gridded = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/dte_hydrology/data_dynamic/state/gridded/$yyyy/$mm/$dd/'
+sPathData_State_Gridded="/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_italy/archive/data_state/gridded/$yyyy/$mm/$dd/"
 ! State point data path
-sPathData_State_Point = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/dte_hydrology/data_dynamic/state/point/$yyyy/$mm/$dd/'
+sPathData_State_Point="/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_italy/archive/data_state/point/$yyyy/$mm/$dd/"
 
 ! Restart gridded data path
-sPathData_Restart_Gridded = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/dte_hydrology/data_dynamic/restart/gridded/$yyyy/$mm/$dd/'
+sPathData_Restart_Gridded="/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_italy/archive/data_restart/"
 ! Restart point data path
-sPathData_Restart_Point = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/dte_hydrology/data_dynamic/restart/point/$yyyy/$mm/$dd/'
+sPathData_Restart_Point="/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_italy/archive/data_restart/"
 ! -----------------------------------------------------------------------------------------------
 
 /
@@ -210,7 +214,7 @@ sPathData_Restart_Point = '/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/dte_hydr
 &HMC_Snow
 
 ! SNOW MODEL DEFAULT CONSTANTS ------------------------------------------------------------------
-! Fusion Coefficient [-]
+! [-]
 a1dArctUp = 3.0, 4.5, 3.0, 4.0
 ! Frequency to snow rhow max limit [1/day] --> no melting
 a1dExpRhoLow = 0.0333, 0.0222, 0.0250, 0.0333
@@ -221,12 +225,12 @@ a1dAltRange = 1500.0, 2000.0, 2500.0, 2500.0
 ! Value of glacier(s) in nature map [-]
 iGlacierValue = 2
 ! Fresh snow density [kg/m^3]
-dRhoSnowFresh = 200
+dRhoSnowFresh = 100
 ! Maximum snow density [kg/m^3]
 dRhoSnowMax = 400
 ! Quality threshold of snow cover area map [-]
 dSnowQualityThr = 0.3
-! Snow melting reference temperature [C]
+! Soil melting reference temperature [C]
 dMeltingTRef = 1
 ! -----------------------------------------------------------------------------------------------
 
@@ -241,24 +245,26 @@ a1dAlbedoMonthly        = 0.23,  0.23, 0.23,  0.23,  0.23,  0.23,  0.23,  0.23, 
 a1dLAIMonthly           = 4.00,  4.00, 4.00,  4.00,  4.00,  4.00,  4.00,  4.00,  4.00,  4.00,  4.00,  4.00
 ! -----------------------------------------------------------------------------------------------
 
-! WATERTABLE DEFAULT CONSTANTS ------------------------------------------------------------------ 
-! Watertable minimum height [mm] 
-dWTableHMin = 10.0 
-! Watertable maximum height under the soil [mm] ---> fmin 
-dWTableHUSoil = 150.0 
-! Watertable maximum height under the channels [mm] ---> fcan 
-dWTableHUChannel = 5.0 
-! Maximum slope BM for initializing watertable using beta [-] ---> fpen 
-dWTableSlopeBM = 0.2 
-! Watertable maximum height over the bedrock (considering the limit of maximum slope BM)  [mm] ---> fov 
-dWTableHOBedRock = 15.0 
-! ----------------------------------------------------------------------------------------------- 
+! WATERTABLE DEFAULT CONSTANTS ------------------------------------------------------------------
+! Watertable minimum height [mm]
+dWTableHMin = 10.0
+! Watertable maximum height under the soil [mm] ---> fmin
+dWTableHUSoil = 100.0
+! Watertable maximum height under the channels [mm] ---> fcan
+dWTableHUChannel = 5.0
+! Maximum slope BM for initializing watertable using beta [-] ---> fpen
+dWTableSlopeBM = 0.08
+! Watertable maximum height over the bedrock (considering the limit of maximum slope BM)  [mm] ---> fov
+dWTableHOBedRock = 25.0
+! -----------------------------------------------------------------------------------------------
 
 ! MASS BALANCE CONSTANTS ------------------------------------------------------------------------
 ! Min hypodermicFlow ratio
 dRateMin = 0.01
 ! Exp of dUcT=dUc*h^dBc
 dBc = 0.5
+! Maximum watertable losses (water sources losses and water deep losses) [-]
+dWTLossMax = 0.25
 ! -----------------------------------------------------------------------------------------------
 
 ! ENERGY BALANCE CONSTANTS ----------------------------------------------------------------------
@@ -267,20 +273,20 @@ dTRef = 273.15
 ! TDeep shift steps
 iTdeepShift = 2
 ! CH Monthly Constant [-7.3, -7.3, -5.8, -5.8, -5.8, -4.8, -4.8, -4.8, -4.8, -5.9, -5.9, -7.3]
-a1dCHMonthly = -5.85, -5.85, -5.85, -5.85, -5.85, -5.85, -5.85, -5.85, -5.85, -5.85, -5.85, -5.85
+a1dCHMonthly = -7.3, -7.3, -5.8, -5.8, -5.8, -4.8, -4.8, -4.8, -4.8, -5.9, -5.9, -7.3
 ! Soil emissivity [-]
 dEpsS = 0.96
 ! Stefan-Boltzmann Constant [W/m^2 K]
 dSigma = 0.00000005576
 ! Min value beta function
-dBFMin = 0.0
+dBFMin = 0.1
 ! Max value beta function
-dBFMax = 1.0
+dBFMax = 0.9
 ! LST maximum delta to limit runge-kutta integration method [K]
 dLSTDeltaMax = 40.0
 
 ! Z reference for wind [m]
-dZRef = 2.0
+dZRef = 3.0
 ! Gravity acceleration [m s^-2]
 dG = 9.81
 ! Specific heat at constant pressure [J/kg/K]
@@ -310,9 +316,9 @@ dFqS = 0.5
 
 ! HYDRAULIC STRUCTURE CONSTANTS -----------------------------------------------------------------
 ! Volume percentage to start dam outgoing flow [-]
-dTV = 0.95
+dTV = 0.90
 ! Difference between dam height and spill height [m]
-dDamSpillH = 1.0
+dDamSpillH = 3
 ! -----------------------------------------------------------------------------------------------
 
 ! SOIL MOISTURE ASSIMILATION CONSTANTS ----------------------------------------------------------
@@ -327,7 +333,7 @@ dSMGain = 0.45
 ! COMMAND LINE ----------------------------------------------------------------------------------
 ! Line to zip file (tag(s): filenameunzip)
 sCommandZipFile = 'gzip -f filenameunzip > LogZip.txt'
-!sCommandZipFile = '7z.exe a -tzip filenamezip filenameunzip > LogZip.txt'
+!sCommandZipFile = "7z.exe a -tzip filenamezip filenameunzip > LogZip.txt'
 ! Line to unzip file (tag(s): filenameunzip and filenamezip)
 sCommandUnzipFile = 'gunzip -c filenamezip > filenameunzip'
 !sCommandUnzipFile = '7z.exe e -tgzip filenamezip > LogUnzip.txt'
@@ -345,11 +351,10 @@ sCommandCreateFolder = 'mkdir -p path'
 
 ! INFO MODEL ------------------------------------------------------------------------------------
 ! Release version     (x.x.x)
-sReleaseVersion = '3.1.4'
+sReleaseVersion = '3.1.5'
 ! Author(s)         (Surname N.)
-sAuthorNames = 'Delogu F., Silvestro F., Gabellani S., Basso V., Libertino A., Ercolani G.'
+sAuthorNames = 'Delogu F., Silvestro F., Gabellani S., Libertino A., Ercolani G.'
 ! Release Date      (yyyy/mm/dd)
-sReleaseDate = '2021/03/08'
-! ----------------------------------------------------------------------------------------------- 
+sReleaseDate = '2021/06/25'
+! -----------------------------------------------------------------------------------------------
 
-/ 

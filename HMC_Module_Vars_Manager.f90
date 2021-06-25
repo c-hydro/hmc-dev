@@ -80,6 +80,7 @@ contains
         allocate( oHMC_Vars(iID)%a2dArctUp          (iRows, iCols) )
         
         allocate( oHMC_Vars(iID)%a2dCoeffWS         (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dCoeffWDL        (iRows, iCols) )
         
         allocate( oHMC_Vars(iID)%a2dCt              (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dCf              (iRows, iCols) )
@@ -236,8 +237,9 @@ contains
         allocate( oHMC_Vars(iID)%a2dUcAct           (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dUDt             (iRows, iCols) )
         
-        ! Dynamic water sources variable(s)
+        ! Dynamic watertable losses sources and deep variable(s)
         allocate( oHMC_Vars(iID)%a2dWSRunoff        (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dWDL             (iRows, iCols) )
         
         ! Dynamic section variable(s)
         allocate( oHMC_Vars(iID)%a1dQoutSection     (iNSection) )
@@ -362,6 +364,7 @@ contains
         
         ! Static Water sources parameter variable(s)
         oHMC_Vars(iID)%a2dCoeffWS = 0.0
+        oHMC_Vars(iID)%a2dCoeffWDL = 0.0
         
         ! Static energy balance parameter(s)
         oHMC_Vars(iID)%a2dCtWP = 0.0
@@ -533,6 +536,7 @@ contains
         
         ! Dynamic water sources variable(s)
         oHMC_Vars(iID)%a2dWSRunoff = 0.0
+        oHMC_Vars(iID)%a2dWDL = 0.0
         
         ! Dynamic section variable(s)
         oHMC_Vars(iID)%a1dQoutSection = 0.0

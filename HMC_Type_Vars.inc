@@ -29,7 +29,7 @@ TYPE HMC_Type_Vars
     real(kind = 4),         allocatable, dimension (:, :)       :: a2dKb1, a2dKc1, a2dKb2, a2dKc2 
     real(kind = 4),         allocatable, dimension (:, :)       :: a2dCoeffResol
     real(kind = 4),         allocatable, dimension (:, :)       :: a2dExpRhoLow, a2dExpRhoHigh, a2dArctUp
-    real(kind = 4),         allocatable, dimension (:, :)       :: a2dCoeffWS
+    real(kind = 4),         allocatable, dimension (:, :)       :: a2dCoeffWS, a2dCoeffWDL
     
     ! Section variable(s)
     integer(kind = 4),      allocatable, dimension (:, :)       :: a2iXYSection
@@ -113,7 +113,7 @@ TYPE HMC_Type_Vars
     real(kind = 4), allocatable,        dimension(:, :)         :: a2dUcAct, a2dUDt
 
     ! Water source variable(s)
-    real(kind = 4), allocatable,        dimension(:,:)          :: a2dWSRunoff
+    real(kind = 4), allocatable,        dimension(:,:)          :: a2dWSRunoff, a2dWDL
     
     ! Volume variable(s)
     real(kind = 4), allocatable,  	dimension(:, :)         :: a2dVTot, a2dVRet, a2dVSub, a2dVLoss, a2dVExf, a2dVErr

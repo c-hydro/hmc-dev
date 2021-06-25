@@ -16,7 +16,8 @@ TYPE HMC_Type_Namelist
     integer(kind = 4)       :: iFlagReleaseMass
     integer(kind = 4)       :: iFlagLAI, iFlagAlbedo, iFlagCH
     integer(kind = 4)       :: iFlagSnow, iFlagSnowAssim, iFlagSMAssim
-    integer(kind = 4)       :: iFlagCoeffRes, iFlagWS
+    integer(kind = 4)       :: iFlagCoeffRes
+    integer(kind = 4)       :: iFlagWS, iFlagWDL
     integer(kind = 4)       :: iFlagGrid
     integer(kind = 4)       :: iFlagCType
     integer(kind = 4)       :: iFlagFrac
@@ -56,7 +57,7 @@ TYPE HMC_Type_Namelist
     
     integer(kind = 4)       :: iTdeepShift, iNTime, iEtime
     integer(kind = 4)       :: iNData
-    real(kind = 4)          :: dRateMin, dBc
+    real(kind = 4)          :: dRateMin, dBc, dWTLossMax
     real(kind = 4)          :: dTRef, dEpsS, dSigma, dBFMin, dBFMax
     real(kind = 4)          :: dZRef, dG, dCp, dRd, dRhoS, dRhoW, dCpS, dCpW
     real(kind = 4)          :: dKq, dKw, dKo, dPorS, dFqS 
@@ -113,7 +114,7 @@ TYPE HMC_Type_Namelist
     character(len = 5)      :: sReleaseVersion
 
     real(kind = 4)          :: dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax
-    real(kind = 4)          :: dCN, dWS, dFrac
+    real(kind = 4)          :: dCN, dFrac, dWS, dWDL
     character(len = 256)    :: sDomainName
    
 END TYPE HMC_Type_Namelist

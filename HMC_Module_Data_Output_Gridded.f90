@@ -86,7 +86,11 @@ contains
                                                                      a2dVarQfloodCR, & 
                                                                      a2dVarQfloodCL, &
                                                                      a2dVarLat, a2dVarLon
-                                                                                                
+
+        real(kind = 4), dimension(iRowsEnd - iRowsStart + 1, &
+                          iColsEnd - iColsStart + 1)             ::  a2dVarWSRunoff, a2dVarWDL
+                                                                     
+                                                                     
         integer(kind = 4), dimension(iRowsEnd - iRowsStart + 1, &
                                      iColsEnd - iColsStart + 1)  ::  a2iVarAgeS
         real(kind = 4), dimension(iRowsEnd - iRowsStart + 1, &
@@ -116,6 +120,8 @@ contains
         
         a3dVarET = 0.0; a3dVarETpot = 0.0
         a3dVarMeltingS = 0.0
+        
+        a2dVarWSRunoff = 0.0; a2dVarWDL = 0.0
         
         sCommandCreateFolder = ""
         !------------------------------------------------------------------------------------------
@@ -199,6 +205,9 @@ contains
             a2dVarSM = -9999.0
         endwhere
         
+        a2dVarWSRunoff = oHMC_Vars(iID)%a2dWSRunoff
+        a2dVarWDL = oHMC_Vars(iID)%a2dWDL
+        
         ! Get variable(s) from global workspace (snow physics)
         if (iFlagSnow.eq.1) then
             a2dVarSWE = oHMC_Vars(iID)%a2dSWE
@@ -245,6 +254,7 @@ contains
                                     a2dVarSWE, a2iVarAgeS, a2dVarMeltingS, a2dVarMeltingSDayCum, &
                                     a2dVarAlbedoS, a2dVarRhoS, a2dVarSnowFall, &
                                     a2dVarSM, &
+                                    a2dVarWSRunoff, a2dVarWDL, &
                                     a2dVarLat, a2dVarLon)
 #else
             ! Redefinition of output data flag (if netCDF library is not linked)
@@ -279,6 +289,7 @@ contains
                                     a2dVarSWE, a2iVarAgeS, a2dVarMeltingS, a2dVarMeltingSDayCum, &
                                     a2dVarAlbedoS, a2dVarRhoS, a2dVarSnowFall, &
                                     a2dVarSM, & 
+                                    a2dVarWSRunoff, a2dVarWDL, &
                                     a2dVarLat, a2dVarLon)
                                     
             !------------------------------------------------------------------------------------------
@@ -313,6 +324,7 @@ contains
                                           a2dVarSWE, a2iVarAgeS, a2dVarMeltingS, a2dVarMeltingSDayCum, &
                                           a2dVarAlbedoS, a2dVarRhoS, a2dVarSnowFall, &
                                           a2dVarSM, &
+                                          a2dVarWSRunoff, a2dVarWDL, &
                                           a2dVarLat, a2dVarLon)
                                       
         !------------------------------------------------------------------------------------------
@@ -354,6 +366,7 @@ contains
         real(kind = 4), dimension(iRows, iCols), intent(in)         :: a2dVarLat
         real(kind = 4), dimension(iRows, iCols), intent(in)         :: a2dVarLon
         real(kind = 4), dimension(iRows, iCols), intent(in)         :: a2dVarSM
+        real(kind = 4), dimension(iRows, iCols), intent(in)         :: a2dVarWSRunoff, a2dVarWDL
         
         integer(kind = 4), dimension(iRows, iCols), intent(in)      :: a2iVarAgeS
         real(kind = 4), dimension(iRows, iCols), intent(in)         :: a2dVarSWE
@@ -500,18 +513,30 @@ contains
                              sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
                              iCols, iRows, transpose(a2dVarQout))  
                              
-       ! Evapotranspiration
-       sVarName = 'ET'; sVarNameLong = 'et'; 
-       sVarDescription = 'evapotranspiration';
-       sVarUnits = 'mm'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
-       sVarCoords = 'Longitude Latitude';
-       call HMC_Tools_IO_Put2d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, & 
-                            sVarName, sVarNameLong, sVarDescription, &
-                            sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
-                            iCols, iRows, transpose(a2dVarET))
+        ! Actual Evapotranspiration
+        sVarName = 'ET'; sVarNameLong = 'et'; 
+        sVarDescription = 'actual evapotranspiration';
+        sVarUnits = 'mm'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+        sVarCoords = 'Longitude Latitude';
+        call HMC_Tools_IO_Put2d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, & 
+                             sVarName, sVarNameLong, sVarDescription, &
+                             sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
+                             iCols, iRows, transpose(a2dVarET))
                              
+        ! Actual ETCum
+        if( (iStepData_Hour .eq. iAccumData_Hour) .and. (iTime .ge. iDaySteps) ) then
+            sVarName = 'ETCum'; sVarNameLong = 'et_accumulated'; 
+            sVarDescription = 'actual evapotranspiration accumulated over 1 day';
+            sVarUnits = 'mm'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+            sVarCoords = 'Longitude Latitude';
+            call HMC_Tools_IO_Put2d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, & 
+                                 sVarName, sVarNameLong, sVarDescription, &
+                                 sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
+                                 iCols, iRows, transpose(a2dVarETCum))                         
+        endif
+
         ! EXTENDED DATASETS
-        if( iActData_Generic .eq. 2) then
+        if( iActData_Generic .ge. 2) then
             
             ! Effective Rain
             sVarName = 'REff'; sVarNameLong = 'effective_rain'; sVarDescription = 'effective rain';
@@ -555,17 +580,7 @@ contains
                                  sVarName, sVarNameLong, sVarDescription, &
                                  sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
                                  iCols, iRows, transpose(a2dVarVTot))   
-            ! ETCum
-            if( (iStepData_Hour .eq. iAccumData_Hour) .and. (iTime .ge. iDaySteps) ) then
-                sVarName = 'ETCum'; sVarNameLong = 'et_accumulated'; 
-                sVarDescription = 'evapotranspiration accumulated over 1 day';
-                sVarUnits = 'mm'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
-                sVarCoords = 'Longitude Latitude';
-                call HMC_Tools_IO_Put2d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, & 
-                                     sVarName, sVarNameLong, sVarDescription, &
-                                     sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
-                                     iCols, iRows, transpose(a2dVarETCum))
-            endif
+
             ! ETPotCum
             if( (iStepData_Hour .eq. iAccumData_Hour) .and. (iTime .ge. iDaySteps) ) then
                 sVarName = 'ETPotCum'; sVarNameLong = 'potential_et_accumulated'; 
@@ -577,6 +592,30 @@ contains
                                      sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
                                      iCols, iRows, transpose(a2dVarETPotCum))
             endif
+            
+        endif
+        
+        ! DEBUG DATASETS
+        if( iActData_Generic .ge. 3) then
+            
+            ! Watertable source routing
+            sVarName = 'WaterTSources'; sVarNameLong = 'water_table_sources'; sVarDescription = 'watertable sources ';
+            sVarUnits = 'm^3/s'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+            sVarCoords = 'Longitude Latitude';
+            call HMC_Tools_IO_Put2d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, & 
+                                 sVarName, sVarNameLong, sVarDescription, &
+                                 sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
+                                 iCols, iRows, transpose(a2dVarWSRunoff))  
+
+            ! Watertable deep losses 
+            sVarName = 'WaterTLosses'; sVarNameLong = 'water_table_deep_losses'; sVarDescription = 'water table deep losses ';
+            sVarUnits = 'm^3/s'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+            sVarCoords = 'Longitude Latitude';
+            call HMC_Tools_IO_Put2d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, & 
+                                 sVarName, sVarNameLong, sVarDescription, &
+                                 sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
+                                 iCols, iRows, transpose(a2dVarWDL))  
+        
             
         endif
         !------------------------------------------------------------------------------------------ 
@@ -714,6 +753,7 @@ contains
                                     a2dVarSWE, a2iVarAgeS, a2dVarMeltingS, a2dVarMeltingSDayCum, &
                                     a2dVarAlbedoS, a2dVarRhoS, a2dVarSnowFall, &
                                     a2dVarSM, & 
+                                    a2dVarWSRunoff, a2dVarWDL, &
                                     a2dVarLat, a2dVarLon)                                     
                         
         !------------------------------------------------------------------------------------------
@@ -751,17 +791,18 @@ contains
         real(kind = 4), dimension(iRows, iCols)                 :: a2dVarQout
         real(kind = 4), dimension(iRows, iCols)                 :: a2dVarQfloodCR, a2dVarQfloodCL
 
-        real(kind = 4), dimension(iRows, iCols)         :: a2dVarLat
-        real(kind = 4), dimension(iRows, iCols)         :: a2dVarLon
-        real(kind = 4), dimension(iRows, iCols)         :: a2dVarSM
+        real(kind = 4), dimension(iRows, iCols)                 :: a2dVarLat
+        real(kind = 4), dimension(iRows, iCols)                 :: a2dVarLon
+        real(kind = 4), dimension(iRows, iCols)                 :: a2dVarSM
+        real(kind = 4), dimension(iRows, iCols)                 :: a2dVarWSRunoff, a2dVarWDL
 
-        integer(kind = 4), dimension(iRows, iCols)      :: a2iVarAgeS
-        real(kind = 4), dimension(iRows, iCols)         :: a2dVarSWE
-        real(kind = 4), dimension(iRows, iCols)         :: a2dVarMeltingS
-        real(kind = 4), dimension(iRows, iCols)         :: a2dVarMeltingSDayCum
-        real(kind = 4), dimension(iRows, iCols)         :: a2dVarAlbedoS
-        real(kind = 4), dimension(iRows, iCols)         :: a2dVarRhoS
-        real(kind = 4), dimension(iRows, iCols)         :: a2dVarSnowFall
+        integer(kind = 4), dimension(iRows, iCols)              :: a2iVarAgeS
+        real(kind = 4), dimension(iRows, iCols)                 :: a2dVarSWE
+        real(kind = 4), dimension(iRows, iCols)                 :: a2dVarMeltingS
+        real(kind = 4), dimension(iRows, iCols)                 :: a2dVarMeltingSDayCum
+        real(kind = 4), dimension(iRows, iCols)                 :: a2dVarAlbedoS
+        real(kind = 4), dimension(iRows, iCols)                 :: a2dVarRhoS
+        real(kind = 4), dimension(iRows, iCols)                 :: a2dVarSnowFall
        
         character(len = 256)    :: sVarUnits
         integer(kind = 4)       :: iErr
@@ -812,9 +853,22 @@ contains
         call HMC_Tools_Generic_ZipFile(oHMC_Namelist(iID)%sCommandZipFile, &
                                        sFileNameData_Output//'.gz', sFileNameData_Output, .false.)
         !call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Output, .false. )
+                                       
+        ! ETCum (accumulated actual evapotranspiration)
+        if( (iStepData_Hour .eq. iAccumData_Hour) .and. (iTime .ge. iDaySteps) ) then
+            iVarScale = 10000
+            sFileNameData_Output = trim(sPathData_Output)//"ETCum_"// &
+                               sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
+                               ".bin"            
+            call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
+            call HMC_Tools_IO_Put2d_Binary_INT(sFileNameData_Output, a2dVarETCum, iRows, iCols, iVarScale, .true., iErr)
+            call HMC_Tools_Generic_ZipFile(oHMC_Namelist(iID)%sCommandZipFile, &
+                                           sFileNameData_Output//'.gz', sFileNameData_Output, .false.)
+
+        endif
         
         ! EXTENDED DATASETS
-        if( iActData_Generic .eq. 2) then
+        if( iActData_Generic .ge. 2) then
             
             ! Effective Rain
             iVarScale = 10
@@ -885,14 +939,6 @@ contains
             ! ETCum
             if( (iStepData_Hour .eq. iAccumData_Hour) .and. (iTime .ge. iDaySteps) ) then
                 iVarScale = 10000
-                sFileNameData_Output = trim(sPathData_Output)//"ETCum_"// &
-                                   sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
-                                   ".bin"            
-                call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
-                call HMC_Tools_IO_Put2d_Binary_INT(sFileNameData_Output, a2dVarETCum, iRows, iCols, iVarScale, .true., iErr)
-                call HMC_Tools_Generic_ZipFile(oHMC_Namelist(iID)%sCommandZipFile, &
-                                               sFileNameData_Output//'.gz', sFileNameData_Output, .false.)
-
                 sFileNameData_Output = trim(sPathData_Output)//"ETPotCum_"// &
                                    sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
                                    ".bin"            
@@ -903,6 +949,33 @@ contains
                 !call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Output, .false.)
             endif
      
+        endif
+        
+        ! DEBUG DATASETS
+        if( iActData_Generic .ge. 2) then
+            
+            ! Watertable sources
+            iVarScale = 10000
+            sFileNameData_Output = trim(sPathData_Output)//"wts_"// &
+                               sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
+                               ".bin"  
+            call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
+            call HMC_Tools_IO_Put2d_Binary_INT(sFileNameData_Output, a2dVarWSRunoff, iRows, iCols, iVarScale, .true., iErr)
+            call HMC_Tools_Generic_ZipFile(oHMC_Namelist(iID)%sCommandZipFile, &
+                                           sFileNameData_Output//'.gz', sFileNameData_Output, .false.)
+            !call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Output, .false.)
+
+            ! Watertable deep losses
+            iVarScale = 10000
+            sFileNameData_Output = trim(sPathData_Output)//"wtl_"// &
+                               sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
+                               ".bin"  
+            call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
+            call HMC_Tools_IO_Put2d_Binary_INT(sFileNameData_Output, a2dVarWDL, iRows, iCols, iVarScale, .true., iErr)
+            call HMC_Tools_Generic_ZipFile(oHMC_Namelist(iID)%sCommandZipFile, &
+                                           sFileNameData_Output//'.gz', sFileNameData_Output, .false.)
+            !call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Output, .false.)
+        
         endif
         !------------------------------------------------------------------------------------------
 

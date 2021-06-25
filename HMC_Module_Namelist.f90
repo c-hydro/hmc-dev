@@ -27,6 +27,7 @@ contains
     !--------------------------------------------------------------------------------
     ! Subroutine to read namelist
     subroutine HMC_Namelist_Read(dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax, &
+                                 dCN, dFrac, dWS, dWDL, &
                                  sDomainName, & 
                                  sFileInfo, iArgsType, &
                                  oHMC_Namelist_Init) 
@@ -62,7 +63,8 @@ contains
         integer(kind = 4)       :: iFlagLAI, iFlagAlbedo, iFlagCH
         integer(kind = 4)       :: iFlagSnow, iFlagSnowAssim, iFlagSMAssim
         integer(kind = 4)       :: iFlagGrid
-        integer(kind = 4)       :: iFlagCoeffRes, iFlagWS
+        integer(kind = 4)       :: iFlagCoeffRes
+        integer(kind = 4)       :: iFlagWS, iFlagWDL
         integer(kind = 4)       :: iFlagCType
         integer(kind = 4)       :: iFlagFrac
         integer(kind = 4)       :: iFlagDynVeg
@@ -98,7 +100,7 @@ contains
         integer(kind = 4)       :: iTdeepShift, iNTime, iETime
         integer(kind = 4)       :: iNData
         real(kind = 4)          :: dWTableHMin, dWTableHUSoil, dWTableHUChannel, dWTableSlopeBM, dWTableHOBedRock
-        real(kind = 4)          :: dRateMin, dBc
+        real(kind = 4)          :: dRateMin, dBc, dWTLossMax
         real(kind = 4)          :: dTRef, dEpsS, dSigma, dBFMin, dBFMax
         real(kind = 4)          :: dZRef, dG, dCp, dRd, dRhoS, dRhoW, dCpS, dCpW
         real(kind = 4)          :: dKq, dKw, dKo, dPorS, dFqS 
@@ -160,7 +162,7 @@ contains
         character(len = 5)      :: sReleaseVersion
         
         real(kind = 4)          :: dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax
-        real(kind = 4)          :: dCN, dWS, dFrac
+        real(kind = 4)          :: dCN, dWS, dWDL, dFrac
         character(len = 256)    :: sDomainName
         
         character(len = 256)    :: sStrCf, sStrCt, sStrUh, sStrUc
@@ -169,7 +171,7 @@ contains
         !--------------------------------------------------------------------------------
         ! Read namelist(s)
         namelist /HMC_Parameters/       dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax, &
-                                        dCN, dWS, dFrac, &
+                                        dCN, dWS, dWDL, dFrac, &
                                         sDomainName
         
         namelist /HMC_Namelist/         iFlagTypeData_Static, &
@@ -186,7 +188,7 @@ contains
                                         iFlagReleaseMass, &
                                         iFlagLAI, iFlagAlbedo, iFlagCH, &
                                         iFlagSnow, iFlagSnowAssim, iFlagSMAssim, &
-                                        iFlagCoeffRes, iFlagWS, &
+                                        iFlagCoeffRes, iFlagWS, iFlagWDL, &
                                         iFlagCType, &
                                         iFlagFrac, &
                                         iFlagDynVeg, &
@@ -216,7 +218,7 @@ contains
                                         
         namelist /HMC_Constants/        a1dAlbedoMonthly, a1dLAIMonthly, a1dCHMonthly, &
                                         dWTableHMin, dWTableHUSoil, dWTableHUChannel, dWTableSlopeBM, dWTableHOBedRock, &
-                                        dRateMin, dBc, &
+                                        dRateMin, dBc, dWTLossMax, &
                                         dTRef, iTdeepShift, dEpsS, dSigma, dBFMin, dBFMax, &
                                         dZRef, dG, dCp, dRd, dRhoS, dRhoW, dCpS, dCpW, & 
                                         dKq, dKw, dKo, dPorS, dFqS, &
@@ -247,7 +249,7 @@ contains
         iFlagVarDtPhysConv = -9999; iFlagReleaseMass = -9999; 
         iFlagLAI = -9999; iFlagAlbedo = -9999; iFlagCH = -9999; 
         iFlagSnow = -9999; iFlagSnowAssim = -9999; iFlagSMAssim = -9999;
-        iFlagCoeffRes = -9999; iFlagWS = -9999;
+        iFlagCoeffRes = -9999; iFlagWS = -9999; iFlagWDL = -9999;
         iFlagCType = -9999;
         iFlagFrac = -9999;
         iFlagDynVeg = -9999;
@@ -282,7 +284,7 @@ contains
         a1dAlbedoMonthly = -9999.0; a1dLAIMonthly = -9999.0; a1dCHMonthly = -9999.0
         dWTableHMin = -9999.0; dWTableHUSoil = -9999.0; dWTableHUChannel = -9999.0; 
         dWTableSlopeBM = -9999.0; dWTableHOBedRock = -9999.0;
-        dRateMin = -9999.0; dBc = -9999.0;
+        dRateMin = -9999.0; dBc = -9999.0; dWTLossMax = -9999.0;
         dTRef = -9999.0; iTdeepShift = -9999; dEpsS = -9999.0; 
         dSigma = -9999.0; dBFMin = -9999.0; dBFMax = -9999.0
         dZRef = -9999.0; dG = -9999.0; dCp = -9999.0; dRd = -9999.0; dRhoS = -9999.0; 
@@ -291,8 +293,6 @@ contains
         dLSTDeltaMax = -9999.0
         dTV = -9999.0; dDamSpillH = -9999.0
         dSMGain = -9999.0;
-        
-        dCN = -9999.0; dWS = -9999.0; dFrac = -9999.0
         
         sCommandZipFile = ""; sCommandUnzipFile = ""; sCommandRemoveFile = ""; sCommandCreateFolder = ""
         
@@ -456,9 +456,15 @@ contains
         endif
         
         if (iFlagWS .eq. -9999) then  ! backward compatibility with older version of info file (without ws flag)
-            oHMC_Namelist_Init%iFlagWS = 0          ! default mode without water sources dynamic
+            oHMC_Namelist_Init%iFlagWS = 0          ! default mode without watertable sources dynamic
         else
             oHMC_Namelist_Init%iFlagWS = iFlagWS 
+        endif
+        
+        if (iFlagWDL .eq. -9999) then  ! backward compatibility with older version of info file (without wdl flag)
+            oHMC_Namelist_Init%iFlagWDL = 0          ! default mode without watertable deep losses dynamic
+        else
+            oHMC_Namelist_Init%iFlagWDL = iFlagWDL 
         endif
         
         if (iFlagFrac .eq. -9999) then  ! backward compatibility with older version of info file (without frac flag)
@@ -670,11 +676,19 @@ contains
         else
             oHMC_Namelist_Init%dCN = dCN
         endif
+        
         if (dWS .eq. -9999) then  ! backward compatibility with older version of info file (without water sources value)
             oHMC_Namelist_Init%dWS = -9999.0               
         else
             oHMC_Namelist_Init%dWS = dWS
         endif
+        
+        if (dWDL .eq. -9999) then  ! backward compatibility with older version of info file (without water sources value)
+            oHMC_Namelist_Init%dWDL = -9999.0               
+        else
+            oHMC_Namelist_Init%dWDL = dWDL
+        endif
+        
         if (dFrac .eq. -9999) then  ! backward compatibility with older version of info file (without fracturation value)
             oHMC_Namelist_Init%dFrac = -9999.0               
         else
@@ -691,6 +705,12 @@ contains
         ! Convolution constant(s)
         oHMC_Namelist_Init%dRateMin = dRateMin
         oHMC_Namelist_Init%dBc = dBc
+        
+        if (dWTLossMax .eq. -9999) then  ! backward compatibility with older version of info file (without watertable deep losses value)
+            oHMC_Namelist_Init%dWTLossMax = -9999.0               
+        else
+            oHMC_Namelist_Init%dWTLossMax = dWTLossMax
+        endif
         
         ! LSM constant(s)
         oHMC_Namelist_Init%dTRef = dTRef

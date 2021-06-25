@@ -43,20 +43,22 @@ contains
         
         real(kind = 4), dimension (iRows, iCols)    :: a2dVarVTot, a2dVarVLoss, a2dVarFlowDeep
         real(kind = 4), dimension (iRows, iCols)    :: a2dVarDarcy, a2dVarHydro
-        real(kind = 4), dimension (iRows, iCols)    :: a2dVarWSRunoff
+        real(kind = 4), dimension (iRows, iCols)    :: a2dVarWSRunoff, a2dVarWDL
         
         real(kind = 4), dimension (iRows, iCols)    :: a2dVarWTable, a2dVarWTableStep
+        
+        real(kind = 4), dimension (iRows, iCols)    :: a2dVarFrac
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
         ! Initialization variable(s)
         a2dVarVTot = 0.0; a2dVarVLoss = 0.0; a2dVarFlowDeep = 0.0;
         a2dVarDarcy = 0.0; a2dVarHydro = 0.0;
-        a2dVarWSRunoff = 0.0
+        a2dVarWSRunoff = 0.0; a2dVarWDL = 0.0; a2dVarFrac = 0.0
         
         a2dVarWTable = 0.0; a2dVarWTableStep = 0.0; 
         
-        iFlagFlowDeep = 0;
+        iFlagFlowDeep = 0; 
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -91,7 +93,8 @@ contains
             !a2dVarHydro = oHMC_Vars(iID)%a2dHydro
             a2dVarVTot = oHMC_Vars(iID)%a2dVTot
             a2dVarVLoss = oHMC_Vars(iID)%a2dVLoss
-            a2dVarWSRunoff = oHMC_Vars(iID)%a2dWSRunoff
+            !a2dVarWSRunoff = oHMC_Vars(iID)%a2dWSRunoff
+            a2dVarFrac = oHMC_Vars(iID)%a2dFrac
             !------------------------------------------------------------------------------------------
             
             !-----------------------------------------------------------------------------------------
@@ -221,10 +224,11 @@ contains
             endwhere
             !------------------------------------------------------------------------------------------
             
+
             !------------------------------------------------------------------------------------------
             ! Flow deep - Interaction between watertable and surface
             where( (oHMC_Vars(iID)%a2dDem.gt.0.0) .and. (a2dVarWTableStep.gt.oHMC_Vars(iID)%a2dDem) )
-                a2dVarFlowDeep = (a2dVarWTableStep - oHMC_Vars(iID)%a2dDem)*dDtDataForcing/3600*1000
+                a2dVarFlowDeep = (1 - a2dVarFrac)*(a2dVarWTableStep - oHMC_Vars(iID)%a2dDem)*dDtDataForcing/3600*1000
                 a2dVarWTableStep = oHMC_Vars(iID)%a2dDem
             endwhere
 
@@ -235,8 +239,13 @@ contains
             
             a2dVarWSRunoff = 0.0
             where( oHMC_Vars(iID)%a2dDem.gt.0.0 )
+
+                a2dVarWDL = (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWDL*oHMC_Vars(iID)%a2dAreaCell ! m^3/s
                 a2dVarWSRunoff = (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWS*oHMC_Vars(iID)%a2dAreaCell ! m^3/s
-                a2dVarWTable = a2dVarWTable - (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWS*dDtDataForcing ! m
+                
+                a2dVarWTable = a2dVarWTable - &
+                    (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax*oHMC_Vars(iID)%a2dCoeffWS*dDtDataForcing &
+                                  - oHMC_Vars(iID)%a2dWTableMax*oHMC_Vars(iID)%a2dCoeffWDL*dDtDataForcing ) ! m
             endwhere
             
             ! Updating VTot
@@ -285,6 +294,7 @@ contains
         oHMC_Vars(iID)%a2dVTot = a2dVarVTot
         oHMC_Vars(iID)%a2dWTable = a2dVarWTable
         oHMC_Vars(iID)%a2dWSRunoff = a2dVarWSRunoff
+        oHMC_Vars(iID)%a2dWDL = a2dVarWDL
         
         !oHMC_Vars(iID)%a2dHydro = a2dVarHydro
 
@@ -313,24 +323,22 @@ contains
         
         real(kind = 4), dimension (iRows, iCols)    :: a2dVarVTot, a2dVarVLoss, a2dVarFlowDeep
         real(kind = 4), dimension (iRows, iCols)    :: a2dVarDarcy, a2dVarHydro
-        real(kind = 4), dimension (iRows, iCols)    :: a2dVarWSRunoff
+        real(kind = 4), dimension (iRows, iCols)    :: a2dVarWSRunoff, a2dVarWDL
         
         real(kind = 4), dimension (iRows, iCols)    :: a2dVarWTable, a2dVarWTableStep
-        real(kind = 4), dimension (iRows, iCols)    :: a
-        
-        real(kind = 4), dimension (iRows, iCols)    ::  a2dVarFrac
+
+        real(kind = 4), dimension (iRows, iCols)    :: a2dVarFrac
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
         ! Initialization variable(s)
         a2dVarVTot = 0.0; a2dVarVLoss = 0.0; a2dVarFlowDeep = 0.0;
         a2dVarDarcy = 0.0; a2dVarHydro = 0.0;
-        a2dVarWSRunoff = 0.0
+        a2dVarWSRunoff = 0.0; a2dVarWDL = 0.0; a2dVarFrac = 0.0;
         
         a2dVarWTable = 0.0; a2dVarWTableStep = 0.0; 
         
         iFlagFlowDeep = 0;
-        a2dVarFrac = 0.0;
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -358,7 +366,7 @@ contains
             a2dVarWTable = oHMC_Vars(iID)%a2dWTable
             a2dVarVTot = oHMC_Vars(iID)%a2dVTot
             a2dVarVLoss = oHMC_Vars(iID)%a2dVLoss
-            a2dVarWSRunoff = oHMC_Vars(iID)%a2dWSRunoff
+            ! a2dVarWSRunoff = oHMC_Vars(iID)%a2dWSRunoff
             a2dVarFrac = oHMC_Vars(iID)%a2dFrac
             !------------------------------------------------------------------------------------------
             
@@ -500,10 +508,15 @@ contains
                 a2dVarWTable = a2dVarWTableStep
             endwhere
             
-            a2dVarWSRunoff = 0.0
             where( oHMC_Vars(iID)%a2dDem.gt.0.0 )
+
+                a2dVarWDL = (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWDL*oHMC_Vars(iID)%a2dAreaCell ! m^3/s
                 a2dVarWSRunoff = (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWS*oHMC_Vars(iID)%a2dAreaCell ! m^3/s
-                a2dVarWTable = a2dVarWTable - (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWS*dDtDataForcing ! m
+                
+                a2dVarWTable = a2dVarWTable - &
+                    (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax*oHMC_Vars(iID)%a2dCoeffWS*dDtDataForcing &
+                                  - oHMC_Vars(iID)%a2dWTableMax*oHMC_Vars(iID)%a2dCoeffWDL*dDtDataForcing ) ! m
+                
             endwhere
             
             ! Updating VTot
@@ -540,6 +553,7 @@ contains
             a2dVarVTot = oHMC_Vars(iID)%a2dVTot
             a2dVarFlowDeep = 0.0
             a2dVarWSRunoff = 0.0
+            a2dVarWDL = 0.0
             !-----------------------------------------------------------------------------------------
             
         endif
@@ -551,6 +565,7 @@ contains
         oHMC_Vars(iID)%a2dVTot = a2dVarVTot
         oHMC_Vars(iID)%a2dWTable = a2dVarWTable
         oHMC_Vars(iID)%a2dWSRunoff = a2dVarWSRunoff
+        oHMC_Vars(iID)%a2dWDL = a2dVarWDL
         
         ! Info end
         if (iDEBUG.gt.0) then
