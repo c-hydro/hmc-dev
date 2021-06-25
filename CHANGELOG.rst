@@ -2,6 +2,14 @@
 Changelog
 =========
 
+Version 3.1.5 [2021-06-25]
+**************************
+- ADD: the watertable deep losses parameter and flag;
+- ADD: the watertable allowed maximum water loss;
+- ADD: the group of the debug variable(s) in writing output
+- FIX: bugs in writing actual accumulated et with basic variable group;
+- FIX: bug in channel network physics adding the fracturation variable.
+
 Version 3.1.4 [2021-03-08]
 **************************
 - ADD: the flag settings for switching on/off the energy-balance physics;
