@@ -127,7 +127,7 @@ if $Lib_Building_Automatic ; then
 	Comp_Version=$(gfortran -dumpversion)
 	
 	if (( $Comp_Version > 7 )); then
-		Comp_Obj="-c -g -O2 -cpp -DLIB_DYNARRAY"
+		Comp_Obj="-c -g -O2 -cpp -DLIB_DYNARRAY "
 		echo " ===> Compiler GFortran Version: " $Comp_Version " greather then version 7 "
 		echo " ===> Building with string dynamic allocatable arrays "
 	else
@@ -148,7 +148,7 @@ else
 			Comp_Version=$(gfortran -dumpversion)
 			
 			if (( $Comp_Version > 7 )); then
-				Comp_Obj="-c -g -O2 -cpp -DLIB_DYNARRAY"
+				Comp_Obj="-c -g -O2 -cpp -DLIB_DYNARRAY "
 				echo " ===> Compiler GFortran Version: " $Comp_Version " greather then version 7 "
 				echo " ===> Building with string dynamic allocatable arrays "
 			else
