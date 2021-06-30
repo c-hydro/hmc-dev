@@ -135,7 +135,6 @@ else
 		elif [ "$Opt" = "GNU/GFortran" ]; then
 			Comp_Name="GNU/GFortran"
 			Comp_Exec="gfortran"
-			Comp_Obj="-c -g -O2 -cpp "
 			Comp_Version=$(gfortran -dumpversion)
 			
 			if (( $Comp_Version > 7 )); then
