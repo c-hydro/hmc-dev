@@ -3,11 +3,11 @@
 #-----------------------------------------------------------------------------------------
 # Script option(s)
 Script="HMC Library Builder"
-Version="1.5.1"
-Date='2020/07/23'
+Version="1.6.0"
+Date='2021/06/28'
 
 # Other option(s)
-Archive_Default="hmc_v314.tar.gz"
+Archive_Default="hmc_v315.tar.gz"
 # Default folder
 Lib_Dir_Deps_Default="$HOME/fp_libs_system"
 # Executables folder
@@ -159,7 +159,7 @@ else
 	done
 fi
 
-echo " ==> Compiler Name: " $Comp_Name "; Compiler Exec: " $Comp_Exec "; Comp Obj: " $Comp_Obj
+echo " ==> Compiler Name: " $Comp_Name "; Compiler Version: " $Comp_Version "; Compiler Exec: " $Comp_Exec "; Comp Obj: " $Comp_Obj
 echo ""
 echo "Step 1 - Configure ==> Set compiler type ... OK!"
 echo "----------------------------------------------------------------"
@@ -506,7 +506,7 @@ else
     echo " ==> $file_tool copied in library folder ... FILE NOT FOUND!"
 fi
 
-file_tool="HMC_Main_ExecTest.sh"
+file_tool="HMC_Launcher_Debug_Test.sh"
 if [ -e $file_tool ]; then
     chmod +x $file_tool
     cp -r $Archive_Dir/$file_tool $Lib_Dir_Exec/$file_tool
@@ -515,7 +515,7 @@ else
     echo " ==> $file_tool copied in library folder ... FILE NOT FOUND!"
 fi
 
-file_tool="HMC_Main_ProfTest.sh"
+file_tool="HMC_Launcher_Test_Profiling.sh"
 if [ -e $file_tool ]; then
     chmod +x $file_tool
     cp -r $Archive_Dir/$file_tool $Lib_Dir_Exec/$file_tool
@@ -524,7 +524,7 @@ else
     echo " ==> $file_tool copied in library folder ... FILE NOT FOUND!"
 fi
 
-file_tool="HMC_Main_MemoryTest.sh"
+file_tool="HMC_Launcher_Test_Memory.sh"
 if [ -e $file_tool ]; then
     chmod +x $file_tool
     cp -r $Archive_Dir/$file_tool $Lib_Dir_Exec/$file_tool
@@ -533,7 +533,7 @@ else
     echo " ==> $file_tool copied in library folder ... FILE NOT FOUND!"
 fi
 
-file_tool="HMC_Main_DebugTest.sh"
+file_tool="HMC_Launcher_Debug_Live.sh"
 if [ -e $file_tool ]; then
     chmod +x $file_tool
     cp $Archive_Dir/$file_tool $Lib_Dir_Exec/$file_tool
@@ -542,7 +542,16 @@ else
     echo " ==> $file_tool copied in library folder ... FILE NOT FOUND!"
 fi
 
-file_tool="HMC_Args_DebugTest.txt"
+file_tool="HMC_Launcher_Test_Massif.sh"
+if [ -e $file_tool ]; then
+    chmod +x $file_tool
+    cp -r $Archive_Dir/$file_tool $Lib_Dir_Exec/$file_tool
+    echo " ==> $file_tool copied in library folder ... DONE!"
+else
+    echo " ==> $file_tool copied in library folder ... FILE NOT FOUND!"
+fi
+
+file_tool="HMC_Launcher_Test_Execution.sh"
 if [ -e $file_tool ]; then
     chmod +x $file_tool
     cp -r $Archive_Dir/$file_tool $Lib_Dir_Exec/$file_tool
