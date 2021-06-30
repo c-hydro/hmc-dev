@@ -124,7 +124,17 @@ if $Lib_Building_Automatic ; then
 	echo " ==> GNU/GFortran Compiler selected in automatic mode"
 	Comp_Name="GNU/GFortran"
 	Comp_Exec="gfortran"
-	Comp_Obj="-c -g -O2 -cpp "
+	Comp_Version=$(gfortran -dumpversion)
+	
+	if (( $Comp_Version > 7 )); then
+		Comp_Obj="-c -g -O2 -cpp -DLIB_DYNARRAY"
+		echo " ===> Compiler GFortran Version: " $Comp_Version " greather then version 7 "
+		echo " ===> Building with string dynamic allocatable arrays "
+	else
+		Comp_Obj="-c -g -O2 -cpp "
+		echo " ===> Compiler GFortran Version: " $Comp_Version " lower then version 7 "
+		echo " ===> Building without string dynamic allocatable arrays "
+	fi
 else
 	PS3=' ==> Please enter your choice: '
 	Comp_Opts=( " GNU/GFortran  INTEL/Fortran  Quit" )
