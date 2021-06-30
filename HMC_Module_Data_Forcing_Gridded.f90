@@ -23,7 +23,9 @@ module HMC_Module_Data_Forcing_Gridded
 #ifdef LIB_NC
     use HMC_Module_Tools_IO,        only:   HMC_Tools_IO_Get2d_Binary_INT, &
                                             HMC_Tools_IO_Get2d_NC, &
+#ifdef LIB_DYNARRAY
                                             HMC_Tools_IO_CheckVar_NC, &
+#endif 
                                             check
 #else
     use HMC_Module_Tools_IO,        only:   HMC_Tools_IO_Get2d_Binary_INT                                      
@@ -650,8 +652,11 @@ contains
                 
                 !------------------------------------------------------------------------------------------
                 ! RAIN
+#ifdef LIB_DYNARRAY
                 call HMC_Tools_IO_CheckVar_NC('Precipitation;Rain', iFileID, sVarName)
-                !sVarName = 'Rain'
+#else 
+                sVarName = 'Rain'
+#endif
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//trim(sVarName)//'!')
@@ -663,8 +668,11 @@ contains
                 
                 !------------------------------------------------------------------------------------------
                 ! AIR TEMPERATURE
+#ifdef LIB_DYNARRAY
                 call HMC_Tools_IO_CheckVar_NC('AirTemperature;Air_Temperature', iFileID, sVarName)
-                !sVarName = 'AirTemperature'
+#else
+                sVarName = 'AirTemperature'
+#endif
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//trim(sVarName)//'!')
@@ -678,8 +686,11 @@ contains
                 
                 !------------------------------------------------------------------------------------------
                 ! INCOMING RADIATION
+#ifdef LIB_DYNARRAY
                 call HMC_Tools_IO_CheckVar_NC('Incoming_Radiation;IncomingRadiation;IncRadiation', iFileID, sVarName)
-                !sVarName = 'IncRadiation'
+#else
+                sVarName = 'IncRadiation'
+#endif
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//trim(sVarName)//'!')
@@ -688,15 +699,14 @@ contains
                     a2dVarIncRad = transpose(a2dVar)
                 endif
                 !------------------------------------------------------------------------------------------
-                
-                call debug_2dVar(dble(a2dVarTa), iRows, iCols, 1)
-                call debug_2dVar(dble(a2dVarIncRad), iRows, iCols, 2)
-                
-                
+
                 !------------------------------------------------------------------------------------------
                 ! RELATIVE HUMIDITY
+#ifdef LIB_DYNARRAY
                 call HMC_Tools_IO_CheckVar_NC('Relative_Humidity;RelativeHumidity;RelHumidity', iFileID, sVarName)
-                !sVarName = 'RelHumidity'
+#else
+                sVarName = 'RelHumidity'
+#endif
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//trim(sVarName)//'!')
@@ -708,8 +718,11 @@ contains
                 
                 !------------------------------------------------------------------------------------------
                 ! WIND 
+#ifdef LIB_DYNARRAY
                 call HMC_Tools_IO_CheckVar_NC('WindSpeed;Wind', iFileID, sVarName)
-                !sVarName = 'Wind'
+#else
+                sVarName = 'Wind'
+#endif
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 if(iErr /= 0) then
                     call mprintf(.true., iWARN, ' Get forcing gridded data FAILED! Check forcing data for '//trim(sVarName)//'!')

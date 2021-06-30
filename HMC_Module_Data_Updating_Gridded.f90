@@ -22,7 +22,10 @@ module HMC_Module_Data_Updating_Gridded
 
 #ifdef LIB_NC
     use HMC_Module_Tools_IO,        only:   HMC_Tools_IO_Get2d_Binary_INT, &
-                                            HMC_Tools_IO_Get2d_NC, HMC_Tools_IO_CheckVar_NC, &
+                                            HMC_Tools_IO_Get2d_NC, &
+#ifdef LIB_DYNARRAY
+                                            HMC_Tools_IO_CheckVar_NC, &
+#endif 
                                             check
 #else
     use HMC_Module_Tools_IO,        only:   HMC_Tools_IO_Get2d_Binary_INT                                      
@@ -482,8 +485,11 @@ contains
 
                     !------------------------------------------------------------------------------------------
                     ! SNOW HEIGHT
+#ifdef LIB_DYNARRAY
                     call HMC_Tools_IO_CheckVar_NC('Snow_Height;SnowHeight', iFileID, sVarName)
-                    !sVarName = 'SnowHeight'
+#else 
+                    sVarName = 'SnowHeight'
+#endif
                     call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                     if(iErr /= 0) then
                         call mprintf(.true., iWARN, &
@@ -497,8 +503,11 @@ contains
                     
                     !------------------------------------------------------------------------------------------
                     ! SNOW KERNEL
+#ifdef LIB_DYNARRAY
                     call HMC_Tools_IO_CheckVar_NC('Snow_Kernel;Kernel', iFileID, sVarName)
-                    !sVarName = 'Kernel'
+#else 
+                    sVarName = 'Kernel'
+#endif
                     call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                     if(iErr /= 0) then
                         call mprintf(.true., iWARN, &

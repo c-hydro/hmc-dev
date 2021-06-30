@@ -29,6 +29,7 @@ contains
     !------------------------------------------------------------------------------------
     ! Subroutine for checking variable name NC
 #ifdef LIB_NC
+#ifdef LIB_DYNARRAY
     subroutine HMC_Tools_IO_CheckVar_NC(var_name_list, file_id, var_name_select)
         
         !------------------------------------------------------------------------------------
@@ -95,6 +96,7 @@ contains
         !------------------------------------------------------------------------------------
         
         end subroutine HMC_Tools_IO_CheckVar_NC
+#endif
 #endif
     !------------------------------------------------------------------------------------
 
