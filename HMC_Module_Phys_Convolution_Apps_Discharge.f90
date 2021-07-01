@@ -357,7 +357,7 @@ contains
                                   ' Q SecFirst: '//sVarQoutSectionFirst//' [m^3/s]'// &
                                   ' Q SecMax: '//sVarQoutSectionMax//' [m^3/s]')
             !------------------------------------------------------------------------------------------
-                    
+            
         endif
         !------------------------------------------------------------------------------------------
                
@@ -381,7 +381,6 @@ contains
         oHMC_Vars(iID)%a2dQfloodCR = a2dVarQfloodCR !cumulative flooding right bank
         oHMC_Vars(iID)%a2dQfloodCL = a2dVarQfloodCL !cumulative flooding left bank
 
-        
         ! Info end
         if (iDEBUG.gt.0) then
             call mprintf(.true., iINFO_Extra, ' Phys :: Convolution :: Discharge ... OK' )

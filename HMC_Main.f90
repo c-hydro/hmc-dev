@@ -38,7 +38,8 @@
 !   -L/home/fabio/Documents/Work_Area/Code_Development/Library/nc4_fortran-4.4.3_HMC/lib/ 
 !   -lnetcdff -lnetcdff
 ! Add in: Project --> Properties --> Fortran Compiler --> Additional Options:
-!   gfortran: -cpp -DLIB_NC
+!   gfortran (version >  7.0): -cpp -DLIB_NC -DDYNARRAY 
+!   gfortran (version <= 7.0): -cpp -DLIB_NC  
 !   ifort: -fpp -DLIB_NC            
 ! Add in: Project --> Properties --> Run --> Environment --> NewValue
 !   LD_LIBRARY_PATH $LD_LIBRARY_PATH:/home/fabio/Documents/Work_Area/Code_Development/Library/nc4_fortran-4.4.3_HMC/lib/

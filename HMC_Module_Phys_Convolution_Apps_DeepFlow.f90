@@ -46,6 +46,7 @@ contains
         real(kind = 4), dimension (iRows, iCols)    :: a2dVarWSRunoff, a2dVarWDL
         
         real(kind = 4), dimension (iRows, iCols)    :: a2dVarWTable, a2dVarWTableStep
+        real(kind = 4), dimension (iRows, iCols)    :: a2dVarWTable_Source_Losses, a2dVarWTable_Deep_Losses
         
         real(kind = 4), dimension (iRows, iCols)    :: a2dVarFrac
         !------------------------------------------------------------------------------------------
@@ -57,6 +58,7 @@ contains
         a2dVarWSRunoff = 0.0; a2dVarWDL = 0.0; a2dVarFrac = 0.0
         
         a2dVarWTable = 0.0; a2dVarWTableStep = 0.0; 
+        a2dVarWTable_Source_Losses = 0.0; a2dVarWTable_Deep_Losses = 0.0;
         
         iFlagFlowDeep = 0; 
         !------------------------------------------------------------------------------------------
@@ -243,9 +245,12 @@ contains
                 a2dVarWDL = (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWDL*oHMC_Vars(iID)%a2dAreaCell ! m^3/s
                 a2dVarWSRunoff = (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWS*oHMC_Vars(iID)%a2dAreaCell ! m^3/s
                 
-                a2dVarWTable = a2dVarWTable - &
-                    (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax*oHMC_Vars(iID)%a2dCoeffWS*dDtDataForcing &
-                                  - oHMC_Vars(iID)%a2dWTableMax*oHMC_Vars(iID)%a2dCoeffWDL*dDtDataForcing ) ! m
+                a2dVarWTable_Source_Losses = (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWS*dDtDataForcing 
+                a2dVarWTable_Deep_Losses = (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWDL*dDtDataForcing
+                
+                a2dVarWTable = a2dVarWTable - a2dVarWTable_Source_Losses - a2dVarWTable_Deep_Losses ! m
+                
+                !a2dVarWTable = a2dVarWTable - (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWS*dDtDataForcing ! m
             endwhere
             
             ! Updating VTot
@@ -326,6 +331,7 @@ contains
         real(kind = 4), dimension (iRows, iCols)    :: a2dVarWSRunoff, a2dVarWDL
         
         real(kind = 4), dimension (iRows, iCols)    :: a2dVarWTable, a2dVarWTableStep
+        real(kind = 4), dimension (iRows, iCols)    :: a2dVarWTable_Source_Losses, a2dVarWTable_Deep_Losses
 
         real(kind = 4), dimension (iRows, iCols)    :: a2dVarFrac
         !------------------------------------------------------------------------------------------
@@ -337,6 +343,7 @@ contains
         a2dVarWSRunoff = 0.0; a2dVarWDL = 0.0; a2dVarFrac = 0.0;
         
         a2dVarWTable = 0.0; a2dVarWTableStep = 0.0; 
+        a2dVarWTable_Source_Losses = 0.0; a2dVarWTable_Deep_Losses = 0.0;
         
         iFlagFlowDeep = 0;
         !------------------------------------------------------------------------------------------
@@ -513,10 +520,13 @@ contains
                 a2dVarWDL = (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWDL*oHMC_Vars(iID)%a2dAreaCell ! m^3/s
                 a2dVarWSRunoff = (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWS*oHMC_Vars(iID)%a2dAreaCell ! m^3/s
                 
-                a2dVarWTable = a2dVarWTable - &
-                    (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax*oHMC_Vars(iID)%a2dCoeffWS*dDtDataForcing &
-                                  - oHMC_Vars(iID)%a2dWTableMax*oHMC_Vars(iID)%a2dCoeffWDL*dDtDataForcing ) ! m
+                a2dVarWTable_Source_Losses = (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWS*dDtDataForcing 
+                a2dVarWTable_Deep_Losses = (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWDL*dDtDataForcing
                 
+                a2dVarWTable = a2dVarWTable - a2dVarWTable_Source_Losses - a2dVarWTable_Deep_Losses ! m
+                
+                !a2dVarWTable = a2dVarWTable - (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWS*dDtDataForcing ! m
+                 
             endwhere
             
             ! Updating VTot
