@@ -395,7 +395,7 @@ contains
         call check( nf90_enddef(iFileID))
         !------------------------------------------------------------------------------------------
         
-                !------------------------------------------------------------------------------------------
+        !------------------------------------------------------------------------------------------
         ! Writing time variable(s) in netcdf output file
         ! TIMES
         sVarName = 'times'; sVarNameLong = 'times definition of output datasets'; 
@@ -474,6 +474,7 @@ contains
                                  sVarName, sVarNameLong, sVarDescription, &
                                  sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
                                  iCols, iRows, transpose(a2dVarHydroH) )
+            
             ! Q channel upstream (Qup)
             sVarName = 'Qup'; sVarNameLong = 'Q channel Upstream'; sVarDescription = 'hydro level';
             sVarUnits = 'm^3/s'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;

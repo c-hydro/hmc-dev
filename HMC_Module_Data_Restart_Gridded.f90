@@ -627,7 +627,7 @@ contains
                         a2dVarHydroH = transpose(a2dVar)
                         bCheckVar = bCheckVar .and. .true. 
                     endif
-
+                    
                     ! Q upstream
                     sVarName = 'Qup';
                     call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .true., iErr)

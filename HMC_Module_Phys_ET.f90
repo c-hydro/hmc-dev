@@ -223,6 +223,7 @@ contains
             elsewhere ( (a2dVarVTot - a2dVarVTotWP) .le. a2dVarAE .and. (a2dVarVTot - a2dVarVTotWP) .gt. 0.0 ) 
                 a2dVarAE = a2dVarVRet + (a2dVarVTot - a2dVarVTotWP)
                 a2dVarVTot = a2dVarVTotWP
+                
             elsewhere ( (a2dVarVTot-a2dVarVTotWP) .le. 0.0 ) ! to account also for VTot<Vwp situations
                 a2dVarAE = 0.0
             endwhere

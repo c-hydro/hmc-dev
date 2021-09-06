@@ -953,7 +953,6 @@ contains
             sFileName = trim(sPathData)//trim(sDomainName)//'.dem.txt'
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .true., iErr)
             a2dVarDEM = reshape(a2dVar, (/iRows, iCols/))
-            
             !------------------------------------------------------------------------------------------
             
             !------------------------------------------------------------------------------------------
@@ -1568,7 +1567,7 @@ contains
         !------------------------------------------------------------------------------------ 
         ! Defining Soil Water Content at Wilting Point
         where ( a2dVarDem.gt.0.0 ) 
-            a2dVarVTotWP = a2dVarS * a2dVarCtWP
+            a2dVarVTotWP = 0.0 ! condizione che tagliava un 20% del vtot a2dVarS * a2dVarCtWP ! ct_wp = 0.4*ct
         endwhere
         !------------------------------------------------------------------------------------ 
         
