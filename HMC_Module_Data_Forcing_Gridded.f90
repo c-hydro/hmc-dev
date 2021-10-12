@@ -338,6 +338,8 @@ contains
             call mprintf(.true., iWARN, ' All rain values are undefined! Check forcing data!' )
         endif
         
+        call debug_2dVar(dble(a2dVarRainL), iRowsL, iColsL, 1)
+        
         ! Air temperature
         if ( .not. all(a2dVarTaL.eq.-9999.0) ) then
             oHMC_Vars(iID)%a2dTa = a2dVarTaL
@@ -411,7 +413,7 @@ contains
             if (iFlagDynVeg.eq.1) then
                 if (sTimeStartLAI .eq. sTimeEndLAI) then
                     call mprintf(.true., iERROR, ' Dynamic Vegetation Phys activated -- LAI valid values not found.'// &
-                        ' LAI was valid until '//sTimeEndLAI//' -- Programm STOPPED!')
+                        ' LAI was valid until '//sTimeEndLAI//' -- Program STOPPED!')
                 else
                     if ( (all(oHMC_Vars(iID)%a2dLAI .eq. -9999.0)) .and. ( .not. oHMC_Vars(iID)%bInitLAI) ) then 
                         call HMC_Tools_Time_MonthVal(oHMC_Namelist(iID)%a1dLAIMonthly, sTimeMonth, dVarLAI)

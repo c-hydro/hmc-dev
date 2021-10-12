@@ -376,7 +376,8 @@ contains
                     a2dVarLSTUpd = 0.0
             endwhere
             !-----------------------------------------------------------------------------------------
-
+            
+            
             !-----------------------------------------------------------------------------------------
             ! Calculating heat fluxes and evapotraspiration
             ! Calculating EPS_S, H, LE and G
@@ -384,11 +385,7 @@ contains
                 a2dVarEpsS = 0.611*exp(17.3*(a2dVarLSTUpd - dTRef)/(237.3 + a2dVarLSTUpd - dTRef))  
                 a2dVarH = a2dVarRhoA*dCp*(a2dVarLSTUpd - a2dVarTaK)/a2dVarRatm
                 a2dVarLE = a2dVarRhoA*a2dVarLambda*(a2dVarEpsS - a2dVarEA)/(a2dVarPa*a2dVarRsurf)*0.622
-                
-                a2dVarLE = a2dVarRhoA*a2dVarLambda*a2dVarCH*a2dVarWind*a2dVarBF*(a2dVarEpsS - a2dVarEA)/a2dVarPa*0.622
-                
                 a2dVarG = a2dVarH + a2dVarLE - a2dVarRn
-
             elsewhere
                 a2dVarEpsS = 0.0
                 a2dVarH = 0.0

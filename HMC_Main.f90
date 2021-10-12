@@ -1,10 +1,4 @@
 !******************************************************************************************
-! EUPL - Version 1.2
-! This code is distributed following the European Union Public Licence:
-! https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
-!******************************************************************************************
-
-!******************************************************************************************
 ! HYDROLOGICAL MODEL CONTINUUM
 ! Version 3.1.5
 ! Date: 2021/06/25
