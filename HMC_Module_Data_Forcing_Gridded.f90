@@ -337,9 +337,7 @@ contains
         else
             call mprintf(.true., iWARN, ' All rain values are undefined! Check forcing data!' )
         endif
-        
-        call debug_2dVar(dble(a2dVarRainL), iRowsL, iColsL, 1)
-        
+
         ! Air temperature
         if ( .not. all(a2dVarTaL.eq.-9999.0) ) then
             oHMC_Vars(iID)%a2dTa = a2dVarTaL
