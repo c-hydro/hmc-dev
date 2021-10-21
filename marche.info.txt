@@ -28,8 +28,8 @@
     iDtData_Forcing = 3600
     iDtData_Output_Gridded = 3600
     iDtData_Output_Point = 3600
-    iDtData_State_Gridded = 86400
-    iDtData_State_Point = 86400
+    iDtData_State_Gridded = 3600
+    iDtData_State_Point = 3600
     iDtData_Updating = 3600
     iDtModel = 3600
     iDtPhysConv = 50
@@ -83,8 +83,8 @@
     sPathData_Static_Gridded = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_marche/data/data_static/gridded/"
     sPathData_Static_Point = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_marche/data/data_static/point/"
     sPathData_Updating_Gridded = "/home/fabio/Desktop/PyCharm_Workspace/hmc-ws/opchain_marche/run/weather_station_history/forcing/gridded/$yyyy/$mm/$dd/"
-    sTimeRestart = "202110071100"
-    sTimeStart = "202110071000"
+    sTimeRestart = "202110071300"
+    sTimeStart = "202110071400"
 /
 &HMC_Snow
     a1dAltRange = 1500.0,2000.0,2500.0,2500.0

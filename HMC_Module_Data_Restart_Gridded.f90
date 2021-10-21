@@ -62,6 +62,7 @@ contains
         integer(kind = 4)           :: iRows, iCols
         integer(kind = 4)           :: iRowsStart, iColsStart, iRowsEnd, iColsEnd
         integer(kind = 4)           :: iDaySteps, iTMarkedSteps
+        integer(kind = 4)           :: iDtIntegr
 
         integer(kind = 4)           :: iFlagTypeData_Restart 
         integer(kind = 4)           :: iScaleFactor
@@ -185,7 +186,7 @@ contains
 #ifdef LIB_NC
                 call HMC_Data_Restart_Gridded_NC(iID, &
                                         sPathData_Restart, &
-                                        iRows, iCols, &
+                                        iRows, iCols, iDtIntegr, &
                                         iDaySteps, iTMarkedSteps, &
                                         sTime, iFlagSnow, iFlagCType, &
                                         a2dVarVTot, a2dVarVRet, &
@@ -219,7 +220,7 @@ contains
                 ! Call subroutine to read data in binary format
                 call HMC_Data_Restart_Gridded_Binary(iID, &
                                         sPathData_Restart, &
-                                        iRows, iCols, &
+                                        iRows, iCols, iDtIntegr, &
                                         iDaySteps, iTMarkedSteps, &
                                         sTime, iFlagSnow, iFlagCType, &
                                         a2dVarVTot, a2dVarVRet, &
@@ -241,7 +242,17 @@ contains
             ! Check restart flag on data availability
             call mprintf(.true., iINFO_Extra, ' Data :: Restart gridded for generic physics ... ' )
             if (bCheckRestart .eqv. .true.) then
-
+                
+                !------------------------------------------------------------------------------------------
+                ! Parameter(s) Integration Step
+                if (iDtIntegr .gt. 0) then
+                    oHMC_Vars(iID)%iDtIntegrPStep = iDtIntegr
+                else
+                    call mprintf(.true., iWARN, ' The integration step is less then 0; '// &
+                                                'the parameter will be set by the namelist default value.')
+                endif
+                !------------------------------------------------------------------------------------------
+                
                 !------------------------------------------------------------------------------------------
                 ! Variable(s) conversion (Watertable)
                 where(a2dVarDem.gt.0.0)
@@ -422,7 +433,7 @@ contains
 #ifdef LIB_NC
     subroutine HMC_Data_Restart_Gridded_NC(iID, &
                                            sPathData_Restart, &
-                                           iRows, iCols, &
+                                           iRows, iCols, iDtIntegr, &
                                            iDaySteps, iTMarkedSteps, &
                                            sTime, iFlagSnow, iFlagCType, &
                                            a2dVarVTot, a2dVarVRet, &
@@ -448,6 +459,7 @@ contains
         integer(kind = 4), intent(in)           :: iRows, iCols
         integer(kind = 4), intent(in)           :: iDaySteps, iTMarkedSteps
         integer(kind = 4), intent(in)           :: iFlagSnow, iFlagCType
+        integer(kind = 4)                       :: iDtIntegr
 
         character(len = 19), intent(in)         :: sTime
 
@@ -503,7 +515,7 @@ contains
         a2dVarWSRunoff = -9999.0
         a2dVarLat = -9999.0; a2dVarLon = -9999.0;
         
-        dScaleFactor = 0.0
+        dScaleFactor = 0.0; iDtIntegr = -9999;
         
         bCheckRestart = .false.; sPID = '';
         
@@ -575,7 +587,16 @@ contains
             else
                 
                 !------------------------------------------------------------------------------------------
-                ! Condition for file restart found
+                ! Attributes found for the restart conditions 
+                iErr = nf90_inquire_attribute(iFileID, NF90_GLOBAL, "integration_step")
+                if (iErr /= 0) then
+                    call mprintf(.true., iWARN, ' The attributes integration_step is not available in the restart gridded file' )
+                    iDtIntegr = -9999
+                else
+                    call check( nf90_get_att(iFileID, NF90_GLOBAL, "integration_step", iDtIntegr) )
+                endif
+                
+                ! Datasets found for the restart conditions
                 ! VTot
                 sVarName = 'VTot';
                 call HMC_Tools_IO_Get2d_NC((sVarName), iFileID, a2dVar, sVarUnits, iCols, iRows, .true., iErr)
@@ -703,8 +724,7 @@ contains
                     a2dVarLST = transpose(a2dVar)
                     bCheckVar = bCheckVar .and. .true. 
                 endif
-                
-                               
+                                
                 ! Tmk
                 sVarName = 'Tmk';
                 call HMC_Tools_IO_Get3d_NC((sVarName), iFileID, a3dVar1, sVarUnits, dScaleFactor, &
@@ -720,7 +740,7 @@ contains
                     a3dVarTaKMarked = transpose3Dvar(a3dVar1 * dScaleFactor)
                     bCheckVar = bCheckVar .and. .true. 
                 endif
-
+                
                 ! T24
                 sVarName = 'T24';
                 call HMC_Tools_IO_Get3d_NC((sVarName), iFileID, a3dVar2, sVarUnits, dScaleFactor, &
@@ -918,7 +938,7 @@ contains
     ! Subroutine to read binary data restart
     subroutine HMC_Data_Restart_Gridded_Binary(iID, &
                                                sPathData_Restart, &
-                                               iRows, iCols, &
+                                               iRows, iCols, iDtIntegr, &
                                                iDaySteps, iTMarkedSteps, &
                                                sTime, iFlagSnow, iFlagCType, &
                                                a2dVarVTot, a2dVarVRet, &
@@ -944,6 +964,7 @@ contains
         integer(kind = 4), intent(in)           :: iDaySteps, iTMarkedSteps
         integer(kind = 4), intent(in)           :: iFlagSnow, iFlagCType
         
+        integer(kind = 4)                       :: iDtIntegr
         integer(kind = 4)                       :: iScaleFactor
         character(len = 19), intent(in)         :: sTime
 
@@ -990,6 +1011,8 @@ contains
         a2iVarAgeS = -9999; a2dVarSWE = -9999.0; a2dVarAlbedoS = -9999.0; a2dVarRhoS = -9999.0;
         a3dVarTaC_1Days = -9999.0; a3dVarTaC_5Days = -9999.0;
         a2dVarWSRunoff = -9999.0
+        
+        iDtIntegr = -9999
         
         sFileNameData_Restart = ""; sCommandUnzipFile = "";
         

@@ -558,7 +558,7 @@ contains
 
         character(len = 256):: sVarUnits, sPID
         integer(kind = 4)   :: iErr, iFlagDynVeg, iFlagEnergyBalance
-        integer(kind = 4)   :: iFileID
+        integer(kind = 4)   :: iFileID, iDtIntegr
 
         logical             :: bFileExist
         !------------------------------------------------------------------------------------------
@@ -639,7 +639,8 @@ contains
                                              sFileNameData_Forcing_Zip, &
                                              sFileNameData_Temp, .true.)
             !-----------------------------------------------------------------------------------------
-        
+            
+                                                                           
             !------------------------------------------------------------------------------------------
             ! Open netCDF file
             iErr = nf90_open(trim(sFileNameData_Temp), NF90_NOWRITE, iFileID)
@@ -649,6 +650,7 @@ contains
                 call mprintf(.true., iINFO_Verbose, &
                              ' Get filename (forcing gridded): '//trim(sFileNameData_Forcing)//' ... FAILED' )
             else
+                
                 
                 !------------------------------------------------------------------------------------------
                 ! RAIN
@@ -666,6 +668,7 @@ contains
                 endif
                 !------------------------------------------------------------------------------------------
                 
+                  
                 !------------------------------------------------------------------------------------------
                 ! AIR TEMPERATURE
 #ifdef LIB_DYNARRAY

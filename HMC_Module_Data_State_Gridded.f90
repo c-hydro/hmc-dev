@@ -63,6 +63,7 @@ contains
 
         integer(kind = 4)           :: iFlagTypeData_State, iFlagSnow, iFlagCType
         integer(kind = 4)           :: iScaleFactor
+        integer(kind = 4)           :: iDtIntegr
         
         character(len = 19)         :: sTime
         character(len = 700)        :: sPathData_State
@@ -93,6 +94,7 @@ contains
 
         !------------------------------------------------------------------------------------------
         ! Initialize variable(s)
+        iDtIntegr = 0
         a2dVarVTot = 0.0; a2dVarVRet = 0.0; a2dVarHydro = 0.0; a2dVarRouting = 0.0; a2dVarFlowDeep = 0.0; 
         a2dVarLST = 0.0; a2dVarWTable = 0.0; a3dVarTaKMarked = 0.0; a3dVarTaK24  = 0.0;
         a2dVarLat = 0.0; a2dVarLon = 0.0
@@ -145,6 +147,8 @@ contains
         ! Get variable(s) from global workspace
         a2dVarDem = oHMC_Vars(iID)%a2dDem
         
+        iDtIntegr = oHMC_Vars(iID)%iDtIntegr
+        
         a2dVarVTot = oHMC_Vars(iID)%a2dVTot; a2dVarVRet = oHMC_Vars(iID)%a2dVRet
         a2dVarHydro = oHMC_Vars(iID)%a2dHydro; a2dVarRouting = oHMC_Vars(iID)%a2dRouting
         a2dVarWTable = oHMC_Vars(iID)%a2dWTable; 
@@ -194,7 +198,7 @@ contains
 #ifdef LIB_NC
             call HMC_Data_State_Gridded_NC(iID, &
                                     sPathData_State, &
-                                    iRows, iCols, &
+                                    iRows, iCols, iDtIntegr, &
                                     iDaySteps, iTMarkedSteps, &
                                     sTime, iFlagSnow, iFlagCType,  &
                                     a2dVarVTot, a2dVarVRet, &
@@ -227,7 +231,7 @@ contains
             ! Call subroutine to write data in binary format
             call HMC_Data_State_Gridded_Binary(iID, &
                                     sPathData_State, &
-                                    iRows, iCols, &
+                                    iRows, iCols, iDtIntegr, &
                                     iDaySteps, iTMarkedSteps, &
                                     sTime, iFlagSnow, iFlagCType, &
                                     iScaleFactor, &
@@ -260,7 +264,7 @@ contains
 #ifdef LIB_NC
     subroutine HMC_Data_State_Gridded_NC(iID,  &
                                            sPathData_State, &
-                                           iRows, iCols, &
+                                           iRows, iCols, iDtIntegr, &
                                            iDaySteps, iTMarkedSteps, &
                                            sTime, iFlagSnow, iFlagCType, &
                                            a2dVarVTot, a2dVarVRet, &
@@ -284,7 +288,7 @@ contains
         character(len = 256)                    :: sVarName, sVarNameLong
         character(len = 256)                    :: sVarGridMap, sVarDescription, sVarCoords
         character(len = 256)                    :: sVarUnits
-        integer(kind = 4), intent(in)           :: iRows, iCols
+        integer(kind = 4), intent(in)           :: iRows, iCols, iDtIntegr
         integer(kind = 4)                       :: iDaySteps, iTMarkedSteps
         integer(kind = 4)                       :: iFlagSnow, iFlagCType
         
@@ -388,6 +392,7 @@ contains
         call check( nf90_put_att(iFileID, NF90_GLOBAL, "ycellsize", dVarCellSizeY) )
         call check( nf90_put_att(iFileID, NF90_GLOBAL, "nrows", iRows) )        
         call check( nf90_put_att(iFileID, NF90_GLOBAL, "ncols", iCols) )
+        call check( nf90_put_att(iFileID, NF90_GLOBAL, "integration_step", iDtIntegr) )
         !------------------------------------------------------------------------------------------
 
         !------------------------------------------------------------------------------------------
@@ -640,7 +645,7 @@ contains
     ! Subroutine to write binary data state
     subroutine HMC_Data_State_Gridded_Binary(iID, &
                                                sPathData_State, &
-                                               iRows, iCols, &
+                                               iRows, iCols, iDtIntegr, &
                                                iDaySteps, iTMarkedSteps, &
                                                sTime, iFlagSnow, iFlagCType, &
                                                iVarScale, &
@@ -662,7 +667,7 @@ contains
         character(len = 700), intent(in)        :: sPathData_State
         character(len = 700)                    :: sFileNameData_State
         character(len = 256)                    :: sVarName
-        integer(kind = 4), intent(in)           :: iRows, iCols
+        integer(kind = 4), intent(in)           :: iRows, iCols, iDtIntegr
         integer(kind = 4)                       :: iDaySteps, iTMarkedSteps
         integer(kind = 4)                       :: iVarScale, iFlagSnow, iFlagCType
 

@@ -165,6 +165,7 @@ contains
         character(len = 256)        :: sDomainName
         
         integer(kind = 4)           :: iFileID, iDimId, ppos
+        integer(kind = 4)           :: iErr
 
         logical                     :: bFileExist
         !------------------------------------------------------------------------------------
@@ -235,9 +236,23 @@ contains
 
                 ! Open netCDF file
                 call check( nf90_open(trim(sFileName_Temp), NF90_NOWRITE, iFileID) )
+                
                 ! Get global attribute(s)
-                call check( nf90_get_att(iFileID, nf90_global, "ncols", iCols) )
-                call check( nf90_get_att(iFileID, nf90_global, "nrows", iRows) )
+                iErr = nf90_inquire_attribute(iFileID, NF90_GLOBAL, "ncols")
+                if (iErr /= 0) then
+                    call mprintf(.true., iERROR, 'The forcing attributes "ncols" '// &
+                                                 'is not available, Check your forcing file ')
+                else
+                    call check( nf90_get_att(iFileID, NF90_GLOBAL, "ncols", iCols) )
+                endif
+                iErr = nf90_inquire_attribute(iFileID, NF90_GLOBAL, "nrows")
+                if (iErr /= 0) then
+                    call mprintf(.true., iERROR, 'The forcing attributes "nrows" '// &
+                                                 'is not available, Check your forcing file ')
+                else
+                    call check( nf90_get_att(iFileID, NF90_GLOBAL, "nrows", iRows) )
+                endif
+                
                 ! Close netCDF file
                 call check( nf90_close(iFileID) )
                 ! Info
@@ -313,11 +328,13 @@ contains
         integer(kind = 4)           :: iVar
         real(kind = 4)              :: dVar
         real(kind = 4)              :: dVarXLLCorner, dVarYLLCorner, dVarCellSize, dVarNoData
+        
+        integer(kind = 4)           :: iErr
         !------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------
         ! Initialize variable(s)
-        iVar = 0; dVar = 0;
+        iVar = 0; dVar = 0; iErr = 0;
         dVarXLLCorner = -9999.0; dVarYLLCorner = -9999.0; dVarCellSize = -9999.0; 
         dVarNoData = -9999.0; 
         !------------------------------------------------------------------------------------
@@ -353,11 +370,37 @@ contains
 
                 ! Open netCDF file
                 call check( nf90_open(trim(sFileName), NF90_NOWRITE, iNCid) )
+
                 ! Get global attribute(s)
-                call check( nf90_get_att(iNCid, nf90_global, "xllcorner",    dVarXLLCorner) )
-                call check( nf90_get_att(iNCid, nf90_global, "yllcorner",    dVarYLLCorner) )
-                call check( nf90_get_att(iNCid, nf90_global, "cellsize",     dVarCellSize) )
-                call check( nf90_get_att(iNCid, nf90_global, "nodata_value", dVarNoData) )
+                iErr = nf90_inquire_attribute(iNCid, NF90_GLOBAL, "xllcorner")
+                if (iErr /= 0) then
+                    call mprintf(.true., iERROR, 'The static attributes "xllcorner" '// &
+                                                 'is not available, Check your forcing file ')
+                else
+                    call check( nf90_get_att(iNCid, NF90_GLOBAL, "xllcorner", dVarXLLCorner) )
+                endif
+                iErr = nf90_inquire_attribute(iNCid, NF90_GLOBAL, "yllcorner")
+                if (iErr /= 0) then
+                    call mprintf(.true., iERROR, 'The static attributes "yllcorner" '// & 
+                                                 'is not available, Check your forcing file ')
+                else
+                    call check( nf90_get_att(iNCid, NF90_GLOBAL, "yllcorner", dVarYLLCorner) )
+                endif
+                iErr = nf90_inquire_attribute(iNCid, NF90_GLOBAL, "cellsize")
+                if (iErr /= 0) then
+                    call mprintf(.true., iERROR, 'The static attributes "cellsize" '// &
+                                                 'is not available, Check your forcing file ')
+                else
+                    call check( nf90_get_att(iNCid, NF90_GLOBAL, "cellsize", dVarCellSize) )
+                endif
+                iErr = nf90_inquire_attribute(iNCid, NF90_GLOBAL, "nodata_value")
+                if (iErr /= 0) then
+                    call mprintf(.true., iERROR, 'The static attributes "nodata_value" '// &
+                                                 'is not available, Check your forcing file ')
+                else
+                    call check( nf90_get_att(iNCid, NF90_GLOBAL, "nodata_value", dVarNoData) )
+                endif
+
                 ! Close netCDF file
                 call check( nf90_close(iNCid) )
                 ! Info
@@ -438,6 +481,7 @@ contains
         character(len = 700)        :: sCommandUnzip
         
         integer(kind = 4)           :: iVarCols, iVarRows
+        integer(kind = 4)           :: iDtIntegr
         real(kind = 4)              :: dVarXLLCorner, dVarYLLCorner
         real(kind = 4)              :: dVarXCellSize, dVarYCellSize
         real(kind = 4)              :: dVarNoData
@@ -449,6 +493,7 @@ contains
         
         !------------------------------------------------------------------------------------
         ! Initialize variable(s)
+        iErr = 0;
         iVarCols = -9999; iVarRows = -9999; 
         dVarXLLCorner = -9999.0; dVarYLLCorner = -9999.0;
         dVarXCellSize = -9999.0; dVarYCellSize = -9999.0;
@@ -533,11 +578,35 @@ contains
                     call check( nf90_open(trim(sFileName_Temp), NF90_NOWRITE, iFileID) )
                     
                     ! Get global attribute(s)
-                    call check( nf90_get_att(iFileID, nf90_global, "xllcorner",    dVarXLLCorner) )
-                    call check( nf90_get_att(iFileID, nf90_global, "yllcorner",    dVarYLLCorner) )
-                    call check( nf90_get_att(iFileID, nf90_global, "cellsize",     dVarXCellSize) )
-                    call check( nf90_get_att(iFileID, nf90_global, "nodata_value", dVarNoData) )
-                    
+                    iErr = nf90_inquire_attribute(iFileID, NF90_GLOBAL, "xllcorner")
+                    if (iErr /= 0) then
+                        call mprintf(.true., iERROR, ' The forcing attributes "xllcorner" '// &
+                                                     'is not available, Check your forcing file ' )
+                    else
+                        call check( nf90_get_att(iFileID, NF90_GLOBAL, "xllcorner", dVarXLLCorner) )
+                    endif
+                    iErr = nf90_inquire_attribute(iFileID, NF90_GLOBAL, "yllcorner")
+                    if (iErr /= 0) then
+                        call mprintf(.true., iERROR, 'The forcing attributes "yllcorner" '// &
+                                                     'is not available, Check your forcing file ')
+                    else
+                        call check( nf90_get_att(iFileID, NF90_GLOBAL, "yllcorner", dVarYLLCorner) )
+                    endif
+                    iErr = nf90_inquire_attribute(iFileID, NF90_GLOBAL, "cellsize")
+                    if (iErr /= 0) then
+                        call mprintf(.true., iERROR, 'The forcing attributes "cellsize" '// &
+                                                     'is not available, Check your forcing file ')
+                    else
+                        call check( nf90_get_att(iFileID, NF90_GLOBAL, "cellsize", dVarXCellSize) )
+                    endif
+                    iErr = nf90_inquire_attribute(iFileID, NF90_GLOBAL, "nodata_value")
+                    if (iErr /= 0) then
+                        call mprintf(.true., iERROR, 'The forcing attributes "nodata_value" '// &
+                                                     'is not available, Check your forcing file ')
+                    else
+                        call check( nf90_get_att(iFileID, NF90_GLOBAL, "nodata_value", dVarNoData) )
+                    endif
+                                        
                     dVarYCellSize = dVarXCellSize
                     
                     ! Close nc file
