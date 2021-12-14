@@ -132,9 +132,9 @@ contains
                 a2iVarAgeS = 0
             endwhere
             
-            ! Snow age re-initialization with SWE equal to 0.0 (without snow --> no data value)
+            ! Snow age re-initialization to -9999 with SWE equal to 0.0 (without snow --> no data value)
             where( (a2dVarDem.ge.0.0) .and. (a2dVarSWE.eq.0.0) )
-                a2iVarAgeS = 0
+                a2iVarAgeS = -9999
             endwhere
 
         endif

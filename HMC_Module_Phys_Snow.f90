@@ -432,7 +432,7 @@ contains
                     ! Nullify variable(s) when SWE less than 5 cm
                     where(a2dVarSWE.lt.10)
                         a2dVarSWE = 0.0;
-                        a2iVarAgeS = 0;
+                        a2iVarAgeS = -9999;
                         a2dVarAlbedoS = 0.0;
                         a2dVarRhoS = 0.0
                     endwhere
@@ -466,8 +466,8 @@ contains
                 a2iVarAgeS = -9999; a2dVarMeltingS = -9999.0; !a2dVarMeltingSDayCum = -9999.0
             endwhere
             
-            where( (a2dVarDem.gt.0.0) .and. (a2dVarSWE.eq.0.0) ) 
-                a2iVarAgeS = 0; a2dVarAlbedoS = 0.0; a2dVarRhos = 0.0;
+            where( (a2dVarDem.gt.0.0) .and. (a2dVarSWE.lt.0.1) ) 
+                a2iVarAgeS = -9999; a2dVarAlbedoS = 0.0; a2dVarRhos = 0.0; a2dVarSWE = 0.0
             endwhere
             
             where( (a2dVarDem.gt.0.0) .and. (a2dVarSWE.gt.0.0) ) 

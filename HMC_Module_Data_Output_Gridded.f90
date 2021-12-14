@@ -97,7 +97,7 @@ contains
                                   iColsEnd - iColsStart + 1)     ::  a2dVarSWE, &
                                                                      a2dVarMeltingS, a2dVarAlbedoS, & 
                                                                      a2dVarRhoS, a2dVarMeltingSDayCum, &
-                                                                     a2dVarSnowFall                           
+                                                                     a2dVarSnowFall, a2dVarSnowMask           
         real(kind = 4), dimension(iRowsEnd - iRowsStart + 1, &
                                   iColsEnd - iColsStart + 1, iDaySteps) :: a3dVarET, a3dVarETpot  
                                   
@@ -220,6 +220,8 @@ contains
             a2dVarRhoS = oHMC_Vars(iID)%a2dRhoS
             a2dVarSnowFall = oHMC_Vars(iID)%a2dSnowFall
             
+            a2dVarSnowMask = oHMC_Vars(iID)%a2dMaskS 
+            
             if( (iStepData_Hour .eq. iAccumData_Hour) .and. (iTime .ge. iDaySteps) ) then
                 a2dVarMeltingSDayCum = sum(a3dVarMeltingS(:, :, 1:int(iDaySteps)), dim=3)
             endif
@@ -228,6 +230,7 @@ contains
             a2iVarAgeS = -9999
             a2dVarSWE = -9999.0; a2dVarAlbedoS = -9999.0; a2dVarRhoS = -9999.0
             a2dVarMeltingS = -9999.0; a2dVarMeltingSDayCum = -9999.0; a2dVarSnowFall = -9999.0
+            a2dVarSnowMask = -9999.0
         endif
         !------------------------------------------------------------------------------------------
         
@@ -252,7 +255,7 @@ contains
                                     a2dVarVTot, &
                                     a2dVarQout, a2dVarQfloodCR, a2dVarQfloodCL, &
                                     a2dVarSWE, a2iVarAgeS, a2dVarMeltingS, a2dVarMeltingSDayCum, &
-                                    a2dVarAlbedoS, a2dVarRhoS, a2dVarSnowFall, &
+                                    a2dVarAlbedoS, a2dVarRhoS, a2dVarSnowFall, a2dVarSnowMask, &
                                     a2dVarSM, &
                                     a2dVarWSRunoff, a2dVarWDL, &
                                     a2dVarLat, a2dVarLon)
@@ -287,7 +290,7 @@ contains
                                     a2dVarETCum, a2dVarETPotCum, a2dVarET, a2dVarETpot, &
                                     a2dVarVTot, a2dVarQout, a2dVarQfloodCR, a2dVarQfloodCL, &
                                     a2dVarSWE, a2iVarAgeS, a2dVarMeltingS, a2dVarMeltingSDayCum, &
-                                    a2dVarAlbedoS, a2dVarRhoS, a2dVarSnowFall, &
+                                    a2dVarAlbedoS, a2dVarRhoS, a2dVarSnowFall, a2dVarSnowMask, &
                                     a2dVarSM, & 
                                     a2dVarWSRunoff, a2dVarWDL, &
                                     a2dVarLat, a2dVarLon)
@@ -322,7 +325,7 @@ contains
                                           a2dVarVTot, &
                                           a2dVarQout, a2dVarQfloodCR, a2dVarQfloodCL, &
                                           a2dVarSWE, a2iVarAgeS, a2dVarMeltingS, a2dVarMeltingSDayCum, &
-                                          a2dVarAlbedoS, a2dVarRhoS, a2dVarSnowFall, &
+                                          a2dVarAlbedoS, a2dVarRhoS, a2dVarSnowFall, a2dVarSnowMask, &
                                           a2dVarSM, &
                                           a2dVarWSRunoff, a2dVarWDL, &
                                           a2dVarLat, a2dVarLon)
@@ -375,6 +378,7 @@ contains
         real(kind = 4), dimension(iRows, iCols), intent(in)         :: a2dVarAlbedoS
         real(kind = 4), dimension(iRows, iCols), intent(in)         :: a2dVarRhoS
         real(kind = 4), dimension(iRows, iCols), intent(in)         :: a2dVarSnowFall
+        real(kind = 4), dimension(iRows, iCols), intent(in)         :: a2dVarSnowMask
 
         integer(kind = 4)       :: iErr
         
@@ -650,7 +654,7 @@ contains
         if ( (iFlagSnow .eq. 1) .and. (iActData_Snow .eq. 1) ) then
             
             ! SWE
-            sVarName = 'SWE'; sVarNameLong = 'snow water equivalent'; sVarDescription = 'SWE';
+            sVarName = 'SWE'; sVarNameLong = 'snow water equivalent'; sVarDescription = 'SWE)';
             sVarUnits = 'mm'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
             sVarCoords = 'Longitude Latitude';
             call HMC_Tools_IO_Put2d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, & 
@@ -667,7 +671,7 @@ contains
                                  iCols, iRows, transpose(a2dVarMeltingS))  
             
             ! Snow density
-            sVarName = 'RhoS'; sVarNameLong = 'snow density'; sVarDescription = 'rhos';
+            sVarName = 'RhoS'; sVarNameLong = 'snow density'; sVarDescription = 'rhos (snow>=0, no_snow=-9999)';
             sVarUnits = 'kg/m^3'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
             sVarCoords = 'Longitude Latitude';
             call HMC_Tools_IO_Put2d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, & 
@@ -682,6 +686,15 @@ contains
                                  sVarName, sVarNameLong, sVarDescription, &
                                  sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
                                  iCols, iRows, transpose(a2dVarSnowFall))
+            
+            ! Snowmask
+            sVarName = 'SnowMask'; sVarNameLong = 'snowmask'; sVarDescription = 'snow mask (snow=1, no_snow=0)';
+            sVarUnits = ''; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+            sVarCoords = 'Longitude Latitude';
+            call HMC_Tools_IO_Put2d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, & 
+                                 sVarName, sVarNameLong, sVarDescription, &
+                                 sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
+                                 iCols, iRows, transpose(a2dVarSnowMask))
                                  
             ! Daily variable(s)     
             if( iStepData_Hour .eq. iAccumData_Hour ) then
@@ -751,7 +764,7 @@ contains
                                     a2dVarETCum, a2dVarETPotCum, a2dVarET, a2dVarETpot, &
                                     a2dVarVTot, a2dVarQout, a2dVarQfloodCR, a2dVarQfloodCL, &
                                     a2dVarSWE, a2iVarAgeS, a2dVarMeltingS, a2dVarMeltingSDayCum, &
-                                    a2dVarAlbedoS, a2dVarRhoS, a2dVarSnowFall, &
+                                    a2dVarAlbedoS, a2dVarRhoS, a2dVarSnowFall, a2dVarSnowMask, &
                                     a2dVarSM, & 
                                     a2dVarWSRunoff, a2dVarWDL, &
                                     a2dVarLat, a2dVarLon)                                     
@@ -803,6 +816,7 @@ contains
         real(kind = 4), dimension(iRows, iCols)                 :: a2dVarAlbedoS
         real(kind = 4), dimension(iRows, iCols)                 :: a2dVarRhoS
         real(kind = 4), dimension(iRows, iCols)                 :: a2dVarSnowFall
+        real(kind = 4), dimension(iRows, iCols)                 :: a2dVarSnowMask
        
         character(len = 256)    :: sVarUnits
         integer(kind = 4)       :: iErr
@@ -1051,7 +1065,19 @@ contains
             call HMC_Tools_Generic_ZipFile(oHMC_Namelist(iID)%sCommandZipFile, &
                         sFileNameData_Output//'.gz', sFileNameData_Output, .false.)
             !call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Output, .false. )
-                             
+            
+            ! Snowmask
+            iVarScale = 1;
+            sFileNameData_Output = trim(sPathData_Output)//"Snowmask_"// &
+                                sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
+                                ".bin"            
+            call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
+            call HMC_Tools_IO_Put2d_Binary_DBL(sFileNameData_Output, a2dVarSnowMask, iRows, iCols, iVarScale, .true., iErr)  
+            call HMC_Tools_Generic_ZipFile(oHMC_Namelist(iID)%sCommandZipFile, &
+                        sFileNameData_Output//'.gz', sFileNameData_Output, .false.)
+            !call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Output, .false. )
+                        
+                        
             ! Daily variable(s)     
             if ( iStepData_Hour .eq. iAccumData_Hour ) then
             

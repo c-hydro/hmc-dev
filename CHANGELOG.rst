@@ -6,11 +6,13 @@ Version 3.1.5 [2021-06-25]
 **************************
 - ADD: the watertable deep losses parameter and flag;
 - ADD: the watertable allowed maximum water loss;
-- ADD: the group of the debug variable(s) in writing output
-- ADD: the checking of Fortran version to build the routines using string allocatable arrays (GFortran > 7)
+- ADD: the group of the debug variable(s) in writing output;
+- ADD: the checking of Fortran version to build the routines using string allocatable arrays (GFortran > 7);
+- ADD: the SnowMask variable in the output file;
 - FIX: bugs in writing actual accumulated et with basic variable group;
 - FIX: bug in the initial condition of water content of wilting point; the variable is set to zero to avoid unexpected behaviour of cells reservoir;
 - FIX: bug in restart conditions related to the integration step parameters to avoid errors in the routing rescaling;
+- FIX: bug in the snow module related to the SWE, RhoS and SnowMask variables;
 - FIX: bug in the channel network physics adding the fracturation variable.
 
 Version 3.1.4 [2021-03-08]
