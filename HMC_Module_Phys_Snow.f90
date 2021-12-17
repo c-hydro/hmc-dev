@@ -1,17 +1,17 @@
- !------------------------------------------------------------------------------------
+!------------------------------------------------------------------------------------------
 ! File:   HMC_Module_Phys_Snow.f90
 !
 ! Author:   Simone Gabellani, Fabio Delogu
 ! Date:     20150714
 !
 ! Physics subroutine(s) for snow model (S3M)
-!------------------------------------------------------------------------------------
+!------------------------------------------------------------------------------------------
 
-!------------------------------------------------------------------------------------
+!------------------------------------------------------------------------------------------
 ! Module Header
 module HMC_Module_Phys_Snow
 
-    !------------------------------------------------------------------------------------
+    !------------------------------------------------------------------------------------------
     ! External module(s) 
     use HMC_Module_Namelist,            only:   oHMC_Namelist
     use HMC_Module_Vars_Loader,         only:   oHMC_Vars
@@ -35,7 +35,7 @@ contains
     ! Subroutine to calculate snow updating 
     subroutine HMC_Phys_Snow_Cpl(iID, iRows, iCols)
         
-        !-------------------------------------------------------------------------------------
+        !------------------------------------------------------------------------------------------
         ! Variable(s) declaration
         integer(kind = 4)   :: iID, iRows, iCols
         integer(kind = 4)   :: iDaySteps, iDaySteps1Days, iDaySteps5Days, iStep
@@ -74,9 +74,16 @@ contains
         
         real(kind = 4), dimension(iRows, iCols)         :: a2dVarTaC_MeanDays1, a2dVarTaC_MeanDays5
         real(kind = 4), dimension(iRows, iCols)         :: a2dVarSepCoeff, a2dVarCloudFactor
-        !-------------------------------------------------------------------------------------
         
-        !-------------------------------------------------------------------------------------
+        
+        real(kind = 4)                                  :: dVarSWE, dVarRhoS, dVarAgeS, dVarMeltingS, dVarSnowMask
+        character(len = 10)                             :: sVarSWE, sVarRhoS, sVarAgeS, sVarMeltingS, sVarSnowMask
+        character(len = 10), parameter                  :: sFMTVarType1 = "(F7.4)"
+        character(len = 10), parameter                  :: sFMTVarType2 = "(F9.4)"
+        character(len = 10), parameter                  :: sFMTVarType3 = "(I4)"
+        !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
         ! Snow cover area code(s) [MODIS V5]
         ! 'missing_data'    : { 'satellite' : 0, 	's3m' : -1 	},
         ! 'no_decision'     : { 'satellite' : 1, 	's3m' : 3 	},
@@ -99,9 +106,9 @@ contains
         ! 'snow'            : { 'satellite' : [1,100],  's3m' : 1 	},
         ! 'no_snow'         : { 'satellite' : 0, 	's3m' : 0	},
         ! 'fill'            : { 'satellite' : 255, 	's3m' : -1 	},
-        !-------------------------------------------------------------------------------------
+        !------------------------------------------------------------------------------------------
         
-        !-------------------------------------------------------------------------------------
+        !------------------------------------------------------------------------------------------
         ! Local variable(s) initialization
         a2iVarNature = -9999; a2dVarDEM = -9999.0;
         a2dVarArctUp = -9999.0;
@@ -121,9 +128,11 @@ contains
         a2dVarMeltingSc = -9999.0;
         
         iAccumData_Hour = -1; iStepData_Hour = -1;
-        !-------------------------------------------------------------------------------------                         
+        
+        dVarSWE = 0.0; dVarRhoS = 0.0; dVarAgeS = -9999.0; dVarMeltingS = 0.0; dVarSnowMask = 0.0;
+        !------------------------------------------------------------------------------------------                     
                                      
-        !-------------------------------------------------------------------------------------                      
+        !------------------------------------------------------------------------------------------                  
         ! Snow flag value
         iFlagSnow = oHMC_Namelist(iID)%iFlagSnow
         ! Snow flag assimilation value
@@ -149,9 +158,9 @@ contains
 
         ! Info start
         call mprintf(.true., iINFO_Verbose, ' Phys :: Snow model ... ' )
-        !-------------------------------------------------------------------------------------  
+        !------------------------------------------------------------------------------------------
         
-        !-------------------------------------------------------------------------------------  
+        !------------------------------------------------------------------------------------------
         ! Flag to activate snow physics
         if (iFlagSnow.eq.1) then
             
@@ -210,9 +219,14 @@ contains
             a2dVarSnowFall = 0.0
             ! Variable local initialization (nullify snow mask if computed by snow physics)
             a2dVarSnowMask = -9999.0
-            !-------------------------------------------------------------------------------------
+            
+            ! Check variable(s)
+            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarSWE = 0.0  ! just in case 
+            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarRhoS = 0.0 ! just in case 
+            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2iVarAgeS = -9999 ! just in case     
+            !------------------------------------------------------------------------------------------
 
-            !-----------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
             ! Debug
             if (iDEBUG.gt.0) then
                 call mprintf(.true., iINFO_Extra, ' ========= SNOW START =========== ')  
@@ -240,12 +254,33 @@ contains
             endif
             !-----------------------------------------------------------------------------------------
             
-            !-------------------------------------------------------------------------------------
-            ! Check variable(s)
-            where(a2dVarSWE.lt.0.0) a2dVarSWE = 0.0 ! just in case
-            !-------------------------------------------------------------------------------------
-
-            !-------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
+            ! Calculating control variable(s) 
+            dVarSWE = sum(a2dVarSWE, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
+            dVarRhoS = sum(a2dVarRhoS, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
+            dVarAgeS = sum(a2iVarAgeS, mask=a2iVarAgeS.ge.0.0)/max(1,count(a2iVarAgeS.ge.0.0))
+            dVarMeltingS = sum(a2dVarMeltingS, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
+            dVarSnowMask = sum(a2dVarSnowMask, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))*100
+            
+            ! Snow information time step
+            write(sVarSWE, sFMTVarType1) dVarSWE
+            write(sVarRhoS, sFMTVarType2) dVarRhoS
+            write(sVarAgeS, sFMTVarType3) int(dVarAgeS)
+            write(sVarMeltingS, sFMTVarType1) dVarMeltingS
+            write(sVarSnowMask, sFMTVarType1) dVarSnowMask
+            
+            if (dVarAgeS .lt. 0) sVarAgeS = 'NA'
+            if (dVarSnowMask .lt. 0) sVarSnowMask = 'NA'
+            
+            call mprintf(.true., iINFO_Basic, ' Phys :: SNOW START :: AvgValue :: '// &
+                                              ' SWE: '//trim(sVarSWE)//' [mm] '// &
+                                              ' SnowRho: '//trim(sVarRhoS)//' [kg/m^3] '// &
+                                              ' SnowAge: '//trim(sVarAgeS)//' [days] '// &
+                                              ' SnowMelting: '//trim(sVarMeltingS)//' [mm] '// &
+                                              ' SnowMask: '//trim(sVarSnowMask)//' [%]')
+            !------------------------------------------------------------------------------------------
+            
+            !------------------------------------------------------------------------------------------
             ! Define cloud factor
             where( (a2dVarDEM.ge.0.0) .and. (a2dVarRain.gt.0.2) ) a2dVarCloudFactor = 1.1
             where( (a2dVarDEM.ge.0.0) .and. (a2dVarRain.ge.1.0) ) a2dVarCloudFactor = 1.2
@@ -289,9 +324,9 @@ contains
                     oHMC_Vars(iID)%a3dSnowFall(:,:,int(iDaySteps1Days)) = -9999.0
                 endwhere
             endif
-            !-------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
             
-            !-------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
             ! Call subroutine to compute average temperature over 1 days
             call HMC_Phys_Snow_Apps_TMean(iID, iRows, iCols, & 
                                             iDaySteps1Days, &
@@ -308,9 +343,9 @@ contains
             ! Debug
             ! call mprintf(.true., iINFO_Extra, checkvar(a2dVarTaC_MeanDays1, a2iVarMask, 'TA AVG 1 DAYS') )
             ! call mprintf(.true., iINFO_Extra, checkvar(a2dVarTaC_MeanDays5, a2iVarMask, 'TA AVG 5 DAYS') )                                                           
-            !-------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
             
-            !-------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
             ! Call subroutine to compute snow density
             a2dVarMeltingSCum = sum(oHMC_Vars(iID)%a3dMelting(:, :, 1:int(iDaySteps1Days)), dim=3) 
             call HMC_Phys_Snow_Apps_Rho(iID, iRows, iCols, &
@@ -318,13 +353,18 @@ contains
                                             iDt, &
                                             a2dVarDem, &
                                             a2dVarTa, a2dVarSnowFall, a2dVarSWE, a2dVarMeltingSCum, &
-                                            a2dVarRhoS, a2dVarRhoS0)                                            
-
+                                            a2dVarRhoS, a2dVarRhoS0) 
+                                            
+            ! Check variable(s)   
+            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarSWE = 0.0  ! just in case 
+            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarRhoS = 0.0 ! just in case 
+            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2iVarAgeS = -9999 ! just in case     
+                                                                     
             ! Debug
             !call mprintf(.true., iINFO_Extra, checkvar(a2dVarRhoS, a2iVarMask, 'RHOS ') )
-            !-------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
                                
-            !-------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
             ! Call subroutine to compute snow age                  
             a2dVarSnowFallCum = sum(oHMC_Vars(iID)%a3dSnowFall(:, :, 1:int(iDaySteps1Days)), dim=3)                            
             call HMC_Phys_Snow_Apps_Age(iID, iRows, iCols, &
@@ -332,11 +372,17 @@ contains
                                         a2dVarDem, &
                                         a2dVarSnowFallCum, a2dVarSWE, &
                                         a2iVarAgeS) 
+                                        
+            ! Check variable(s)                    
+            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarSWE = 0.0  ! just in case 
+            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarRhoS = 0.0 ! just in case 
+            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2iVarAgeS = -9999 ! just in case   
+                                        
             ! Debug
             ! call mprintf(.true., iINFO_Extra, checkvar(float(a2iVarAgeS), a2iVarMask, 'AGES') ) 
-            !-------------------------------------------------------------------------------------     
+            !------------------------------------------------------------------------------------------  
                                                             
-            !-------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
             ! Call subroutine to compute snow albedo
             call HMC_Phys_Snow_Apps_Albedo(iID, iRows, iCols, &
                                            sTime, iTime, iGlacierValue, &
@@ -345,18 +391,22 @@ contains
                                            a2dVarAlbedoS)
             ! Debug                            
             ! call mprintf(.true., iINFO_Extra, checkvar(a2dVarAlbedoS, a2iVarMask, 'ALBEDOS') )                              
-            !-------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
 
-            !-------------------------------------------------------------------------------------                         
+            !------------------------------------------------------------------------------------------                       
             ! Compute SWE and update Rain
             where( (a2dVarDEM.ge.0.0) .and. (a2dVarRain.gt.0.0) )
                 a2dVarSWE = a2dVarSWE + (1 - a2dVarSepCoeff)*a2dVarRain	
                 a2dVarRain = a2dVarSepCoeff*a2dVarRain
             endwhere
-            where(a2dVarSWE.lt.0.0) a2dVarSWE = 0.0 ! just in case         
-            !-------------------------------------------------------------------------------------
+            
+            ! Check variable(s)   
+            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarSWE = 0.0  ! just in case 
+            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarRhoS = 0.0 ! just in case 
+            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2iVarAgeS = -9999 ! just in case         
+            !------------------------------------------------------------------------------------------
 
-            !-------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
             ! Call subroutine to compute open-loop melting
             call HMC_Phys_Snow_Apps_MeltingOL(iID, iRows, iCols, iDtDataForcing, iDaySteps1Days, &
                                               sTime, iTime, &
@@ -366,9 +416,13 @@ contains
                                               a2dVarTaC_MeanDays5, a2dVarCloudFactor, &
                                               a2dVarAlbedoS, a2dVarSWE, &
                                               a2dVarMeltingS, a2dVarMeltingSc)
-            !-------------------------------------------------------------------------------------
+            ! Check variable(s)                       
+            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarSWE = 0.0  ! just in case 
+            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarRhoS = 0.0 ! just in case 
+            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2iVarAgeS = -9999 ! just in case   
+            !------------------------------------------------------------------------------------------
             
-            !-------------------------------------------------------------------------------------                                   
+            !------------------------------------------------------------------------------------------                                 
             ! Compute SWE, melting and rain
             where( (a2dVarDem.ge.0.0) .and. (a2dVarSWE.gt.0.0) .and. &
                    (a2dVarSWE.le.a2dVarMeltingS) .and. (a2iVarNature.ne.iGlacierValue) ) 
@@ -393,29 +447,31 @@ contains
                 a2dVarRain = a2dVarRain + a2dVarMeltingS
 
             endwhere
-
+            
             ! Check SWE values
-            where( (a2dVarDem.ge.0.0) .and. (a2dVarSWE.lt.0.0) ) a2dVarSWE = 0.0  
-            !-------------------------------------------------------------------------------------
+            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarSWE = 0.0  ! just in case 
+            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarRhoS = 0.0 ! just in case 
+            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2iVarAgeS = -9999 ! just in case    
+            !------------------------------------------------------------------------------------------
 
-            !-------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
             ! Compute daily cumulated melting
             !where( (a2dVarDem.ge.0.0) .and. (a2dVarMeltingS.gt.0.0) )
             !    a2dVarMeltingSDayCum = a2dVarMeltingSDayCum + a2dVarMeltingS
             !endwhere
-            !-------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
 
-            !-------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
             ! Call subroutine to compute SWE assimilation
             call mprintf(.true., iINFO_Verbose, ' Phys :: Snow :: Assimilation ... ' )
             if (iFlagSnowAssim.eq.1) then 
                 
-                !-------------------------------------------------------------------------------------
+                !------------------------------------------------------------------------------------------
                 ! Check forcing(s) to use assimilation method
                 if ( any(a2dVarSnowHeight.ne.-9999.0) .and. any(a2dVarSnowKernel.ne.-9999.0) .and. &
                      any(a2dVarSnowCA.ne.-9999.0) .and. any(a2dVarSnowQA.ne.-9999.0) ) then
                     
-                    !-------------------------------------------------------------------------------------
+                    !------------------------------------------------------------------------------------------
                     ! Call subroutine to compute SWE assimilation
                     call HMC_Phys_Snow_Apps_SWEAssim(iID, iRows, iCols, &
                                                         dVarRhoW, &
@@ -426,9 +482,9 @@ contains
 
                     ! Info start assimilation
                     call mprintf(.true., iINFO_Verbose, ' Phys :: Snow :: Assimilation ... OK' )
-                    !-------------------------------------------------------------------------------------
+                    !------------------------------------------------------------------------------------------
                     
-                    !-------------------------------------------------------------------------------------
+                    !------------------------------------------------------------------------------------------
                     ! Nullify variable(s) when SWE less than 5 cm
                     where(a2dVarSWE.lt.10)
                         a2dVarSWE = 0.0;
@@ -436,29 +492,29 @@ contains
                         a2dVarAlbedoS = 0.0;
                         a2dVarRhoS = 0.0
                     endwhere
-                    !-------------------------------------------------------------------------------------
+                    !------------------------------------------------------------------------------------------
                     
                 else
               
-                    !-------------------------------------------------------------------------------------
+                    !------------------------------------------------------------------------------------------
                     ! Info assimilation no data available
                     call mprintf(.true., iINFO_Verbose, ' Phys :: Snow :: Assimilation ... DATA NO AVAILABLE ' )
-                    !-------------------------------------------------------------------------------------
+                    !------------------------------------------------------------------------------------------
                     
                 endif
-                !-------------------------------------------------------------------------------------
+                !------------------------------------------------------------------------------------------
 
             else
                 
-                !-------------------------------------------------------------------------------------
+                !------------------------------------------------------------------------------------------
                 ! Info assimilation no data available
                 call mprintf(.true., iINFO_Verbose, ' Phys :: Snow :: Assimilation ... NOT ACTIVATED ' )
-                !-------------------------------------------------------------------------------------
+                !------------------------------------------------------------------------------------------
                 
             endif
-            !-------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
             
-            !-------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
             ! Check variable(s) space domain and physical boundaries 
             where(a2dVarDem.lt.0.0)
                 a2dVarRain = -9999.0;  a2dVarSWE = -9999.0; a2dVarSnowFall = -9999.0; a2dVarRhos = -9999.0;
@@ -470,14 +526,46 @@ contains
                 a2iVarAgeS = -9999; a2dVarAlbedoS = 0.0; a2dVarRhos = 0.0; a2dVarSWE = 0.0
             endwhere
             
-            where( (a2dVarDem.gt.0.0) .and. (a2dVarSWE.gt.0.0) ) 
+            where( (a2dVarDem.gt.0.0) .and. (a2dVarSWE.gt.0.1) ) 
                 a2dVarSnowMask = 1
             elsewhere
                 a2dVarSnowMask = 0
             endwhere
-            !-------------------------------------------------------------------------------------
             
-            !-----------------------------------------------------------------------------------------
+            
+            !call debug_2dVar(dble(a2dVarSnowMask), iRows, iCols, 1)
+            !call debug_2dVar(dble(a2dVarSWE), iRows, iCols, 2)
+            !call debug_2dVar(dble(a2dVarRhos), iRows, iCols, 3)
+            !call debug_2dVar(dble(a2dVarAlbedoS), iRows, iCols, 4)
+            !------------------------------------------------------------------------------------------
+            
+            !------------------------------------------------------------------------------------------
+            ! Calculating control variable(s) 
+            dVarSWE = sum(a2dVarSWE, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
+            dVarRhoS = sum(a2dVarRhoS, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
+            dVarAgeS = sum(a2iVarAgeS, mask=a2iVarAgeS.ge.0.0)/max(1,count(a2iVarAgeS.ge.0.0))
+            dVarMeltingS = sum(a2dVarMeltingS, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
+            dVarSnowMask = sum(a2dVarSnowMask, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))*100
+            
+            ! Snow information time step
+            write(sVarSWE, sFMTVarType1) dVarSWE
+            write(sVarRhoS, sFMTVarType2) dVarRhoS
+            write(sVarAgeS, sFMTVarType3) int(dVarAgeS)
+            write(sVarMeltingS, sFMTVarType1) dVarMeltingS
+            write(sVarSnowMask, sFMTVarType1) dVarSnowMask
+            
+            if (dVarAgeS .lt. 0) sVarAgeS = 'NA'
+            if (dVarSnowMask .lt. 0) sVarSnowMask = 'NA'
+            
+            call mprintf(.true., iINFO_Basic, ' Phys :: SNOW END :: AvgValue :: '// &
+                                              ' SWE: '//trim(sVarSWE)//' [mm] '// &
+                                              ' SnowRho: '//trim(sVarRhoS)//' [kg/m^3] '// &
+                                              ' SnowAge: '//trim(sVarAgeS)//' [days] '// &
+                                              ' SnowMelting: '//trim(sVarMeltingS)//' [mm] '// &
+                                              ' SnowMask: '//trim(sVarSnowMask)//' [%]')
+            !------------------------------------------------------------------------------------------
+            
+            !------------------------------------------------------------------------------------------
             ! Debug
             if (iDEBUG.gt.0) then
                 call mprintf(.true., iINFO_Extra, ' ')
@@ -498,9 +586,9 @@ contains
                 call mprintf(.true., iINFO_Extra, checkvar(a2dVarSnowMask, a2iVarMask, 'SNOWMASK END ') )
                 call mprintf(.true., iINFO_Extra, ' ========= SNOW END =========== ')  
             endif
-            !-----------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
 
-            !-----------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
             ! Snow melting 3D
             if ( (iStepData_Hour .eq. iAccumData_Hour) .and. (iTime .gt. 1) ) then
                 oHMC_Vars(iID)%a3dMelting = 0.0
@@ -539,11 +627,11 @@ contains
             
             ! Info end
             call mprintf(.true., iINFO_Verbose, ' Phys :: Snow model ... OK' )
-            !-----------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
         
         else
             
-            !-----------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
             ! Update state variable(s)
             oHMC_Vars(iID)%a2dSWE = -9999.0
             oHMC_Vars(iID)%a2dRhoS = -9999.0
@@ -562,13 +650,13 @@ contains
             
             ! Info end
             call mprintf(.true., iINFO_Verbose, ' Phys :: Snow model ... NOT ACTIVATED' )
-            !-----------------------------------------------------------------------------------------
+            !------------------------------------------------------------------------------------------
             
         endif
-        !-----------------------------------------------------------------------------------------
+        !------------------------------------------------------------------------------------------
 
     end subroutine HMC_Phys_Snow_Cpl
     !------------------------------------------------------------------------------------------
 
 end module HMC_Module_Phys_Snow
-!------------------------------------------------------------------------------------
+!------------------------------------------------------------------------------------------

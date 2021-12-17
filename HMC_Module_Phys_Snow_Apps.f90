@@ -433,8 +433,6 @@ contains
             a2dVarLW = -(dVarSigma*a2dVarCloudFactor)*(-0.02+0.261*(exp(-7.77*0.0001*a2dVarTa**2)))*(a2dVarTa + 273.2)**4
             a2dVarMeltingS = ((1000.0/(dVarRhoW*dVarLamba))*(a2dVarIncRad + a2dVarLW)) + a2dVarMeltingScG*a2dVarTa
             a2dVarMeltingS = a2dVarMeltingS/iDaySteps1Days
-        elsewhere
-            a2dVarMeltingS = 0.0
         endwhere
                 
         ! Check snow melting
