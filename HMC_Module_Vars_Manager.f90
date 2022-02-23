@@ -255,6 +255,10 @@ contains
         allocate( oHMC_Vars(iID)%a1dHDam            (iNDam) ) 
         allocate( oHMC_Vars(iID)%a1dVDamObs         (iNDam) )
         
+        ! Dynamic irrigation variable(s)
+        allocate( oHMC_Vars(iID)%a2dIrrWatReq       (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dVTot_prior      (iRows, iCols) )
+        
         ! Dynamic plant variable(s)
         allocate( oHMC_Vars(iID)%a2dHydroPlant      (iNPlant, iETime + 1) )
         
@@ -551,6 +555,9 @@ contains
         oHMC_Vars(iID)%a1dLDam = 0.0            ! to store dynamic length dam
         oHMC_Vars(iID)%a1dHDam = 0.0            ! to store dynamic water heigth dam
         oHMC_Vars(iID)%a1dVDamObs = -9999.0     ! to store dynamic volume dam observation(s)
+        
+        oHMC_Vars(iID)%a2dIrrWatReq = 0.0       ! dynamic Irrigation Water Requirement
+        oHMC_Vars(iID)%a2dVTot_prior = 0.0
         
         ! Dynamic plant variable(s)
         oHMC_Vars(iID)%a2dHydroPlant = 0.0

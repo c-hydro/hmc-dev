@@ -2,6 +2,10 @@
 Changelog
 =========
 
+Version 3.1.6 [2022-02-23]
+**************************
+- ADD: optional module to compute irrigation water requirements;
+
 Version 3.1.5 [2021-06-25]
 **************************
 - ADD: the watertable deep losses parameter and flag;

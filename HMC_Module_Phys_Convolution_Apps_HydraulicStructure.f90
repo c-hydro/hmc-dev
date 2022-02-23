@@ -99,6 +99,67 @@ contains
                                                                     
     end subroutine HMC_Phys_Convolution_Apps_HydraulicStructure
     !------------------------------------------------------------------------------------------
+    
+    !------------------------------------------------------------------------------------------
+    ! Subroutine to compute irrigation
+    subroutine HMC_Phys_IrrWatReq(iID, iRows, iCols)
+        
+        !------------------------------------------------------------------------------------------
+        ! Variable(s)
+        integer(kind = 4)           :: iID
+        integer(kind = 4)           :: iRows, iCols
+        real(kind = 4), dimension (iRows, iCols)   :: a2dVarDEM, a2dVarVTot, a2dVarS, a2dVarIrrWatReq, a2dVarCt, a2dVarVTot_prior
+        real(kind = 4), dimension (iRows, iCols)   :: a2dVarCtS
+        integer(kind = 4), dimension (iRows, iCols)   :: a2iVarMask
+        !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
+        ! Initialize variable(s)
+        a2dVarIrrWatReq = 0.0;
+        a2dVarVTot_prior = 0.0;
+        a2dVarCtS = 0.0;
+        !------------------------------------------------------------------------------------------
+        ! Load variable(s)
+        a2dVarDEM = oHMC_Vars(iID)%a2dDem
+        a2dVarS = oHMC_Vars(iID)%a2dS
+        a2dVarVTot = oHMC_Vars(iID)%a2dVTot
+        a2dVarVTot_prior = oHMC_Vars(iID)%a2dVTot        
+        a2dVarCt = oHMC_Vars(iID)%a2dCt
+        a2iVarMask = oHMC_Vars(iID)%a2iMask
+        
+        !------------------------------------------------------------------------------------------
+        !We compute threshold
+        a2dVarCtS = a2dVarCt*a2dVarS
+        oHMC_Vars(iID)%a2dVTot_prior = a2dVarVTot_prior  
+        !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
+        ! IWR computation and update global variables
+        where ( (a2dVarDEM.ge.0.0) .and. (a2iVarMask.gt.0) .and. (a2dVarVTot_prior.lt.a2dVarCtS) )
+            a2dVarIrrWatReq = a2dVarCt*a2dVarS - a2dVarVTot_prior
+            a2dVarVTot = a2dVarCt*a2dVarS
+        elsewhere ( (a2dVarDEM.ge.0.0) .and. (a2iVarMask.gt.0) .and. (a2dVarVTot_prior.ge.a2dVarCtS) )
+            a2dVarIrrWatReq = 0.0
+            a2dVarVTot = a2dVarVTot_prior
+        endwhere
+        !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
+        !Mask
+        where ( (a2dVarDEM.lt.0.0) .or. (a2iVarMask.le.0) )
+            a2dVarIrrWatReq = -9999.0;
+        endwhere
+        !------------------------------------------------------------------------------------------
+
+        !------------------------------------------------------------------------------------------
+        ! Update global variables
+        oHMC_Vars(iID)%a2dIrrWatReq = a2dVarIrrWatReq       
+        oHMC_Vars(iID)%a2dVTot = a2dVarVTot
+        !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
+    end subroutine HMC_Phys_IrrWatReq
+    !------------------------------------------------------------------------------------------    
 
 end module HMC_Module_Phys_Convolution_Apps_HydraulicStructure 
 !------------------------------------------------------------------------------------------

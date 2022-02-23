@@ -132,6 +132,9 @@ TYPE HMC_Type_Vars
     real(kind = 4), allocatable,        dimension (:)           :: a1dQoutDam
     real(kind = 4), allocatable,        dimension (:)           :: a1dVDamObs
     
+    ! Irrigation variable(s)
+    real(kind = 4), allocatable,        dimension(:, :)         :: a2dIrrWatReq, a2dVTot_prior
+    
     ! Dynamic Vegetation module variable(s)
     real(kind = 4), allocatable,  	dimension(:, :)         :: a2dGd, a2dRSmin, a2dHveg, a2dBareSoil
     real(kind = 4), allocatable,  	dimension(:, :)         :: a2dVTotWP

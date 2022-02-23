@@ -21,8 +21,9 @@ module HMC_Module_Phys_Convolution_Type_ChannelNetwork
     use HMC_Module_Tools_Generic,               only:   max2Dvar, min2Dvar
     
     use HMC_Module_Phys_Convolution_Apps_SubFlow,               only: HMC_Phys_Convolution_Apps_SubFlow
-    use HMC_Module_Phys_Convolution_Apps_HydraulicStructure,    only: HMC_Phys_Convolution_Apps_HydraulicStructure
-    
+    use HMC_Module_Phys_Convolution_Apps_HydraulicStructure,    only: HMC_Phys_Convolution_Apps_HydraulicStructure, &
+                                                                      HMC_Phys_IrrWatReq
+                                                                      
     use HMC_Module_Phys_Convolution_Apps_Discharge,             only: HMC_Phys_Convolution_Apps_Discharge_ChannelNetwork   
     use HMC_Module_Phys_Convolution_Apps_IntegrationStep,       only: HMC_Phys_Convolution_Apps_IntegrationStep_ChannelNetwork 
     use HMC_Module_Phys_Convolution_Apps_Horton,                only: HMC_Phys_Convolution_Apps_Horton_ChannelNetwork  
@@ -53,11 +54,11 @@ contains
         integer(kind = 4)           :: iNPlant, iNCatch, iNRelease, iNJoint
 
         integer(kind = 4)           :: iTAct, iTInt, iTq, iDtMax
-        integer(kind = 4)           :: iFlagFlowDeep
+        integer(kind = 4)           :: iFlagFlowDeep, iFlagIWR  
         real(kind = 4)              :: dDt, dDtAct, dDtDataForcing, dDtMax, dDtIntegrAct 
         
         real(kind = 4), dimension (iRows, iCols)   :: a2dVarTot
-        
+               
         character(len = 20)             :: sTInt
         character(len = 19)             :: sTime
         
@@ -68,10 +69,10 @@ contains
         !------------------------------------------------------------------------------------------
         ! Initialize variable(s)
         iTAct = 0; iTInt = 0; iTq = 0; iDtMax = 0;
-        iFlagFlowDeep = 0;
+        iFlagFlowDeep = 0; iFlagIWR = 0;
         dDt = 0.0; dDtAct = 0.0; dDtDataForcing = 0.0; dDtMax = 0.0; dDtIntegrAct = 0.0; 
         a2dVarTot = 0.0;
-        oHMC_Vars(iID)%a2dQTot = 0.0;
+        oHMC_Vars(iID)%a2dQTot = 0.0;      
         !------------------------------------------------------------------------------------------
 
         !------------------------------------------------------------------------------------------
@@ -82,7 +83,9 @@ contains
         iFlagFlowDeep = oHMC_Namelist(iID)%iFlagFlowDeep
         ! Actual model step 
         iTAct = iTime
-        
+        ! Irrigation-related variables
+        iFlagIWR = oHMC_Namelist(iID)%iFlagIWR
+
         ! Info start
         call mprintf(.true., iINFO_Verbose, ' Phys :: Convolution [channel network] ... ' )
         !------------------------------------------------------------------------------------------
@@ -179,6 +182,15 @@ contains
         ! Call hydraulic structure routine
         call HMC_Phys_Convolution_Apps_HydraulicStructure(iID, iRows, iCols, dDtDataForcing, iNDam, iNLake)
         !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
+        ! Call irrigation routine
+        if (iFlagIWR.eq.1) then
+            call mprintf(.true., iINFO_Verbose, ' Phys :: Irrigation ... ' )
+            call HMC_Phys_IrrWatReq(iID, iRows, iCols)
+            call mprintf(.true., iINFO_Verbose, ' Phys :: Irrigation ... OK' )
+        endif
+        !------------------------------------------------------------------------------------------         
         
         !------------------------------------------------------------------------------------------
         ! Time integration info

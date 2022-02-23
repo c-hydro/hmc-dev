@@ -24,6 +24,7 @@ TYPE HMC_Type_Namelist
     integer(kind = 4)       :: iFlagDynVeg
     integer(kind = 4)       :: iFlagFlood
     integer(kind = 4)       :: iFlagEnergyBalance
+    integer(kind = 4)       :: iFlagIWR
 
     logical                 :: bGridCheck
 

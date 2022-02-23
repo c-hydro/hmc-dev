@@ -70,6 +70,7 @@ contains
         integer(kind = 4)       :: iFlagDynVeg
         integer(kind = 4)       :: iFlagFlood
         integer(kind = 4)       :: iFlagEnergyBalance
+        integer(kind = 4)       :: iFlagIWR
         
         logical                 :: bGridCheck
 
@@ -192,7 +193,8 @@ contains
                                         iFlagCType, &
                                         iFlagFrac, &
                                         iFlagDynVeg, &
-                                        iFlagFlood, iFlagEnergyBalance, &                                        
+                                        iFlagFlood, iFlagEnergyBalance, & 
+                                        iFlagIWR, &
                                         a1dGeoForcing, a1dResForcing, a1iDimsForcing, &
                                         iScaleFactor, iTcMax, iTVeg, &
                                         iSimLength, iDtModel, &
@@ -253,7 +255,7 @@ contains
         iFlagCType = -9999;
         iFlagFrac = -9999;
         iFlagDynVeg = -9999;
-        iFlagFlood = -9999; iFlagEnergyBalance = -9999;
+        iFlagFlood = -9999; iFlagEnergyBalance = -9999; iFlagIWR = -9999;
         a1dGeoForcing = -9999.0; a1dResForcing = -9999.0; a1iDimsForcing = -9999; 
         iScaleFactor = -9999; iTcMax = -9999; iTVeg = -9999; iTc = -9999; 
         iSimLength = -9999; iDtModel = -9999; 
@@ -496,6 +498,12 @@ contains
         else
             oHMC_Namelist_Init%iFlagEnergyBalance = iFlagEnergyBalance      
         endif
+        
+        if (iFlagIWR .eq. -9999) then  ! backward compatibility with older version of info file (without iFlagIWR flag)
+            oHMC_Namelist_Init%iFlagIWR = 0               ! energy-balance module not activated
+        else
+            oHMC_Namelist_Init%iFlagIWR = iFlagIWR      
+        endif        
         
         ! Geographical land and forcing info
         oHMC_Namelist_Init%bGridCheck = .false.

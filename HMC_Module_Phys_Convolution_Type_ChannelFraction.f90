@@ -21,7 +21,8 @@ module HMC_Module_Phys_Convolution_Type_ChannelFraction
     use HMC_Module_Tools_Generic,               only:   max2Dvar, min2Dvar
     
     use HMC_Module_Phys_Convolution_Apps_SubFlow,               only: HMC_Phys_Convolution_Apps_SubFlow
-    use HMC_Module_Phys_Convolution_Apps_HydraulicStructure,    only: HMC_Phys_Convolution_Apps_HydraulicStructure
+    use HMC_Module_Phys_Convolution_Apps_HydraulicStructure,    only: HMC_Phys_Convolution_Apps_HydraulicStructure, &
+                                                                      HMC_Phys_IrrWatReq
     
     use HMC_Module_Phys_Convolution_Apps_Discharge,             only: HMC_Phys_Convolution_Apps_Discharge_ChannelFraction  
     use HMC_Module_Phys_Convolution_Apps_IntegrationStep,       only: HMC_Phys_Convolution_Apps_IntegrationStep_ChannelFraction 
@@ -53,10 +54,10 @@ contains
         integer(kind = 4)           :: iNPlant, iNCatch, iNRelease, iNJoint
 
         integer(kind = 4)           :: iTAct, iTInt, iTq, iDtMax
-        integer(kind = 4)           :: iFlagFlowDeep, iFlagFlood
+        integer(kind = 4)           :: iFlagFlowDeep, iFlagFlood, iFlagIWR
         real(kind = 4)              :: dDt, dDtAct, dDtDataForcing, dDtMax, dDtIntegrAct 
         
-        real(kind = 4), dimension (iRows, iCols)   :: a2dVarTot
+        real(kind = 4), dimension (iRows, iCols)   :: a2dVarTot        
         
         character(len = 20)             :: sTInt
         character(len = 19)             :: sTime
@@ -86,7 +87,8 @@ contains
         iFlagFlood = oHMC_Namelist(iID)%iFlagFlood   
         ! Actual model step 
         iTAct = iTime
-        
+        ! Irrigation-related variables
+        iFlagIWR = oHMC_Namelist(iID)%iFlagIWR 
         
         ! Info start
         call mprintf(.true., iINFO_Verbose, ' Phys :: Convolution [channel fraction] ... ' )
@@ -107,7 +109,7 @@ contains
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
-        ! Call subroutine to calcolate temporal integration step
+        ! Call subroutine to calculate temporal integration step
         call HMC_Phys_Convolution_Apps_IntegrationStep_ChannelFraction(iID, iRows, iCols, dDtDataForcing, dDtIntegrAct)
         !------------------------------------------------------------------------------------------
 
@@ -186,6 +188,16 @@ contains
         ! Call hydraulic structure routine
         call HMC_Phys_Convolution_Apps_HydraulicStructure(iID, iRows, iCols, dDtDataForcing, iNDam, iNLake)
         !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
+        ! Call irrigation routine
+        if (iFlagIWR.eq.1) then
+            call mprintf(.true., iINFO_Verbose, ' Phys :: Irrigation ... ' )
+            call HMC_Phys_IrrWatReq(iID, iRows, iCols)
+            call mprintf(.true., iINFO_Verbose, ' Phys :: Irrigation ... OK' )
+        endif
+        !------------------------------------------------------------------------------------------        
+        
         
         !------------------------------------------------------------------------------------------
         ! Time integration info

@@ -65,7 +65,7 @@ contains
         integer(kind = 4)           :: iActData_Generic, iActData_Flooding, iActData_Snow
         integer(kind = 4)           :: iAccumData_Hour, iStepData_Hour
         
-        integer(kind = 4)           :: iFlagTypeData_Output, iFlagSnow, iFlagFlood
+        integer(kind = 4)           :: iFlagTypeData_Output, iFlagSnow, iFlagFlood, iFlagIWR
         integer(kind = 4)           :: iScaleFactor
         
         character(len = 19)         :: sTime
@@ -97,7 +97,11 @@ contains
                                   iColsEnd - iColsStart + 1)     ::  a2dVarSWE, &
                                                                      a2dVarMeltingS, a2dVarAlbedoS, & 
                                                                      a2dVarRhoS, a2dVarMeltingSDayCum, &
-                                                                     a2dVarSnowFall, a2dVarSnowMask           
+                                                                     a2dVarSnowFall, a2dVarSnowMask 
+                                        
+        real(kind = 4), dimension(iRowsEnd - iRowsStart + 1, &
+                                  iColsEnd - iColsStart + 1)     ::  a2dVarIrrWatReq, a2dVarVTot_prior
+                                                                     
         real(kind = 4), dimension(iRowsEnd - iRowsStart + 1, &
                                   iColsEnd - iColsStart + 1, iDaySteps) :: a3dVarET, a3dVarETpot  
                                   
@@ -115,6 +119,8 @@ contains
         a2dVarVTot = 0.0; a2dVarQout = 0.0; a2dVarSM = 0.0
         
         a2dVarSWE = 0.0; a2iVarAgeS = 0; a2dVarMeltingS = 0.0; a2dVarAlbedoS = 0.0; a2dVarRhoS = 0.0;
+        
+        a2dVarIrrWatReq = 0.0; a2dVarVTot_prior = 0.0;
         
         a2dVarQfloodCR = 0.0; a2dVarQfloodCL = 0.0;
         
@@ -141,6 +147,7 @@ contains
         iFlagSnow = oHMC_Namelist(iID)%iFlagSnow
         iDaySteps = oHMC_Namelist(iID)%iDaySteps
         iFlagFlood = oHMC_Namelist(iID)%iFlagFlood  
+        iFlagIWR = oHMC_Namelist(iID)%iFlagIWR
         
         iActData_Generic = oHMC_Namelist(iID)%iActiveData_Output_Generic
         iActData_Flooding = oHMC_Namelist(iID)%iActiveData_Output_Flooding
@@ -232,6 +239,14 @@ contains
             a2dVarMeltingS = -9999.0; a2dVarMeltingSDayCum = -9999.0; a2dVarSnowFall = -9999.0
             a2dVarSnowMask = -9999.0
         endif
+        
+        if (iFlagIWR.eq.1) then
+            a2dVarIrrWatReq = oHMC_Vars(iID)%a2dIrrWatReq
+            a2dVarVTot_prior = oHMC_Vars(iID)%a2dVTot_prior
+        else
+            a2dVarIrrWatReq = -9999
+            a2dVarVTot_prior = -9999
+        endif
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -247,6 +262,7 @@ contains
                                     iTime, sTime, iDaySteps, &
                                     iFlagSnow, &
                                     iFlagFlood, &
+                                    iFlagIWR, &
                                     iActData_Generic, iActData_Flooding, iActData_Snow, &
                                     iStepData_Hour, iAccumData_Hour, &
                                     a2dVarRain, &
@@ -256,7 +272,7 @@ contains
                                     a2dVarQout, a2dVarQfloodCR, a2dVarQfloodCL, &
                                     a2dVarSWE, a2iVarAgeS, a2dVarMeltingS, a2dVarMeltingSDayCum, &
                                     a2dVarAlbedoS, a2dVarRhoS, a2dVarSnowFall, a2dVarSnowMask, &
-                                    a2dVarSM, &
+                                    a2dVarSM, a2dVarIrrWatReq, a2dVarVTot_prior, &
                                     a2dVarWSRunoff, a2dVarWDL, &
                                     a2dVarLat, a2dVarLon)
 #else
@@ -281,7 +297,7 @@ contains
                                     sPathData_Output, &
                                     iRows, iCols, &
                                     iTime, sTime, iDaySteps, &
-                                    iFlagSnow, iFlagFlood, &
+                                    iFlagSnow, iFlagFlood, iFlagIWR, &
                                     iActData_Generic, iActData_Flooding, iActData_Snow, &
                                     iStepData_Hour, iAccumData_Hour, &
                                     iScaleFactor, &
@@ -291,7 +307,7 @@ contains
                                     a2dVarVTot, a2dVarQout, a2dVarQfloodCR, a2dVarQfloodCL, &
                                     a2dVarSWE, a2iVarAgeS, a2dVarMeltingS, a2dVarMeltingSDayCum, &
                                     a2dVarAlbedoS, a2dVarRhoS, a2dVarSnowFall, a2dVarSnowMask, &
-                                    a2dVarSM, & 
+                                    a2dVarSM, a2dVarIrrWatReq, a2dVarVTot_prior, & 
                                     a2dVarWSRunoff, a2dVarWDL, &
                                     a2dVarLat, a2dVarLon)
                                     
@@ -317,6 +333,7 @@ contains
                                           iTime, sTime, iDaySteps, &
                                           iFlagSnow, &
                                           iFlagFlood, &
+                                          iFlagIWR, &
                                           iActData_Generic, iActData_Flooding, iActData_Snow, &
                                           iStepData_Hour, iAccumData_Hour, &
                                           a2dVarRain, &
@@ -326,7 +343,7 @@ contains
                                           a2dVarQout, a2dVarQfloodCR, a2dVarQfloodCL, &
                                           a2dVarSWE, a2iVarAgeS, a2dVarMeltingS, a2dVarMeltingSDayCum, &
                                           a2dVarAlbedoS, a2dVarRhoS, a2dVarSnowFall, a2dVarSnowMask, &
-                                          a2dVarSM, &
+                                          a2dVarSM, a2dVarIrrWatReq, a2dVarVTot_prior, &
                                           a2dVarWSRunoff, a2dVarWDL, &
                                           a2dVarLat, a2dVarLon)
                                       
@@ -345,7 +362,7 @@ contains
         integer(kind = 4)                       :: iTime, iDaySteps, iTimeStep
         character(len = 19)                     :: sTime, sTimeSave, sTimeRef
         
-        integer(kind = 4)                       :: iFlagSnow, iFlagFlood
+        integer(kind = 4)                       :: iFlagSnow, iFlagFlood, iFlagIWR
         integer(kind = 4)                       :: iActData_Generic, iActData_Flooding, iActData_Snow
         integer(kind = 4)                       :: iStepData_Hour, iAccumData_Hour
         
@@ -379,6 +396,7 @@ contains
         real(kind = 4), dimension(iRows, iCols), intent(in)         :: a2dVarRhoS
         real(kind = 4), dimension(iRows, iCols), intent(in)         :: a2dVarSnowFall
         real(kind = 4), dimension(iRows, iCols), intent(in)         :: a2dVarSnowMask
+        real(kind = 4), dimension(iRows, iCols), intent(in)         :: a2dVarIrrWatReq, a2dVarVTot_prior
 
         integer(kind = 4)       :: iErr
         
@@ -726,7 +744,29 @@ contains
             
         endif
         !------------------------------------------------------------------------------------------
-                
+         
+        !------------------------------------------------------------------------------------------                      
+        ! Irrigation variable(s)                
+        if ( (iFlagIWR .eq. 1) ) then
+            
+            ! IWR
+            sVarName = 'IrrWatReq'; sVarNameLong = 'Irrigation flux'; sVarDescription = 'IWR';
+            sVarUnits = 'mm'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+            sVarCoords = 'Longitude Latitude';
+            call HMC_Tools_IO_Put2d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, & 
+                                 sVarName, sVarNameLong, sVarDescription, &
+                                 sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
+                                 iCols, iRows, transpose(a2dVarIrrWatReq)) 
+                                 
+            sVarName = 'VTot_prior'; sVarNameLong = 'VTot_prior'; sVarDescription = 'VTot_prior';
+            sVarUnits = 'mm'; sVarGridMap = 'epsg:4326'; dVarMissingValue = -9E15;
+            sVarCoords = 'Longitude Latitude';
+            call HMC_Tools_IO_Put2d_NC(iFileID, iID_Dim_Cols, iID_Dim_Rows, & 
+                                 sVarName, sVarNameLong, sVarDescription, &
+                                 sVarUnits, sVarCoords, sVarGridMap, dVarMissingValue, &
+                                 iCols, iRows, transpose(a2dVarVTot_prior))        
+                                 
+        endif
         !------------------------------------------------------------------------------------------
         ! Close
         call check( nf90_close(iFileID) )
@@ -755,7 +795,7 @@ contains
                                     sPathData_Output, &
                                     iRows, iCols, &
                                     iTime, sTime, iDaySteps, &
-                                    iFlagSnow, iFlagFlood, &
+                                    iFlagSnow, iFlagFlood, iFlagIWR, &
                                     iActData_Generic, iActData_Flooding, iActData_Snow, &
                                     iStepData_Hour, iAccumData_Hour, &
                                     iVarScale, &
@@ -765,7 +805,7 @@ contains
                                     a2dVarVTot, a2dVarQout, a2dVarQfloodCR, a2dVarQfloodCL, &
                                     a2dVarSWE, a2iVarAgeS, a2dVarMeltingS, a2dVarMeltingSDayCum, &
                                     a2dVarAlbedoS, a2dVarRhoS, a2dVarSnowFall, a2dVarSnowMask, &
-                                    a2dVarSM, & 
+                                    a2dVarSM, a2dVarIrrWatReq, a2dVarVTot_prior, & 
                                     a2dVarWSRunoff, a2dVarWDL, &
                                     a2dVarLat, a2dVarLon)                                     
                         
@@ -780,7 +820,7 @@ contains
         integer(kind = 4)                       :: iNSection, iNData
         integer(kind = 4)                       :: iNLake, iNDam, iNPlant, iNJoint, iNCatch, iNRelease
        
-        integer(kind = 4)                       :: iFlagSnow, iFlagFlood
+        integer(kind = 4)                       :: iFlagSnow, iFlagFlood, iFlagIWR
         integer(kind = 4)                       :: iActData_Generic, iActData_Flooding, iActData_Snow
         integer(kind = 4)                       :: iStepData_Hour, iAccumData_Hour
         
@@ -817,7 +857,9 @@ contains
         real(kind = 4), dimension(iRows, iCols)                 :: a2dVarRhoS
         real(kind = 4), dimension(iRows, iCols)                 :: a2dVarSnowFall
         real(kind = 4), dimension(iRows, iCols)                 :: a2dVarSnowMask
-       
+        real(kind = 4), dimension(iRows, iCols)                 :: a2dVarIrrWatReq, a2dVarVTot_prior
+        
+        
         character(len = 256)    :: sVarUnits
         integer(kind = 4)       :: iErr
         !------------------------------------------------------------------------------------------
@@ -1119,6 +1161,28 @@ contains
         endif
         !------------------------------------------------------------------------------------------           
 
+        !------------------------------------------------------------------------------------------
+        ! Irrigation variable(s)
+        if ( (iFlagSnow .eq. 1) ) then
+            ! Irrigation
+                iVarScale = 10000;
+                sFileNameData_Output = trim(sPathData_Output)//"IrrWatReq_"// &
+                                    sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
+                                    ".bin"            
+                call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
+                call HMC_Tools_IO_Put2d_Binary_DBL(sFileNameData_Output, a2dVarIrrWatReq, iRows, iCols, iVarScale, .true., iErr)  
+                call HMC_Tools_Generic_ZipFile(oHMC_Namelist(iID)%sCommandZipFile, &
+                            sFileNameData_Output//'.gz', sFileNameData_Output, .false.)
+                            
+                iVarScale = 10000;
+                sFileNameData_Output = trim(sPathData_Output)//"VTot_prior_"// &
+                                    sTime(1:4)//sTime(6:7)//sTime(9:10)//sTime(12:13)//sTime(15:16)// &
+                                    ".bin"            
+                call mprintf(.true., iINFO_Extra, ' Save filename: '//trim(sFileNameData_Output) )
+                call HMC_Tools_IO_Put2d_Binary_DBL(sFileNameData_Output, a2dVarVTot_prior, iRows, iCols, iVarScale, .true., iErr)  
+                call HMC_Tools_Generic_ZipFile(oHMC_Namelist(iID)%sCommandZipFile, &
+                            sFileNameData_Output//'.gz', sFileNameData_Output, .false.)            
+        endif
         !------------------------------------------------------------------------------------------
         ! Info filename(s) at each step
         call mprintf(.true., iINFO_Verbose, ' Save (result gridded) at time: '//trim(sTime)//' ... OK')
