@@ -2,6 +2,10 @@
 Changelog
 =========
 
+Version 3.1.6 [2022-03-28]
+**************************
+- FIX: for dam hydraulic structure remove statement to select the max discharge between the dam discharge and dam discharge set by namelist file.
+
 Version 3.1.5 [2021-06-25]
 **************************
 - ADD: the watertable deep losses parameter and flag;
@@ -12,7 +16,7 @@ Version 3.1.5 [2021-06-25]
 - FIX: bugs in writing actual accumulated et with basic variable group;
 - FIX: bug in the initial condition of water content of wilting point; the variable is set to zero to avoid unexpected behaviour of cells reservoir;
 - FIX: bug in restart conditions related to the integration step parameters to avoid errors in the routing rescaling;
-- FIX: bug in the snow module related to the SWE, MeltingS, RhoS and SnowMask variables;
+- FIX: bug in the snow module related to the SWE, RhoS and SnowMask variables;
 - FIX: bug in the channel network physics adding the fracturation variable.
 
 Version 3.1.4 [2021-03-08]

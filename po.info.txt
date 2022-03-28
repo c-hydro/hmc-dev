@@ -351,10 +351,10 @@ sCommandCreateFolder = 'mkdir -p path'
 
 ! INFO MODEL ------------------------------------------------------------------------------------
 ! Release version     (x.x.x)
-sReleaseVersion = '3.1.5'
+sReleaseVersion = '3.1.6'
 ! Author(s)         (Surname N.)
 sAuthorNames = 'Delogu F., Silvestro F., Gabellani S., Libertino A., Ercolani G.'
 ! Release Date      (yyyy/mm/dd)
-sReleaseDate = '2021/06/25'
+sReleaseDate = '2022/03/28'
 ! -----------------------------------------------------------------------------------------------
 
