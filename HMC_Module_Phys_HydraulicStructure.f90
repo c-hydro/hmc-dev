@@ -163,8 +163,8 @@ contains
                             ! Exceeded volume used for outgoing dam discharge [m^3/s]
                             a1dVarQoutDam(iD) = (a1dVarVDam(iD) - oHMC_Vars(iID)%a1dVMaxDam(iD))/dDt
 
-                            ! Check max between a1dVarQoutDam(iD) and max outgoing dam flow
-                            a1dVarQoutDam(iD) = max(a1dVarQoutDam(iD), oHMC_Vars(iID)%a1dQcSLDam(iD));
+                            ! Check max between a1dVarQoutDam(iD) and max outgoing dam flow [comment: to insert a 
+                            ! a1dVarQoutDam(iD) = max(a1dVarQoutDam(iD), oHMC_Vars(iID)%a1dQcSLDam(iD)); 
 
                         endif
 
