@@ -4,10 +4,10 @@
 # Script option(s)
 Script="HMC Library Builder"
 Version="1.6.0"
-Date='2021/06/28'
+Date='2022/03/28'
 
 # Other option(s)
-Archive_Default="hmc_v315.tar.gz"
+Archive_Default="hmc_v316.tar.gz"
 # Default folder
 Lib_Dir_Deps_Default="$HOME/fp_libs_system"
 # Executables folder

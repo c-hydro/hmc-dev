@@ -2,9 +2,11 @@
 Changelog
 =========
 
-Version 3.1.6 [2022-03-28]
+Version 3.1.6 [2022-06-23]
 **************************
-- FIX: for dam hydraulic structure remove statement to select the max discharge between the dam discharge and dam discharge set by namelist file.
+- ADD: optional module to compute irrigation water requirements;
+- FIX: for dams the remove statement to select the max discharge between the dam discharge and dam discharge set by namelist file;
+- FIX: the dam spilling routine when maximum dam volume is reached.
 
 Version 3.1.5 [2021-06-25]
 **************************

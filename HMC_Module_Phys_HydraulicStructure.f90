@@ -158,15 +158,15 @@ contains
                         endif
 
                         ! Check Hdam > Hdammax
-                        if ( a1dVarHDam(iD) .gt. oHMC_Vars(iID)%a1dHMaxDam(iD) ) then
+                        !!! if ( a1dVarHDam(iD) .gt. oHMC_Vars(iID)%a1dHMaxDam(iD) ) then
 
                             ! Exceeded volume used for outgoing dam discharge [m^3/s]
-                            a1dVarQoutDam(iD) = (a1dVarVDam(iD) - oHMC_Vars(iID)%a1dVMaxDam(iD))/dDt
+                            !!! a1dVarQoutDam(iD) = (a1dVarVDam(iD) - oHMC_Vars(iID)%a1dVMaxDam(iD))/dDt
 
                             ! Check max between a1dVarQoutDam(iD) and max outgoing dam flow [comment: to insert a 
                             ! a1dVarQoutDam(iD) = max(a1dVarQoutDam(iD), oHMC_Vars(iID)%a1dQcSLDam(iD)); 
 
-                        endif
+                        !endif
 
                     else
                         a1dVarQoutDam(iD) = 0.0;
@@ -182,6 +182,14 @@ contains
                     else
                         a1dVarVDam(iD) = a1dVarVDam(iD) - a1dVarQoutDam(iD)*dDt                        
                     endif
+                    
+                    ! If volume exceed the maximum volume that the dam can contain spill add to the spilled water
+                    ! the amount of water needed to take the level to and acceptable one
+                    if (a1dVarVDam(iD).gt.oHMC_Vars(iID)%a1dVMaxDam(iD)) then
+                        a1dVarQoutDam(iD) = a1dVarQoutDam(iD) + (a1dVarVDam(iD) - oHMC_Vars(iID)%a1dVMaxDam(iD))/dDt
+                        a1dVarVDam(iD) = oHMC_Vars(iID)%a1dVMaxDam(iD)
+                    endif
+                    
                         
                     ! Discharge in [mm]
                     a1dVarQoutDam(iD) = a1dVarQoutDam(iD)*1000*dDt/(oHMC_Vars(iID)%a2dAreaCell(iI,iJ))
