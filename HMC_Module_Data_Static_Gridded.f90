@@ -953,6 +953,8 @@ contains
             sFileName = trim(sPathData)//trim(sDomainName)//'.dem.txt'
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .true., iErr)
             a2dVarDEM = reshape(a2dVar, (/iRows, iCols/))
+            
+            
             !------------------------------------------------------------------------------------------
             
             !------------------------------------------------------------------------------------------
