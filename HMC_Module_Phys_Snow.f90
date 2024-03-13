@@ -221,9 +221,9 @@ contains
             a2dVarSnowMask = -9999.0
             
             ! Check variable(s)
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarSWE = 0.0  ! just in case 
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarRhoS = 0.0 ! just in case 
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2iVarAgeS = -9999 ! just in case     
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarSWE = 0.0  ! just in case 
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarRhoS = 0.0 ! just in case 
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.lt.0.01) )  a2iVarAgeS = -9999 ! just in case     
             !------------------------------------------------------------------------------------------
 
             !------------------------------------------------------------------------------------------
@@ -256,11 +256,11 @@ contains
             
             !------------------------------------------------------------------------------------------
             ! Calculating control variable(s) 
-            dVarSWE = sum(a2dVarSWE, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
-            dVarRhoS = sum(a2dVarRhoS, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
+            dVarSWE = sum(a2dVarSWE, mask=a2iVarMask.gt.0.0)/max(1,count(a2iVarMask.gt.0.0))
+            dVarRhoS = sum(a2dVarRhoS, mask=a2iVarMask.gt.0.0)/max(1,count(a2iVarMask.gt.0.0))
             dVarAgeS = sum(a2iVarAgeS, mask=a2iVarAgeS.ge.0.0)/max(1,count(a2iVarAgeS.ge.0.0))
-            dVarMeltingS = sum(a2dVarMeltingS, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
-            dVarSnowMask = sum(a2dVarSnowMask, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))*100
+            dVarMeltingS = sum(a2dVarMeltingS, mask=a2iVarMask.gt.0.0)/max(1,count(a2iVarMask.gt.0.0))
+            dVarSnowMask = sum(a2dVarSnowMask, mask=a2iVarMask.gt.0.0)/max(1,count(a2iVarMask.gt.0.0))*100
             
             ! Snow information time step
             write(sVarSWE, sFMTVarType1) dVarSWE
@@ -282,17 +282,17 @@ contains
             
             !------------------------------------------------------------------------------------------
             ! Define cloud factor
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarRain.gt.0.2) ) a2dVarCloudFactor = 1.1
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarRain.ge.1.0) ) a2dVarCloudFactor = 1.2
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarRain.le.0.2) ) a2dVarCloudFactor = 0.9
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarRain.gt.0.2) ) a2dVarCloudFactor = 1.1
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarRain.ge.1.0) ) a2dVarCloudFactor = 1.2
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarRain.le.0.2) ) a2dVarCloudFactor = 0.9
 
             ! Compute SepCoeff
-            where(a2dVarDEM.ge.0.0)
+            where(a2iVarMask.gt.0.0)
                 a2dVarSepCoeff = 1/(1 + exp(22 - 2.7*a2dVarTa - 0.2*a2dVarRelHum))
             endwhere   
             
             ! Compute snowfall 
-            where(a2dVarDEM.ge.0.0 .and. a2dVarRain.gt.0.0)
+            where(a2iVarMask.gt.0.0 .and. a2dVarRain.gt.0.0)
                 a2dVarSnowFall = (1 - a2dVarSepCoeff)*a2dVarRain 
             elsewhere
                 a2dVarSnowFall = 0.0
@@ -301,7 +301,7 @@ contains
             where(a2dVarSnowFall.lt.0.01) a2dVarSnowFall = 0.0
                 
             ! Convert SnowHeigth units (from cm to mm)
-            where(a2dVarDEM.ge.0.0)
+            where(a2iVarMask.gt.0.0)
                 a2dVarSnowHeight = a2dVarSnowHeight*10;
             endwhere
             
@@ -318,7 +318,7 @@ contains
                     oHMC_Vars(iID)%a3dSnowFall(:,:,int(iStep-1)) =  oHMC_Vars(iID)%a3dSnowFall(:,:,int(iStep))
                 enddo
                 ! Updating with new field
-                where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
+                where(oHMC_Vars(iID)%a2iMask.gt.0.0)
                     oHMC_Vars(iID)%a3dSnowFall(:,:,int(iDaySteps1Days)) =  a2dVarSnowFall
                 elsewhere
                     oHMC_Vars(iID)%a3dSnowFall(:,:,int(iDaySteps1Days)) = -9999.0
@@ -356,9 +356,9 @@ contains
                                             a2dVarRhoS, a2dVarRhoS0) 
                                             
             ! Check variable(s)   
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarSWE = 0.0  ! just in case 
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarRhoS = 0.0 ! just in case 
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2iVarAgeS = -9999 ! just in case     
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarSWE = 0.0  ! just in case 
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarRhoS = 0.0 ! just in case 
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.lt.0.01) )  a2iVarAgeS = -9999 ! just in case     
                                                                      
             ! Debug
             !call mprintf(.true., iINFO_Extra, checkvar(a2dVarRhoS, a2iVarMask, 'RHOS ') )
@@ -374,9 +374,9 @@ contains
                                         a2iVarAgeS) 
                                         
             ! Check variable(s)                    
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarSWE = 0.0  ! just in case 
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarRhoS = 0.0 ! just in case 
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2iVarAgeS = -9999 ! just in case   
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarSWE = 0.0  ! just in case 
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarRhoS = 0.0 ! just in case 
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.lt.0.01) )  a2iVarAgeS = -9999 ! just in case   
                                         
             ! Debug
             ! call mprintf(.true., iINFO_Extra, checkvar(float(a2iVarAgeS), a2iVarMask, 'AGES') ) 
@@ -395,15 +395,15 @@ contains
 
             !------------------------------------------------------------------------------------------                       
             ! Compute SWE and update Rain
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarRain.gt.0.0) )
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarRain.gt.0.0) )
                 a2dVarSWE = a2dVarSWE + (1 - a2dVarSepCoeff)*a2dVarRain	
                 a2dVarRain = a2dVarSepCoeff*a2dVarRain
             endwhere
             
             ! Check variable(s)   
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarSWE = 0.0  ! just in case 
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarRhoS = 0.0 ! just in case 
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2iVarAgeS = -9999 ! just in case         
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarSWE = 0.0  ! just in case 
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarRhoS = 0.0 ! just in case 
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.lt.0.01) )  a2iVarAgeS = -9999 ! just in case         
             !------------------------------------------------------------------------------------------
 
             !------------------------------------------------------------------------------------------
@@ -417,14 +417,14 @@ contains
                                               a2dVarAlbedoS, a2dVarSWE, &
                                               a2dVarMeltingS, a2dVarMeltingSc)
             ! Check variable(s)                       
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarSWE = 0.0  ! just in case 
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarRhoS = 0.0 ! just in case 
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2iVarAgeS = -9999 ! just in case   
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarSWE = 0.0  ! just in case 
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarRhoS = 0.0 ! just in case 
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.lt.0.01) )  a2iVarAgeS = -9999 ! just in case   
             !------------------------------------------------------------------------------------------
             
             !------------------------------------------------------------------------------------------                                 
             ! Compute SWE, melting and rain
-            where( (a2dVarDem.ge.0.0) .and. (a2dVarSWE.gt.0.0) .and. &
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.gt.0.0) .and. &
                    (a2dVarSWE.le.a2dVarMeltingS) .and. (a2iVarNature.ne.iGlacierValue) ) 
                    
                 ! All melted snow condition
@@ -432,7 +432,7 @@ contains
                 a2dVarSWE = 0.0
                 a2dVarRain = a2dVarRain + a2dVarMeltingS
 
-            elsewhere( (a2dVarDem.ge.0.0) .and. (a2dVarSWE.gt.0.0) .and. (a2iVarNature.ne.iGlacierValue))
+            elsewhere( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.gt.0.0) .and. (a2iVarNature.ne.iGlacierValue))
 
                 a2dVarSWE = a2dVarSWE - a2dVarMeltingS
                 a2dVarRain = a2dVarRain + a2dVarMeltingS
@@ -440,7 +440,7 @@ contains
             endwhere
 
             ! Compute SWE, melting and rain for glacier(s) conditionn
-            where( (a2dVarDem.ge.0.0) .and. (a2iVarNature.eq.iGlacierValue) )
+            where( (a2iVarMask.gt.0.0) .and. (a2iVarNature.eq.iGlacierValue) )
                 
                 ! Glacier(s) condition
                 a2dVarSWE = a2dVarSWE - a2dVarMeltingS
@@ -449,14 +449,14 @@ contains
             endwhere
             
             ! Check SWE values
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarSWE = 0.0  ! just in case 
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarRhoS = 0.0 ! just in case 
-            where( (a2dVarDEM.ge.0.0) .and. (a2dVarSWE.lt.0.01) )  a2iVarAgeS = -9999 ! just in case    
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarSWE = 0.0  ! just in case 
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.lt.0.01) )  a2dVarRhoS = 0.0 ! just in case 
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.lt.0.01) )  a2iVarAgeS = -9999 ! just in case    
             !------------------------------------------------------------------------------------------
 
             !------------------------------------------------------------------------------------------
             ! Compute daily cumulated melting
-            !where( (a2dVarDem.ge.0.0) .and. (a2dVarMeltingS.gt.0.0) )
+            !where( (a2iVarMask.gt.0.0) .and. (a2dVarMeltingS.gt.0.0) )
             !    a2dVarMeltingSDayCum = a2dVarMeltingSDayCum + a2dVarMeltingS
             !endwhere
             !------------------------------------------------------------------------------------------
@@ -516,17 +516,17 @@ contains
             
             !------------------------------------------------------------------------------------------
             ! Check variable(s) space domain and physical boundaries 
-            where(a2dVarDem.lt.0.0)
+            where(a2iVarMask.lt.0.0)
                 a2dVarRain = -9999.0;  a2dVarSWE = -9999.0; a2dVarSnowFall = -9999.0; a2dVarRhos = -9999.0;
                 a2dVarTaC_MeanDays1 = -9999.0; a2dVarTaC_MeanDays5 = -9999.0; 
                 a2iVarAgeS = -9999; a2dVarMeltingS = -9999.0; !a2dVarMeltingSDayCum = -9999.0
             endwhere
             
-            where( (a2dVarDem.gt.0.0) .and. (a2dVarSWE.lt.0.1) ) 
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.lt.0.1) ) 
                 a2iVarAgeS = -9999; a2dVarAlbedoS = 0.0; a2dVarRhos = 0.0; a2dVarSWE = 0.0
             endwhere
             
-            where( (a2dVarDem.gt.0.0) .and. (a2dVarSWE.gt.0.1) ) 
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarSWE.gt.0.1) ) 
                 a2dVarSnowMask = 1
             elsewhere
                 a2dVarSnowMask = 0
@@ -541,11 +541,11 @@ contains
             
             !------------------------------------------------------------------------------------------
             ! Calculating control variable(s) 
-            dVarSWE = sum(a2dVarSWE, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
-            dVarRhoS = sum(a2dVarRhoS, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
+            dVarSWE = sum(a2dVarSWE, mask=a2iVarMask.gt.0.0)/max(1,count(a2iVarMask.gt.0.0))
+            dVarRhoS = sum(a2dVarRhoS, mask=a2iVarMask.gt.0.0)/max(1,count(a2iVarMask.gt.0.0))
             dVarAgeS = sum(a2iVarAgeS, mask=a2iVarAgeS.ge.0.0)/max(1,count(a2iVarAgeS.ge.0.0))
-            dVarMeltingS = sum(a2dVarMeltingS, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
-            dVarSnowMask = sum(a2dVarSnowMask, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))*100
+            dVarMeltingS = sum(a2dVarMeltingS, mask=a2iVarMask.gt.0.0)/max(1,count(a2iVarMask.gt.0.0))
+            dVarSnowMask = sum(a2dVarSnowMask, mask=a2iVarMask.gt.0.0)/max(1,count(a2iVarMask.gt.0.0))*100
             
             ! Snow information time step
             write(sVarSWE, sFMTVarType1) dVarSWE
@@ -602,7 +602,7 @@ contains
                     oHMC_Vars(iID)%a3dMelting(:,:,int(iStep-1)) =  oHMC_Vars(iID)%a3dMelting(:,:,int(iStep))
                 enddo
                 ! Updating with new field
-                where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
+                where(oHMC_Vars(iID)%a2iMask.gt.0.0)
                     oHMC_Vars(iID)%a3dMelting(:,:,int(iDaySteps1Days)) =  a2dVarMeltingS
                 elsewhere
                     oHMC_Vars(iID)%a3dMelting(:,:,int(iDaySteps1Days)) = -9999.0

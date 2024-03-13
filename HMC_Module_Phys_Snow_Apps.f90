@@ -57,29 +57,29 @@ contains
         if ( (sTime(12:13).eq.'00') .and. (iTime.gt.1) ) then
             
             ! Compute snow albedo
-            where( (a2dVarDem.ge.0.0) .and. (a2dVarTaC_MeanDays1.gt.0.0) )
+            where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarTaC_MeanDays1.gt.0.0) )
                 a2dVarAlbedoS = 0.4 + 0.44*exp(dble(-a2iVarAgeS)*0.12)
             endwhere
             
-            where ( (a2dVarDem.ge.0.0) .and. (a2dVarTaC_MeanDays1.le.0.0) )
+            where ( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarTaC_MeanDays1.le.0.0) )
                 a2dVarAlbedoS = 0.4 + 0.44*exp(dble(-a2iVarAgeS)*0.05)
             endwhere
             
             ! Check snow albedo boundaries conditions
-            where( (a2dVarDem.ge.0.0) .and. (a2dVarAlbedoS.le.0.5) )
+            where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarAlbedoS.le.0.5) )
                 a2dVarAlbedoS = 0.5
             endwhere
-            where( (a2dVarDem.ge.0.0) .and. (a2dVarAlbedoS.gt.0.95) )
+            where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarAlbedoS.gt.0.95) )
                 a2dVarAlbedoS = 0.95
             endwhere
             
             ! Update albedo where Age is 0!
-            where( (a2dVarDem.ge.0.0) .and. (a2iVarAgeS.eq.0) )
+            where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2iVarAgeS.eq.0) )
                 a2dVarAlbedoS = 0.95 
             endwhere  
             
             ! Set snow albedo glaciers condition
-            where( (a2dVarDem.ge.0.0) .and. (a2iVarNature.eq.iGlacierValue) )
+            where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2iVarNature.eq.iGlacierValue) )
                 a2dVarAlbedoS = 0.9
             endwhere
             
@@ -124,16 +124,16 @@ contains
         ! Initialize variable(s) every day at 00.00
         if ( (sTime(12:13).eq.'00') .and. (iTime.gt.1) ) then
             ! Snow age updating
-            where( (a2dVarDem.ge.0.0) .and. (a2dVarSnowFallDayCum.le.3.0) )
+            where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarSnowFallDayCum.le.3.0) )
                 a2iVarAgeS = a2iVarAgeS + 1
             endwhere
             
-            where( (a2dVarDem.ge.0.0) .and. (a2dVarSnowFallDayCum.gt.3.0) )
+            where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarSnowFallDayCum.gt.3.0) )
                 a2iVarAgeS = 0
             endwhere
             
             ! Snow age re-initialization to -9999 with SWE equal to 0.0 (without snow --> no data value)
-            where( (a2dVarDem.ge.0.0) .and. (a2dVarSWE.eq.0.0) )
+            where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarSWE.eq.0.0) )
                 a2iVarAgeS = -9999
             endwhere
 
@@ -199,7 +199,7 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Compute ExpRhoSnow
-        where( (a2dVarDem.ge.0.0) .AND. (a2dVarMeltingSDayCum.lt.3.0) )
+        where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .AND. (a2dVarMeltingSDayCum.lt.3.0) )
             a2dVarExpRhoS = a2dVarExpRhoSLow        ! No Melting 0.033=1/30 -> dRoMax in 30 days
         elsewhere
             a2dVarExpRhoS = a2dVarExpRhoSHigh       ! Melting   0.2=1/5 -> dRoMax in 5 days
@@ -208,38 +208,38 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Compute snow density
-        where( (a2dVarDem.ge.0.0) .and. (a2dVarSnowFall.gt.0.0) )
+        where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarSnowFall.gt.0.0) )
             a2dVarRhoS0 = 67.9 + 51.3*exp(a2dVarTa/2.6)
         elsewhere
             a2dVarRhoS0 = 0.0
         endwhere
         
         ! Check rhos limits
-        where( (a2dVarDem.ge.0.0) .and. (a2dVarRhoS0.gt.200.0) )
+        where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarRhoS0.gt.200.0) )
             a2dVarRhoS0 = 200.0
         endwhere
-        where( (a2dVarDem.ge.0.0) .and. (a2dVarRhoS0.gt.0.0) .and. (a2dVarRhoS0.lt.67.9) )
+        where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarRhoS0.gt.0.0) .and. (a2dVarRhoS0.lt.67.9) )
             a2dVarRhoS0 = 67.9
         endwhere
-        where( (a2dVarDem.ge.0.0) .and. (a2dVarRhoS0.lt.0.0) )
+        where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarRhoS0.lt.0.0) )
             a2dVarRhoS0 = 0.0
         endwhere
                   
-        where( (a2dVarDem.ge.0.0) .and. (a2dVarSWE.gt.1.0) .and. (a2dVarSnowFall.gt.1.0) .and. &
+        where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarSWE.gt.1.0) .and. (a2dVarSnowFall.gt.1.0) .and. &
                (a2dVarRhoS0.gt.67.9) .and. (a2dVarRhoS.gt.67.9) )
 
                a2dVarRhoS = (a2dVarSWE + a2dVarSnowFall)/(a2dVarSnowFall/a2dVarRhoS0 + a2dVarSWE/a2dVarRhoS)
 
         endwhere
           
-        where( (a2dVarDem.ge.0.0) .and. (a2dVarSWE.le.1.0) .and. (a2dVarSnowFall.gt.0.0) )
+        where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarSWE.le.1.0) .and. (a2dVarSnowFall.gt.0.0) )
             a2dVarRhoS = a2dVarRhoS0
         endwhere
         
         ! se lo strato di SWE presente � basso, ha densit� bassa e ci nevica uno SF>SWE con Densit� + alta della 
         ! neve a terra l'aggiornamento da problemi (densit� negativa) allora assumo tutto lo strato di neve con 
         !Densit� pari all'ulitma Rho_zero
-        where( (a2dVarDem.ge.0.0) .and. (a2dVarRhoS.lt.67.9) )
+        where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarRhoS.lt.67.9) )
             a2dVarRhoS = 67.9
         endwhere
         
@@ -248,16 +248,16 @@ contains
         ! H. Douville, J.-F. Royer, J.-F. Mahfouf Climate Dynamics (1995) 12:21-35
         ! a1dRhoS(t)=(a1dRhoS(t-1)-dRhomax)*exp(-.033*Dt)+dRhomax
         if ( (sTime(12:13).eq.'00') .and. (iTime.gt.1) ) then
-            where( (a2dVarDem.ge.0.0) .and. (a2dVarSWE.gt.1.0) )
+            where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarSWE.gt.1.0) )
                 a2dVarRhoS = (a2dVarRhoS - dVarRhoSMax)*exp(-a2dVarExpRhoS*real(iDt)) + dVarRhoSMax
             endwhere
         endif
         
         ! Check rhos limit(s)
-        where( (a2dVarDem.ge.0.0) .and. (a2dVarRhoS.gt.dVarRhoSMax) )
+        where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarRhoS.gt.dVarRhoSMax) )
             a2dVarRhoS = dVarRhoSMax
         endwhere
-        where( (a2dVarDem.ge.0.0) .and. (a2dVarRhoS.lt.0.0) )
+        where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarRhoS.lt.0.0) )
             a2dVarRhoS = 0.0
         endwhere
         !------------------------------------------------------------------------------------------
@@ -403,9 +403,9 @@ contains
         where(a2dVarMeltingSc.lt.0.3) a2dVarMeltingSc = 0.3 
         
         ! Compute snow melting second coefficient (for glacier(s))
-        where( (a2dVarDem.gt.0.0) .and. (a2dVarSWE.gt.0.0) .and. (a2iVarNature.eq.iGlacierValue) ) 
+        where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarSWE.gt.0.0) .and. (a2iVarNature.eq.iGlacierValue) ) 
             a2dVarMeltingScG = a2dVarMeltingSc
-        elsewhere ( (a2dVarDem.gt.0.0) .and. (a2dVarSWE.eq.0.0) .and. (a2iVarNature.eq.iGlacierValue) )
+        elsewhere ( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarSWE.eq.0.0) .and. (a2iVarNature.eq.iGlacierValue) )
             a2dVarMeltingScG = 3.0*a2dVarMeltingSc
         endwhere
 
@@ -415,7 +415,7 @@ contains
          
         !------------------------------------------------------------------------------------------
         ! Compute snow melting for each day step
-        where ( (a2dVarDem.ge.0.0) .and. (a2dVarTa.ge.dVarMeltingTRef) &
+        where ( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarTa.ge.dVarMeltingTRef) &
                 .and. (a2dVarSWE.gt.0.0) )
             a2dVarIncRad = (a2dVarIncRad*(1.0 - a2dVarAlbedoS))*(iDtForcing)/1000000
             a2dVarLW = -(dVarSigma*a2dVarCloudFactor)*(-0.02+0.261*(exp(-7.77*0.0001*a2dVarTa**2)))*(a2dVarTa + 273.2)**4
@@ -427,7 +427,7 @@ contains
         endwhere
         
         ! Glacier (Albedo == 0.9)
-        where ( (a2dVarDem.ge.0.0) .and. (a2dVarTa.ge.dVarMeltingTRef) & 
+        where ( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarTa.ge.dVarMeltingTRef) & 
                 .and. (a2dVarSWE.eq.0.0) .and. (a2iVarNature.eq.iGlacierValue) )
             a2dVarIncRad = (a2dVarIncRad*(1.0 - 0.9))*(iDtForcing)/1000000
             a2dVarLW = -(dVarSigma*a2dVarCloudFactor)*(-0.02+0.261*(exp(-7.77*0.0001*a2dVarTa**2)))*(a2dVarTa + 273.2)**4
@@ -555,4 +555,3 @@ contains
     
 end module HMC_Module_Phys_Snow_Apps
 !------------------------------------------------------------------------------------
-

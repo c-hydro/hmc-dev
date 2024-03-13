@@ -536,7 +536,7 @@ contains
                                  deflate_level = iDeflateLevelNC) )
         
         !  Writing variable attribute(s)
-        call check( nf90_put_att(+iFileID, iVarID, 'long_name'     , trim(sVarNameLong)) )
+        call check( nf90_put_att(iFileID, iVarID, 'long_name'     , trim(sVarNameLong)) )
         call check( nf90_put_att(iFileID, iVarID, 'description'   , trim(sVarDescription)) )
         call check( nf90_put_att(iFileID, iVarID, 'units'         , trim(sVarUnits)) )
         call check( nf90_put_att(iFileID, iVarID, 'coordinates'   , trim(sVarCoords)) )

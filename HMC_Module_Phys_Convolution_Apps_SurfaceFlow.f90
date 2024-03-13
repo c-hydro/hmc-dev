@@ -213,7 +213,7 @@ contains
             a2dVarIntensityPrev = 0.0
         endwhere
         ! Updating variables surface cell input (exfiltration + runoff [mm/h]) --> CHECKING CONVERSION
-        where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
+        where(oHMC_Vars(iID)%a2iMask.gt.0.0)
             a2dVarIntensityUpd = a2dVarIntensityPrev + a2dVarFlowExf*1000.0*3600.0 + &
                                  (1 - oHMC_Vars(iID)%a2dCoeffResol)*a2dVarRouting/dDtSurfaceflow*3600.0 + &
                                  !(1 - oHMC_Vars(iID)%a2dCoeffResol)*oHMC_Vars(iID)%a2dFlowDeep + &      ! Tevere settings ( --- development mode ---)
@@ -337,7 +337,7 @@ contains
         
         ! HILLS
         ! Surface equation for hills (direct euler's method)
-        where ( (oHMC_Vars(iID)%a2iChoice.eq.0.0) .and. (oHMC_Vars(iID)%a2dDEM.gt.0.0) ) 
+        where ( (oHMC_Vars(iID)%a2iChoice.eq.0.0) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) ) 
             a2dVarHydroUpd = a2dVarHydroUpd + a2dVarIntensityUpd*dDtSurfaceflow/3600 - &
                              a2dVarHydroUpd*a2dVarUhAct*dDtSurfaceflow/3600.0
             a2dVarQDisOut = a2dVarHydroPrev*a2dVarUhAct*dDtSurfaceflow/3600.0
@@ -345,7 +345,7 @@ contains
         
         ! CHANNELS
         ! Surface equation for channels (direct euler's method)
-        where ( (oHMC_Vars(iID)%a2iChoice.eq.1.0) .and. (oHMC_Vars(iID)%a2dDEM.gt.0.0) ) 
+        where ( (oHMC_Vars(iID)%a2iChoice.eq.1.0) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) ) 
 
             a2dVarUcAct = oHMC_Vars(iID)%a2dUc*(tan(oHMC_Vars(iID)%a2dBeta)**0.5)*a2dVarHydroUpd**dBc ! FPI settings
             
@@ -361,7 +361,7 @@ contains
 
         endwhere
         
-        where ( (oHMC_Vars(iID)%a2iChoice.eq.1.0) .and. (oHMC_Vars(iID)%a2dDEM.gt.0.0) ) 
+        where ( (oHMC_Vars(iID)%a2iChoice.eq.1.0) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) ) 
 
             a2dVarQDisOut = oHMC_Vars(iID)%a2dUc*(tan(oHMC_Vars(iID)%a2dBeta)**0.5)*(0.5*a2dVarHydroPrev**(1 + dBc) + &
                             0.5*a2dVarHydroUpd**(1 + dBc))*dDtSurfaceflow/3600
@@ -446,7 +446,7 @@ contains
             do iJ = 1, iCols 
                 
                 ! DEM condition
-                if (oHMC_Vars(iID)%a2dDEM(iI,iJ).gt.0.0) then
+                if (oHMC_Vars(iID)%a2iMask(iI,iJ).gt.0.0) then
                     
                     ! Rate and pointers definition
                     !iVarPNT = 0
@@ -621,7 +621,7 @@ contains
                 a2dVarRouting(iIII, iJJJ) = a2dVarRouting(iIII, iJJJ) + a1dVarQoutDam(iD)
                 
                 ! Volume to mean dam level [mm]
-                where( oHMC_Vars(iID)%a2iChoice.eq.oHMC_Vars(iID)%a1dCodeDam(iD) .and. (oHMC_Vars(iID)%a2dDem.gt.0.0) ) 
+                where( oHMC_Vars(iID)%a2iChoice.eq.oHMC_Vars(iID)%a1dCodeDam(iD) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) ) 
                     a2dVarHydroUpd = a1dVarVDam(iD)/(oHMC_Vars(iID)%a1iNCellDam(iD)*oHMC_Vars(iID)%a2dAreaCell(iI,iJ))*1000 ! [mm]
                 endwhere
                     
@@ -845,14 +845,14 @@ contains
         !------------------------------------------------------------------------------------------
         ! Partition coefficient and length of flooding
         a2dPartition = 0.0;
-        where (oHMC_Vars(iID)%a2dDEM.gt.0.0)
+        where (oHMC_Vars(iID)%a2iMask.gt.0.0)
             a2dPartition = (a2dVarWidthC/sqrt(a2dVarAreaCell))**((100.0/sqrt(a2dVarAreaCell))**0.35)
             a2dVarBF = dPa*a2dVarWidthC**dPb
         endwhere
-        where ( (oHMC_Vars(iID)%a2dDEM.gt.0.0) .and. (a2dPartition.le.0) )
+        where ( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dPartition.le.0) )
             a2dPartition = 0.01
         endwhere
-        where ( (oHMC_Vars(iID)%a2dDEM.gt.0.0) .and. (a2dPartition.ge.1) )
+        where ( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dPartition.ge.1) )
             a2dPartition = 0.99
         endwhere
         !------------------------------------------------------------------------------------------
@@ -861,9 +861,9 @@ contains
         ! Channel max surface velocity (UcMax)
         dUMax = 3600.0/dDtSurfaceflow*0.5
         dTmmm = MAXVAL(MAXVAL(oHMC_Vars(iID)%a2dUh,dim=1,mask=oHMC_Vars(iID)%a2iChoice.le.1.and. &
-                    oHMC_Vars(iID)%a2dDem.gt.0))
+                    oHMC_Vars(iID)%a2iMask.gt.0))
         dTmmm = MAXVAL(MAXVAL(oHMC_Vars(iID)%a2dUc,dim=1,mask=oHMC_Vars(iID)%a2iChoice.le.1.and. &
-                    oHMC_Vars(iID)%a2dDem.gt.0))  
+                    oHMC_Vars(iID)%a2iMask.gt.0))  
                     
         ! Hill overland equation 
         a2dVarUhAct = oHMC_Vars(iID)%a2dUh
@@ -877,9 +877,9 @@ contains
         endwhere
         
         dTmmm = MAXVAL(MAXVAL(oHMC_Vars(iID)%a2dUh,dim=1,mask=oHMC_Vars(iID)%a2iChoice.le.1.and. &
-                    oHMC_Vars(iID)%a2dDem.gt.0))
+                    oHMC_Vars(iID)%a2iMask.gt.0))
         dTmmm = MAXVAL(MAXVAL(oHMC_Vars(iID)%a2dUc,dim=1,mask=oHMC_Vars(iID)%a2iChoice.le.1.and. &
-                    oHMC_Vars(iID)%a2dDem.gt.0))  
+                    oHMC_Vars(iID)%a2iMask.gt.0))  
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -903,7 +903,7 @@ contains
             a2dVarRouting = 0.0
         endwhere
 
-        where ((oHMC_Vars(iID)%a2iChoice.le.1) .and. (oHMC_Vars(iID)%a2dDEM.gt.0.0))
+        where ((oHMC_Vars(iID)%a2iChoice.le.1) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0))
             a2dVarAreaCell = a2dVarAreaCell
         elsewhere
             a2dVarAreaCell = 0.0
@@ -916,11 +916,11 @@ contains
             a2dVarIntensityPrev = 0.0
         endwhere
         ! Updating variables surface hillsolpe cell input (exfiltration + runoff m^3/s]) --> CHECKING CONVERSION
-        where(oHMC_Vars(iID)%a2dDEM.gt.0.0.and.(oHMC_Vars(iID)%a2iChoice.le.1))
+        where(oHMC_Vars(iID)%a2iMask.gt.0.0.and.(oHMC_Vars(iID)%a2iChoice.le.1))
             a2dVarIntensityUpd = oHMC_Vars(iID)%a2dRunoffH*a2dVarAreaCell   + a2dVarFlowExf*a2dVarAreaCell 
         endwhere
                    
-        where ((oHMC_Vars(iID)%a2iChoice.le.1) .and. (oHMC_Vars(iID)%a2dDEM.gt.0.0))
+        where ((oHMC_Vars(iID)%a2iChoice.le.1) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0))
             
             a2dVarQDisOut = a2dVarWidthH*a2dVarUhact*(tan(oHMC_Vars(iID)%a2dBeta)**0.5)*a2dVarHydroPrevH**(5.0/3.0)
             
@@ -950,7 +950,7 @@ contains
 
         !------------------------------------------------------------------------------------------ 
         ! Put null on input matrix because now used for Channels
-        where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
+        where(oHMC_Vars(iID)%a2iMask.gt.0.0)
             a2dVarIntensityUpd = 0.0
         endwhere
         !------------------------------------------------------------------------------------------ 
@@ -985,7 +985,7 @@ contains
                     !------------------------------------------------------------------------------------------
                     ! Update intensity
                     a2dVarIntensityUpd(iI, iJ) = a2dVarIntensityUpd(iI, iJ) + a2dVarHydroPlant(iP, iTTemp + 1)*(dVarAreaCell)/ &
-                                                (1000*3600) !m^3
+                                                (1000*3600) !m^3 (giulia: eventualmente m3/s, no?)
 
                     ! Update dam volume
                     a1dVarVDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)) = a1dVarVDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)) - &
@@ -1016,7 +1016,7 @@ contains
                     !------------------------------------------------------------------------------------------
                     ! Update intensity
                     a2dVarIntensityUpd(iI, iJ) = a2dVarIntensityUpd(iI, iJ) + &
-                                                 a1dVarQPlant(iP) !m^3
+                                                 a1dVarQPlant(iP) !m^3 (giulia: eventualmente m3/s, no?)
 
                     ! Update dam volume
                     a1dVarVDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)) = a1dVarVDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)) - &
@@ -1181,7 +1181,7 @@ contains
         !------------------------------------------------------------------------------------------
         ! CHANNELS 
         ! a2dVarHydroUpdC = a2dVarHydroPrevC
-        where(oHMC_Vars(iID)%a2dDEM.gt.0.0.and.(oHMC_Vars(iID)%a2iChoice.le.1.0))
+        where(oHMC_Vars(iID)%a2iMask.gt.0.0.and.(oHMC_Vars(iID)%a2iChoice.le.1.0))
             a2dVarIntensityUpd = a2dVarIntensityUpd +  & !Plant and realese data
                                  oHMC_Vars(iID)%a2dQH*a2dPartition + & !From hillslopes to channels
                                  oHMC_Vars(iID)%a2dQup + & !From upstream cells
@@ -1190,7 +1190,7 @@ contains
         endwhere
         
         a2dVarQDisOut = 0.0
-        where ((oHMC_Vars(iID)%a2iChoice.le.1) .and. (oHMC_Vars(iID)%a2dDEM.gt.0.0))
+        where ((oHMC_Vars(iID)%a2iChoice.le.1) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0))
             a2dVarQDisOut = a2dVarWidthC*a2dVarUcact*(tan(oHMC_Vars(iID)%a2dBeta)**0.5)*a2dVarHydroPrevC**(1+dBc)
             where (a2dVarQDisOut*dDtSurfaceflow.gt.dKint*(a2dVarHydroPrevC*a2dVarWidthC*sqrt(a2dVarAreaCell)+ &
                         a2dVarIntensityUpd*dDtSurfaceflow))
@@ -1213,7 +1213,7 @@ contains
                         (a2dVarWidthC*sqrt(a2dVarAreaCell))
         ENDwhere    
         dTmmm = MAXVAL(MAXVAL(a2dVarHydroUpdC,dim=1,mask=oHMC_Vars(iID)%a2iChoice.le.1.and. &
-                    oHMC_Vars(iID)%a2dDem.gt.0))   
+                    oHMC_Vars(iID)%a2iMask.gt.0))   
                            
         ! Check for zero values
         where(a2dVarHydroUpdH.lt.0.0)
@@ -1225,7 +1225,7 @@ contains
                             
         ! Input in Linear Lakes
         a2dVarIntensityUpd = 0.0
-        where(oHMC_Vars(iID)%a2dDEM.gt.0.0.and.(oHMC_Vars(iID)%a2iChoice.gt.1))
+        where(oHMC_Vars(iID)%a2iMask.gt.0.0.and.(oHMC_Vars(iID)%a2iChoice.gt.1))
             a2dVarIntensityUpd = oHMC_Vars(iID)%a2dRunoffH   + a2dVarFlowExf*a2dVarAreaCell 
         endwhere
         !------------------------------------------------------------------------------------------
@@ -1298,7 +1298,7 @@ contains
             do iJ = 1, iCols 
                 
                 ! DEM condition
-                if (oHMC_Vars(iID)%a2dDEM(iI,iJ).gt.0.0) then
+                if (oHMC_Vars(iID)%a2iMask(iI,iJ).gt.0.0) then
                     
                     ! Rate and pointers definition
                     !iVarPNT = 0
@@ -1399,7 +1399,7 @@ contains
                 oHMC_Vars(iID)%a2dQup(iIII, iJJJ) = oHMC_Vars(iID)%a2dQup(iIII, iJJJ) + &
                                 a1dVarQoutDam(iD)/(dDtSurfaceflow*1000)*oHMC_Vars(iID)%a2dAreaCell(iIII,iJJJ)                
                 ! Volume to mean dam level [m]
-                where( oHMC_Vars(iID)%a2iChoice.eq.oHMC_Vars(iID)%a1dCodeDam(iD) .and. (oHMC_Vars(iID)%a2dDem.gt.0.0) ) 
+                where( oHMC_Vars(iID)%a2iChoice.eq.oHMC_Vars(iID)%a1dCodeDam(iD) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) ) 
                     a2dVarHydroUpdC = a1dVarVDam(iD)/(oHMC_Vars(iID)%a1iNCellDam(iD)*oHMC_Vars(iID)%a2dAreaCell(iI,iJ)) ! [m]
                 endwhere
                     

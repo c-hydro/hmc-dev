@@ -113,7 +113,7 @@ contains
             
             !------------------------------------------------------------------------------------------
             ! Update WTable
-            where( oHMC_Vars(iID)%a2dDem.gt.0.0 )
+            where( oHMC_Vars(iID)%a2iMask.gt.0.0 )
                 a2dVarWTableStep = a2dVarWTable + a2dVarVLoss/1000
             endwhere
             !------------------------------------------------------------------------------------------
@@ -131,8 +131,8 @@ contains
                     ! Defining flow directions
                     iII = int((oHMC_Vars(iID)%a2iPNT(iI,iJ)  - 1)/3) - 1
                     iJJ = oHMC_Vars(iID)%a2iPNT(iI,iJ) - 5 - 3*iII
-                    iIII = iI + iII
-                    iJJJ = iJ + iJJ
+                    iIII = iI + iII !riga cella di valle secondo PNT
+                    iJJJ = iJ + iJJ !colonna cella di valle secondo PNT
                     
                     !write(*,*) 'PNT: ',iVarPNT   
                     !write(*,*) 'iJ: ',iJ, ' iI: ',iI, ' iJJ: ',iJJ, ' iII: ',iII , ' iJJJ: ',iJJJ, ' iIII: ',iIII
@@ -140,14 +140,17 @@ contains
 
                     !------------------------------------------------------------------------------------------
                     ! Terrain condition for i,j and iii,jjj 
-                    if ( (oHMC_Vars(iID)%a2dDem(iI,iJ).gt.0.0 ) .and. (oHMC_Vars(iID)%a2dDem(iIII,iJJJ).gt.0.0) ) then
+                    ! (~controlla che sia la cella di partenza che di arrivo -valle secondo PNT- siano nel dominio)
+                    if ( (oHMC_Vars(iID)%a2iMask(iI,iJ).gt.0.0 ) .and. (oHMC_Vars(iID)%a2iMask(iIII,iJJJ).gt.0.0) ) then
 
                         !------------------------------------------------------------------------------------------
                         ! Cycle(s) on buffer area
                         do iII = iI - 1, iI + 1
                             do iJJ = iJ - 1, iJ + 1
 
-                                if ( (oHMC_Vars(iID)%a2dDem(iII,iJJ).gt.0.0 ) .and. ((iII.ne.iI).and.(iJJ.ne.iJ)) ) then
+                                ! if ( (oHMC_Vars(iID)%a2iMask(iII,iJJ).gt.0.0) .and. ((iII.ne.iI).and.(iJJ.ne.iJ)) ) then
+                                ! GIULIA - baco - spostamenti erano possibili solo verso celle diagonali
+                                if ( (oHMC_Vars(iID)%a2iMask(iII,iJJ).gt.0.0) .and. ((iII.ne.iI).or.(iJJ.ne.iJ)) ) then    
 
                                     if ( (a2dVarWTable(iI, iJ) - a2dVarWTable(iII,iJJ)).gt.0.0 ) then
 
@@ -168,9 +171,12 @@ contains
                             !------------------------------------------------------------------------------------------
                             dHm = dHt/iNgr
                             
+                            !a2dVarDarcy(iI,iJ) = dHm/sqrt(oHMC_Vars(iID)%a2dAreaCell(iI,iJ)) * &
+                            !                     oHMC_Vars(iID)%a2dCostF1(iI,iJ) * &
+                            !                     dDtDataForcing/3600*oHMC_Namelist(iID)%dKSatRatio
+                            
                             a2dVarDarcy(iI,iJ) = dHm/sqrt(oHMC_Vars(iID)%a2dAreaCell(iI,iJ)) * &
-                                                 oHMC_Vars(iID)%a2dCostF1(iI,iJ) * &
-                                                 dDtDataForcing/3600*oHMC_Namelist(iID)%dKSatRatio
+                                                 oHMC_Vars(iID)%a2dWTksatH(iI,iJ) * dDtDataForcing/3600
                                                
                             if ( a2dVarDarcy(iI,iJ) .gt. ( a2dVarWTable(iI,iJ) - oHMC_Vars(iID)%a2dWTableMax(iI,iJ))*1000 ) then
                                 a2dVarDarcy(iI,iJ) = (a2dVarWTable(iI,iJ) - oHMC_Vars(iID)%a2dWTableMax(iI,iJ))*1000
@@ -181,7 +187,10 @@ contains
                             do iII = iI - 1, iI + 1
                                 do iJJ = iJ - 1, iJ + 1
 
-                                    if ( (oHMC_Vars(iID)%a2dDem(iII, iJJ).gt.0.0) .and. ((iII.ne.iI).and.(iJJ.ne.iJ)) ) then
+                                    ! if ( (oHMC_Vars(iID)%a2iMask(iII,iJJ).gt.0.0) .and. ((iII.ne.iI).and.(iJJ.ne.iJ)) ) then
+                                    ! GIULIA - baco - spostamenti erano possibili solo verso celle diagonali
+                                    if ( (oHMC_Vars(iID)%a2iMask(iII,iJJ).gt.0.0) .and. ((iII.ne.iI).or.(iJJ.ne.iJ)) ) then
+                            
                                         if ( (a2dVarWTable(iI,iJ) - a2dVarWTable(iII,iJJ)).gt.0.0 ) then
 
                                             a2dVarWTableStep(iII, iJJ) = a2dVarWTableStep(iII, iJJ) + & 
@@ -204,10 +213,13 @@ contains
                     
                     !------------------------------------------------------------------------------------------
                     ! Outlet cell
-                    if ( (oHMC_Vars(iID)%a2dDem(iI,iJ).gt.0.0) .and. (oHMC_Vars(iID)%a2dDem(iIII, iJJJ).lt.0.0) ) then
+                    if ( (oHMC_Vars(iID)%a2iMask(iI,iJ).gt.0.0) .and. (oHMC_Vars(iID)%a2iMask(iIII, iJJJ).lt.0.0) ) then
                         
-                        a2dVarDarcy(iI, iJ) = oHMC_Vars(iID)%a2dAlpha(iI,iJ)*oHMC_Vars(iID)%a2dCostF1(iI,iJ)* &
-                                              dDtDataForcing/(3600*1000)*oHMC_Namelist(iID)%dKSatRatio
+                        !a2dVarDarcy(iI, iJ) = oHMC_Vars(iID)%a2dAlpha(iI,iJ)*oHMC_Vars(iID)%a2dCostF1(iI,iJ)* &
+                        !                      dDtDataForcing/(3600*1000)*oHMC_Namelist(iID)%dKSatRatio
+                                              
+                        a2dVarDarcy(iI, iJ) = oHMC_Vars(iID)%a2dAlpha(iI,iJ)* &
+                                              oHMC_Vars(iID)%a2dWTksatH(iI,iJ) * dDtDataForcing/3600 !giulia - credo /1000=baco
 
                         if ( a2dVarDarcy(iI,iJ) .gt. (a2dVarWTable(iI,iJ) - oHMC_Vars(iID)%a2dWTableMax(iI,iJ)) ) then
                             a2dVarDarcy(iI,iJ) = (a2dVarWTable(iI,iJ) - oHMC_Vars(iID)%a2dWTableMax(iI,iJ))
@@ -221,7 +233,7 @@ contains
             !------------------------------------------------------------------------------------------
 
             !------------------------------------------------------------------------------------------
-            where( oHMC_Vars(iID)%a2dDem.gt.0.0 )
+            where( oHMC_Vars(iID)%a2iMask.gt.0.0 )
                 a2dVarWTableStep = a2dVarWTableStep - a2dVarDarcy/1000
             endwhere
             !------------------------------------------------------------------------------------------
@@ -229,18 +241,18 @@ contains
 
             !------------------------------------------------------------------------------------------
             ! Flow deep - Interaction between watertable and surface
-            where( (oHMC_Vars(iID)%a2dDem.gt.0.0) .and. (a2dVarWTableStep.gt.oHMC_Vars(iID)%a2dDem) )
+            where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarWTableStep.gt.oHMC_Vars(iID)%a2dDem) )
                 a2dVarFlowDeep = (1 - a2dVarFrac)*(a2dVarWTableStep - oHMC_Vars(iID)%a2dDem)*dDtDataForcing/3600*1000
                 a2dVarWTableStep = oHMC_Vars(iID)%a2dDem
             endwhere
 
             ! Updating watertable
-            where( oHMC_Vars(iID)%a2dDem.gt.0.0 )
+            where( oHMC_Vars(iID)%a2iMask.gt.0.0 )
                 a2dVarWTable = a2dVarWTableStep
             endwhere
             
             a2dVarWSRunoff = 0.0
-            where( oHMC_Vars(iID)%a2dDem.gt.0.0 )
+            where( oHMC_Vars(iID)%a2iMask.gt.0.0 )
 
                 a2dVarWDL = (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWDL*oHMC_Vars(iID)%a2dAreaCell ! m^3/s
                 a2dVarWSRunoff = (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWS*oHMC_Vars(iID)%a2dAreaCell ! m^3/s
@@ -254,13 +266,13 @@ contains
             endwhere
             
             ! Updating VTot
-            where( oHMC_Vars(iID)%a2dDem.gt.0.0 )
+            where( oHMC_Vars(iID)%a2iMask.gt.0.0 )
                 a2dVarVTot = a2dVarVTot + a2dVarFlowDeep
             endwhere
             
             ! Updating flow deep and vtot where vtot >= vmax
             a2dVarFlowDeep = 0.0 
-            where( (oHMC_Vars(iID)%a2dDem.gt.0.0) .and. (a2dVarVTot.gt.oHMC_Vars(iID)%a2dS) )
+            where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarVTot.gt.oHMC_Vars(iID)%a2dS) )
                 a2dVarFlowDeep = a2dVarVTot - oHMC_Vars(iID)%a2dS
                 a2dVarVTot = oHMC_Vars(iID)%a2dS
             endwhere
@@ -390,7 +402,7 @@ contains
             
             !------------------------------------------------------------------------------------------
             ! Update WTable
-            where( oHMC_Vars(iID)%a2dDem.gt.0.0 )
+            where( oHMC_Vars(iID)%a2iMask.gt.0.0 )
                 a2dVarWTableStep = a2dVarWTable + a2dVarVLoss/1000
             endwhere
             !------------------------------------------------------------------------------------------
@@ -417,15 +429,17 @@ contains
 
                     !------------------------------------------------------------------------------------------
                     ! Terrain condition for i,j and iii,jjj 
-                    if ( (oHMC_Vars(iID)%a2dDem(iI,iJ).gt.0.0 ) .and. (oHMC_Vars(iID)%a2dDem(iIII,iJJJ).gt.0.0) ) then
+                    if ( (oHMC_Vars(iID)%a2iMask(iI,iJ).gt.0.0 ) .and. (oHMC_Vars(iID)%a2iMask(iIII,iJJJ).gt.0.0) ) then
 
                         !------------------------------------------------------------------------------------------
                         ! Cycle(s) on buffer area
                         do iII = iI - 1, iI + 1
                             do iJJ = iJ - 1, iJ + 1
 
-                                if ( (oHMC_Vars(iID)%a2dDem(iII,iJJ).gt.0.0 ) .and. ((iII.ne.iI).and.(iJJ.ne.iJ)) ) then
-
+                                ! if ( (oHMC_Vars(iID)%a2iMask(iII,iJJ).gt.0.0 ) .and. ((iII.ne.iI).and.(iJJ.ne.iJ)) ) then
+                                ! GIULIA - baco - spostamenti erano possibili solo verso celle diagonali
+                                if ( (oHMC_Vars(iID)%a2iMask(iII,iJJ).gt.0.0 ) .and. ((iII.ne.iI).or.(iJJ.ne.iJ)) ) then
+                                    
                                     if ( (a2dVarWTable(iI, iJ) - a2dVarWTable(iII,iJJ)).gt.0.0 ) then
 
                                         dHt = dHt + (a2dVarWTable(iI, iJ) - a2dVarWTable(iII, iJJ))
@@ -445,9 +459,12 @@ contains
                             !------------------------------------------------------------------------------------------
                             dHm = dHt/iNgr
                             
+                            !a2dVarDarcy(iI,iJ) = dHm/sqrt(oHMC_Vars(iID)%a2dAreaCell(iI,iJ)) * &
+                            !                     oHMC_Vars(iID)%a2dCostF1(iI,iJ) * &
+                            !                     dDtDataForcing/3600*oHMC_Namelist(iID)%dKSatRatio
+                            
                             a2dVarDarcy(iI,iJ) = dHm/sqrt(oHMC_Vars(iID)%a2dAreaCell(iI,iJ)) * &
-                                                 oHMC_Vars(iID)%a2dCostF1(iI,iJ) * &
-                                                 dDtDataForcing/3600*oHMC_Namelist(iID)%dKSatRatio
+                                                 oHMC_Vars(iID)%a2dWTksatH(iI,iJ) * dDtDataForcing/3600
                                                
                             if ( a2dVarDarcy(iI,iJ) .gt. ( a2dVarWTable(iI,iJ) - oHMC_Vars(iID)%a2dWTableMax(iI,iJ))*1000 ) then
                                 a2dVarDarcy(iI,iJ) = (a2dVarWTable(iI,iJ) - oHMC_Vars(iID)%a2dWTableMax(iI,iJ))*1000
@@ -458,7 +475,9 @@ contains
                             do iII = iI - 1, iI + 1
                                 do iJJ = iJ - 1, iJ + 1
 
-                                    if ( (oHMC_Vars(iID)%a2dDem(iII, iJJ).gt.0.0) .and. ((iII.ne.iI).and.(iJJ.ne.iJ)) ) then
+                                    ! if ( (oHMC_Vars(iID)%a2iMask(iII, iJJ).gt.0.0) .and. ((iII.ne.iI).and.(iJJ.ne.iJ)) ) then
+                                    ! GIULIA - baco - spostamenti erano possibili solo verso celle diagonali
+                                    if ( (oHMC_Vars(iID)%a2iMask(iII, iJJ).gt.0.0) .and. ((iII.ne.iI).or.(iJJ.ne.iJ)) ) then  
                                         if ( (a2dVarWTable(iI,iJ) - a2dVarWTable(iII,iJJ)).gt.0.0 ) then
 
                                             a2dVarWTableStep(iII, iJJ) = a2dVarWTableStep(iII, iJJ) + & 
@@ -481,10 +500,13 @@ contains
                     
                     !------------------------------------------------------------------------------------------
                     ! Outlet cell
-                    if ( (oHMC_Vars(iID)%a2dDem(iI,iJ).gt.0.0) .and. (oHMC_Vars(iID)%a2dDem(iIII, iJJJ).lt.0.0) ) then
+                    if ( (oHMC_Vars(iID)%a2iMask(iI,iJ).gt.0.0) .and. (oHMC_Vars(iID)%a2iMask(iIII, iJJJ).lt.0.0) ) then
                         
-                        a2dVarDarcy(iI, iJ) = oHMC_Vars(iID)%a2dAlpha(iI,iJ)*oHMC_Vars(iID)%a2dCostF1(iI,iJ)* &
-                                              dDtDataForcing/(3600*1000)*oHMC_Namelist(iID)%dKSatRatio
+                        !a2dVarDarcy(iI, iJ) = oHMC_Vars(iID)%a2dAlpha(iI,iJ)*oHMC_Vars(iID)%a2dCostF1(iI,iJ)* &
+                        !                      dDtDataForcing/(3600*1000)*oHMC_Namelist(iID)%dKSatRatio
+                                              
+                        a2dVarDarcy(iI, iJ) = oHMC_Vars(iID)%a2dAlpha(iI,iJ)* &
+                                              oHMC_Vars(iID)%a2dWTksatH(iI,iJ) * dDtDataForcing/3600 !giulia - credo /1000=baco
 
                         if ( a2dVarDarcy(iI,iJ) .gt. (a2dVarWTable(iI,iJ) - oHMC_Vars(iID)%a2dWTableMax(iI,iJ)) ) then
                             a2dVarDarcy(iI,iJ) = (a2dVarWTable(iI,iJ) - oHMC_Vars(iID)%a2dWTableMax(iI,iJ))
@@ -498,24 +520,24 @@ contains
             !------------------------------------------------------------------------------------------
 
             !------------------------------------------------------------------------------------------
-            where( oHMC_Vars(iID)%a2dDem.gt.0.0 )
+            where( oHMC_Vars(iID)%a2iMask.gt.0.0 )
                 a2dVarWTableStep = a2dVarWTableStep - a2dVarDarcy/1000
             endwhere
             !------------------------------------------------------------------------------------------
             
             !------------------------------------------------------------------------------------------
             ! Flow deep - Interaction between watertable and surface
-            where( (oHMC_Vars(iID)%a2dDem.gt.0.0) .and. (a2dVarWTableStep.gt.oHMC_Vars(iID)%a2dDem) )
+            where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarWTableStep.gt.oHMC_Vars(iID)%a2dDem) )
                 a2dVarFlowDeep = (1 - a2dVarFrac)*(a2dVarWTableStep - oHMC_Vars(iID)%a2dDem)*dDtDataForcing/3600*1000
                 a2dVarWTableStep = oHMC_Vars(iID)%a2dDem
             endwhere
 
             ! Updating watertable
-            where( oHMC_Vars(iID)%a2dDem.gt.0.0 )
+            where( oHMC_Vars(iID)%a2iMask.gt.0.0 )
                 a2dVarWTable = a2dVarWTableStep
             endwhere
             
-            where( oHMC_Vars(iID)%a2dDem.gt.0.0 )
+            where( oHMC_Vars(iID)%a2iMask.gt.0.0 )
 
                 a2dVarWDL = (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWDL*oHMC_Vars(iID)%a2dAreaCell ! m^3/s
                 a2dVarWSRunoff = (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWS*oHMC_Vars(iID)%a2dAreaCell ! m^3/s
@@ -530,13 +552,13 @@ contains
             endwhere
             
             ! Updating VTot
-            where( oHMC_Vars(iID)%a2dDem.gt.0.0 )
+            where( oHMC_Vars(iID)%a2iMask.gt.0.0 )
                 a2dVarVTot = a2dVarVTot + a2dVarFlowDeep
             endwhere
             
             ! Updating flow deep and vtot where vtot >= vmax
             a2dVarFlowDeep = 0.0 
-            where( (oHMC_Vars(iID)%a2dDem.gt.0.0) .and. (a2dVarVTot.gt.oHMC_Vars(iID)%a2dS) )
+            where( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarVTot.gt.oHMC_Vars(iID)%a2dS) )
                 a2dVarFlowDeep = a2dVarVTot - oHMC_Vars(iID)%a2dS
                 a2dVarVTot = oHMC_Vars(iID)%a2dS
             endwhere

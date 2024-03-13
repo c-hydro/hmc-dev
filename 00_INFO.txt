@@ -1,0 +1,17 @@
+COPIA DEL CODICE sUL sERVER VDAnuovo, da:
+sftp://idrologia@77.43.36.3/share/idrologia/libraries_hmc_s3m/hmc-dev-main_3.1.6_modGIULIA_come7782_20230622/
+
+
+COMMENTI DELLA VDA, MA DANNO UN'IDEA ANCHE QUI:
+
+Partenza è codice locale netbeans allo stato del 2023/06/22; poi però inserite le modifiche principali che avevo fatto specificatamente per la 7782 su Apollo:
+
+ksatratio 2d (da raster)
+beta function per suolo nudo riportata a quella "classica" lineare usata per la frazione vegetata
+
+
+Altre modifiche che avevo fatto ormai sono già nel codice ufficiale (es. inerzia termica suolo e possibilità di indicare un dratemax direttamente dall'info file; chiamato "dRateRescaling").
+
+
+AGGIORNAMENTO 16/10/2023:
+HMC_Module_Phys_Convolution_Apps_Horton.f90 sistemato per parte channel fraction (mantenuto il vecchio nella cartella, chiamato HMC_Module_Phys_Convolution_Apps_Horton_NOOO.f90 come anche i suoi rispettivi .o e .mod)

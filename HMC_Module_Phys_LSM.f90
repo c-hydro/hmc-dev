@@ -203,7 +203,7 @@ contains
             call mprintf(.true., iINFO_Verbose, ' Phys :: Land surface model :: ACTIVATED' )
             
             ! Checking variable(s)
-            where( a2dVarDEM.gt.0.0 )
+            where( a2iVarMask.gt.0.0 )
 
                 ! Soil Moisture [%]
                 a2dVarSM = a2dVarVTot/a2dVarS
@@ -225,7 +225,7 @@ contains
 
             ! Initializing LST (initial step)
             if( ALL(a2dVarLSTPStep.le.0.0) ) then
-                where(a2dVarTa.ge.-40.0.and.a2dVarDEM.gt.0.0) a2dVarLSTPStep = a2dVarTaK + 1.0
+                where(a2dVarTa.ge.-40.0.and.a2iVarMask.gt.0.0) a2dVarLSTPStep = a2dVarTaK + 1.0
             endif
 
             !a2dVarLSTPStep = check2Dvar(a2dVarLSTPStep, oHMC_Vars(iID)%a2iMask, -70.0,  60.0,   273.15 )
@@ -264,7 +264,7 @@ contains
 
             !-----------------------------------------------------------------------------------------
             ! Calculating variables for energy fluxes
-            where( a2dVarDEM.gt.0.0 )
+            where( a2iVarMask.gt.0.0 )
 
                 ! Latent heat of vaporization [J/kg]
                 a2dVarLambda = (2.5 - 2.36*0.001*(a2dVarTa))*1000000  
@@ -314,7 +314,7 @@ contains
 
             !-----------------------------------------------------------------------------------------
             ! Net Radiation [W/m^2] --> sigma [W/m^2 K^4], EpsA [%], EpsS [%], albedo [-], Ta [K], LST [K], K [W/m^2]
-            where( a2dVarDEM.gt.0.0 )
+            where( a2iVarMask.gt.0.0 )
                 a2dVarRn = a2dVarIncRad*(1.0 - a2dVarAlbedo) + dSigma*a2dVarEpsA*a2dVarTaK**4 - &
                                                   dSigma*dEpsS*a2dVarLSTPStep**4
             elsewhere
@@ -326,7 +326,7 @@ contains
             ! Calculating land surface temperature using runge-kutta (LST updating)
             iDtDelta = MIN(int(int(iDtDataForcing)), 900)
 
-            where( a2dVarDEM.gt.0.0 )
+            where( a2iVarMask.gt.0.0 )
                 a2dVarLSTTmp = a2dVarLSTPStep
             elsewhere
                 a2dVarLSTTmp = 0.0
@@ -346,14 +346,14 @@ contains
             enddo
 
             ! Check LST update delta
-            !where(a2dVarDem.gt.0.0)
+            !where(a2iVarMask.gt.0.0)
             !    a2dVarLST_Diff = abs(a2dVarLSTUpd - a2dVarLSTPStep)
             !elsewhere
             !    a2dVarLST_Diff = 0.0
             !endwhere
 
             ! LST checking
-            where(a2dVarDem.gt.0.0)
+            where(a2iVarMask.gt.0.0)
 
                     !where(a2dVarLST_Diff.gt.dVarLST_DiffMax*iDtDataForcing/3600.0) ! Where dLST is too large put old LST
                     !        a2dVarLSTUpd = a2dVarLSTPStep	
@@ -381,7 +381,7 @@ contains
             !-----------------------------------------------------------------------------------------
             ! Calculating heat fluxes and evapotraspiration
             ! Calculating EPS_S, H, LE and G
-            where( a2dVarDEM.gt.0.0 )
+            where( a2iVarMask.gt.0.0 )
                 a2dVarEpsS = 0.611*exp(17.3*(a2dVarLSTUpd - dTRef)/(237.3 + a2dVarLSTUpd - dTRef))  
                 a2dVarH = a2dVarRhoA*dCp*(a2dVarLSTUpd - a2dVarTaK)/a2dVarRatm
                 a2dVarLE = a2dVarRhoA*a2dVarLambda*(a2dVarEpsS - a2dVarEA)/(a2dVarPa*a2dVarRsurf)*0.622
@@ -394,7 +394,7 @@ contains
             endwhere
 
             ! Calculating EF and ET and ET potential
-            where( (a2dVarLE.gt.0.0) .and. (a2dVarDEM.gt.0.0) .and. (a2dVarET.ge.0.0) )
+            where( (a2dVarLE.gt.0.0) .and. (a2iVarMask.gt.0.0) .and. (a2dVarET.ge.0.0) )
 
                 ! Evaporative Fraction [-]
                 a2dVarEF = a2dVarLE/(a2dVarLE + a2dVarH)
@@ -403,7 +403,7 @@ contains
                 ! Potential Evapotranspiration [mm]
                 a2dVarETpotUpd = a2dVarETUpd*a2dVarRsurf/a2dVarRsurf_pot 
 
-            elsewhere( a2dVarDEM.gt.0.0 )
+            elsewhere( a2iVarMask.gt.0.0 )
 
                 a2dVarEF = 0.0
                 a2dVarETUpd = 0.0
@@ -414,10 +414,10 @@ contains
 
             !------------------------------------------------------------------------------------------
             ! LSM information time step
-            dVarLST = sum(a2dVarLSTUpd, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
-            dVarH = sum(a2dVarH, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
-            dVarLE = sum(a2dVarLE, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
-            dVarRn = sum(a2dVarRn, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
+            dVarLST = sum(a2dVarLSTUpd, mask=a2iVarMask.gt.0.0)/max(1,count(a2iVarMask.gt.0.0))
+            dVarH = sum(a2dVarH, mask=a2iVarMask.gt.0.0)/max(1,count(a2iVarMask.gt.0.0))
+            dVarLE = sum(a2dVarLE, mask=a2iVarMask.gt.0.0)/max(1,count(a2iVarMask.gt.0.0))
+            dVarRn = sum(a2dVarRn, mask=a2iVarMask.gt.0.0)/max(1,count(a2iVarMask.gt.0.0))
 
             write(sDtDelta, sFMTVarDtDelta) iDtDelta
             write(sVarLST, sFMTVarLST) dVarLST
@@ -448,10 +448,10 @@ contains
             a2dVarLSTUpd = -9999.0
             
             ! Update variables by using forcing datasets
-            where( (a2dVarDEM.gt.0.0) .and. (a2dVarET.ge.0.0) )
+            where( (a2iVarMask.gt.0.0) .and. (a2dVarET.ge.0.0) )
                 a2dVarETUpd = a2dVarET
                 a2dVarETpotUpd = a2dVarETpot
-            elsewhere( a2dVarDEM.gt.0.0 )
+            elsewhere( a2iVarMask.gt.0.0 )
                 a2dVarETUpd = 0.0
                 a2dVarETpotUpd = 0.0
             endwhere
