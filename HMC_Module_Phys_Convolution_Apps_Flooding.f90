@@ -64,7 +64,7 @@ contains
         a2dVarQfloodIR = 0.0
 
         ! Flooding on right bank first
-        where (oHMC_Vars(iID)%a2dDEM.gt.0.0.and.a2dVarHydroC.gt.a2dVarLevBankR.and.a2dVarFirst.eq.1.0)     
+        where (oHMC_Vars(iID)%a2iMask.gt.0.0.and.a2dVarHydroC.gt.a2dVarLevBankR.and.a2dVarFirst.eq.1.0)     
 
             ! Q for thick wall weir
             a2dVarQfloodIR = 1.705*a2dVarBF*(a2dVarHydroC-a2dVarLevBankR)**(3/2)
@@ -78,7 +78,7 @@ contains
 
         endwhere
 
-        where(oHMC_Vars(iID)%a2dDEM.gt.0.0.and.a2dVarHydroC.gt.a2dVarLevBankL.and.a2dVarFirst.eq.1.0.and.a2dVarLevBankL.gt.0.0)   
+        where(oHMC_Vars(iID)%a2iMask.gt.0.0.and.a2dVarHydroC.gt.a2dVarLevBankL.and.a2dVarFirst.eq.1.0.and.a2dVarLevBankL.gt.0.0)   
 
             a2dVarQfloodIL = 1.705*a2dVarBF*(a2dVarHydroC-a2dVarLevBankL)**(3/2)
             !a2dVarHydroC=a2dVarHydroC-a2dVarQfloodIL*dDtSurfaceflow/((a2dVarHydroC-a2dLevBankL)*dsqrt(a2dVarAreaCell))                       
@@ -91,7 +91,7 @@ contains
         endwhere
 
         ! Flooding on Left bank first
-        where(oHMC_Vars(iID)%a2dDEM.gt.0.0.and.a2dVarHydroC.gt.a2dVarLevBankL.and.a2dVarFirst.eq.2.0)
+        where(oHMC_Vars(iID)%a2iMask.gt.0.0.and.a2dVarHydroC.gt.a2dVarLevBankL.and.a2dVarFirst.eq.2.0)
             a2dVarQfloodIL = 1.705*a2dVarBF*(a2dVarHydroC-a2dVarLevBankL)**(3/2)
             a2dVarHydroC = a2dVarHydroC-a2dVarQfloodIL*dDtSurfaceflow/(a2dVarAreaCell)   
 
@@ -101,7 +101,7 @@ contains
 
         endwhere
 
-        where(oHMC_Vars(iID)%a2dDEM.gt.0.0.and.a2dVarHydroC.gt.a2dVarLevBankR.and.a2dVarFirst.eq.2.0.and.a2dVarLevBankR.gt.0.0)
+        where(oHMC_Vars(iID)%a2iMask.gt.0.0.and.a2dVarHydroC.gt.a2dVarLevBankR.and.a2dVarFirst.eq.2.0.and.a2dVarLevBankR.gt.0.0)
             a2dVarQfloodIR = 1.705*a2dVarBF*(a2dVarHydroC-a2dVarLevBankR)**(3/2)
             a2dVarHydroC = a2dVarHydroC-a2dVarQfloodIR*dDtSurfaceflow/(a2dVarAreaCell)  
 
@@ -112,7 +112,7 @@ contains
         endwhere
 
         ! Flooding with same rate on left and right banks  
-        where(oHMC_Vars(iID)%a2dDEM.gt.0.0.and.a2dVarFirst.eq.0.0.and.a2dVarHydroC.gt.a2dVarLevBankR)              
+        where(oHMC_Vars(iID)%a2iMask.gt.0.0.and.a2dVarFirst.eq.0.0.and.a2dVarHydroC.gt.a2dVarLevBankR)              
             ! Q for thick wall weir
             a2dVarQfloodIR = 1.705*a2dVarBF*(a2dVarHydroC-a2dVarLevBankR)**(3/2)
             ! Multiply X2 because flooding on both right and left banks

@@ -458,7 +458,7 @@ contains
 
                     ! Lake equation to fill lake [mm]
                     if (oHMC_Vars(iID)%a1dCodeLake(iL).gt.0) then
-                        where (oHMC_Vars(iID)%a2iChoice.eq.oHMC_Vars(iID)%a1dCodeLake(iL) .and. oHMC_Vars(iID)%a2dDem.gt.0.0)
+                        where (oHMC_Vars(iID)%a2iChoice.eq.oHMC_Vars(iID)%a1dCodeLake(iL) .and. oHMC_Vars(iID)%a2iMask.gt.0.0)
                             ! Lake volume to lake mean level
                             a2dVarHydro = a1dVarVLake(iL)/(oHMC_Vars(iID)%a1dCodeLake(iL)*oHMC_Vars(iID)%a2dAreaCell(iI,iJ))*1000
                         endwhere

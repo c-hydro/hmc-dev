@@ -167,7 +167,7 @@ contains
         
         !------------------------------------------------------------------------------------ 
         ! Change units the surface flow parameters in the one used in the code
-        where (a2dVarDEM.gt.0.0 .and. a2dVarUh.lt.0.05)
+        where (a2iVarMask.gt.0.0 .and. a2dVarUh.lt.0.05)
             a2dVarUh = a2dVarUh*3600 !from 1/s to 1/h
             a2dVarUc = a2dVarUc*(3600*1000)/(sqrt(dDxM*dDyM)*1000**(dBc + 1)) !from m^0.5/s to 1/(h*mm^0.5)
         endwhere
@@ -175,7 +175,7 @@ contains
       
         !------------------------------------------------------------------------------------
         ! Total Volume initial conditions
-        where( (a2dVarDEM.gt.0.0) .and. (a2dVarS.gt.0.0) ) 
+        where( (a2iVarMask.gt.0.0) .and. (a2dVarS.gt.0.0) ) 
             a2dVarVTot = dCPI/2*a2dVarS + dCPI/2*a2dVarS*(dVarDEMMax - a2dVarDEM)/dVarDEMMax
         elsewhere
             a2dVarVTot = 0.0
@@ -216,7 +216,7 @@ contains
         
         !------------------------------------------------------------------------------------ 
         ! Define Beta Function parameters
-        where(a2dVarDEM.gt.0.0)
+        where(a2iVarMask.gt.0.0)
             
             ! Calculate parameters (straight line slopes)
             a2dVarKb1 = (dBFMax - dBFMin)/(a2dVarCt - a2dVarCtWP)    
@@ -338,20 +338,20 @@ contains
             !------------------------------------------------------------------------------------
             ! Channel width
             dMaxW = MAXVAL(MAXVAL(a2dVarWidthC, dim=1, & 
-                                  mask=oHMC_Vars(iID)%a2iChoice.ge.0 .and. oHMC_Vars(iID)%a2dDem.gt.0))
+                                  mask=oHMC_Vars(iID)%a2iChoice.ge.0 .and. a2iVarMask.gt.0))
             dMinW = MINVAL(MINVAL(a2dVarWidthC, dim=1, &
-                                  mask=oHMC_Vars(iID)%a2iChoice.ge.0 .and. oHMC_Vars(iID)%a2dDem.gt.0))
+                                  mask=oHMC_Vars(iID)%a2iChoice.ge.0 .and. a2iVarMask.gt.0))
                                   
             ! Build channel width with area function
-            where( (oHMC_Vars(iID)%a2iChoice.ge.0.0) .and. (oHMC_Vars(iID)%a2dDem.gt.0.0) .and. (a2dVarWidthC.lt.0.0) )
+            where( (oHMC_Vars(iID)%a2iChoice.ge.0.0) .and. (a2iVarMask.gt.0.0) .and. (a2dVarWidthC.lt.0.0) )
                 a2dVarWidthC = 0.005*(a2dVarArea*oHMC_Vars(iID)%a2dAreaCell/1000000)**0.4*1000 ! width in m                    
             endwhere
             
             ! Check max and min of witdhc
             dMaxW = MAXVAL(MAXVAL(a2dVarWidthC, dim=1, &
-                                  mask=oHMC_Vars(iID)%a2iChoice.ge.0 .and. oHMC_Vars(iID)%a2dDem.gt.0))
+                                  mask=oHMC_Vars(iID)%a2iChoice.ge.0 .and. a2iVarMask.gt.0))
             dMinW = MINVAL(MINVAL(a2dVarWidthC, dim=1, &
-                                  mask=oHMC_Vars(iID)%a2iChoice.ge.0 .and. oHMC_Vars(iID)%a2dDem.gt.0))
+                                  mask=oHMC_Vars(iID)%a2iChoice.ge.0 .and. a2iVarMask.gt.0))
             !------------------------------------------------------------------------------------
                                   
             !------------------------------------------------------------------------------------
@@ -364,14 +364,14 @@ contains
             endwhere
             ! Check max and min of witdhc
             dMaxW = MAXVAL(MAXVAL(a2dVarWidthC, dim=1, &
-                                  mask=oHMC_Vars(iID)%a2iChoice.ge.0 .and. oHMC_Vars(iID)%a2dDem.gt.0))
+                                  mask=oHMC_Vars(iID)%a2iChoice.ge.0 .and. a2iVarMask.gt.0))
             dMinW = MINVAL(MINVAL(a2dVarWidthC, dim=1, &
-                                  mask=oHMC_Vars(iID)%a2iChoice.ge.0 .and. oHMC_Vars(iID)%a2dDem.gt.0))
+                                  mask=oHMC_Vars(iID)%a2iChoice.ge.0 .and. a2iVarMask.gt.0))
             !------------------------------------------------------------------------------------
                                   
             !------------------------------------------------------------------------------------
             ! Hillslope width
-            where(oHMC_Vars(iID)%a2iChoice.ge.0 .and. oHMC_Vars(iID)%a2dDem.gt.0)
+            where(oHMC_Vars(iID)%a2iChoice.ge.0 .and. a2iVarMask.gt.0)
                 a2dVarWidthH = a2dVarSizeCell - a2dVarWidthC
             endwhere
             !------------------------------------------------------------------------------------ 
@@ -435,7 +435,7 @@ contains
         real(kind = 4)          :: dDtDataForcing
         
         real(kind = 4)          :: dUc, dUh, dCt, dCf
-        real(kind = 4)          :: dCN, dWS, dWDL, dFrac
+        real(kind = 4)          :: dCN, dWS, dWDL, dFrac, dKSatRatio !giulia
         real(kind = 4)          :: dWTLossMax
         
         character(len = 256)    :: sVarName
@@ -452,7 +452,8 @@ contains
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarLon, a2dVarLat 
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarDEM, a2dVarCN, a2dVarS, a2dVarVTotWP
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarAreaCell
-        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarAlpha, a2dVarBeta, a2dVarWTMax
+        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarAlpha, a2dVarBeta, a2dVarWTMax, a2dVarKSatRatio !giulia
+        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarWTksatH
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarC1, a2dVarF2 
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarCostF, a2dVarCostF1, a2dVarCostChFix
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarCt, a2dVarCtWP, a2dVarCf, a2dVarUc, a2dVarUh 
@@ -487,7 +488,8 @@ contains
         a2dVarLon = 0.0; a2dVarLat = 0.0; 
         a2dVarDEM = 0.0; a2dVarCN = 0.0; a2dVarS = 0.0; a2dVarVTotWP = 0.0;
         a2dVarAreaCell = 0.0; 
-        a2dVarAlpha = 0.0; a2dVarBeta = 0.0; a2dVarWTMax = -9999.0;
+        a2dVarAlpha = 0.0; a2dVarBeta = 0.0; a2dVarWTMax = -9999.0; a2dVarKSatRatio = 0.0; !giulia
+        a2dVarWTksatH = 0.0
         a2dVarC1 = 0.0; a2dVarF2 = 0.0; 
         a2dVarCostF = 0.0; a2dVarCostF1 = 0.0; a2dVarCostChFix = 0.0;
         a2dVarCt = 0.0; a2dVarCf = 0.0; a2dVarUc = 0.0; a2dVarUh = 0.0;  
@@ -499,6 +501,7 @@ contains
         
         dUc = -9999.0; dUh = -9999.0; dCt = -9999.0; dCf = -9999.0; dCN = -9999.0; 
         dWS = -9999.0; dWDL = -9999.0; dFrac = -9999.0;
+        dKSatRatio = -9999.0; !giulia
         
         iFlagCoeffRes = -9999; 
         iFlagWS = -9999; iFlagWDL = -9999; iFlagFrac = -9999; 
@@ -526,6 +529,7 @@ contains
         dWS = oHMC_Namelist(iID)%dWS
         dWDL = oHMC_Namelist(iID)%dWDL
         dFrac = oHMC_Namelist(iID)%dFrac
+        dKSatRatio = oHMC_Namelist(iID)%dKSatRatio !giulia
         dWTLossMax = oHMC_Namelist(iID)%dWTLossMax
         
         ! Flag to set coeff resolution map default mode
@@ -622,7 +626,7 @@ contains
                 !------------------------------------------------------------------------------------------
                 
                 !------------------------------------------------------------------------------------------
-                ! Mask
+                ! Mask - GIULIA - qui ancora da aggiornare per seguire i nodata
                 sVarName = 'Mask'
                 call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                 
@@ -673,6 +677,16 @@ contains
                     a2dVarWTMax = -9999.0
                 else
                     a2dVarWTMax = transpose(a2dVar)
+                endif
+                
+                ! WATERTABLE KSATRATIO !giulia
+                sVarName = 'KSatRatio'
+                call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
+                if (iErr /= 0) then
+                    call mprintf(.true., iWARN, 'KSatRatio data not found. Initializing KSatRatio with scalar value from namelist.')   
+                    a2dVarKSatRatio = dKSatRatio
+                else
+                    a2dVarKSatRatio = transpose(a2dVar)
                 endif
                 !------------------------------------------------------------------------------------------
                 
@@ -940,7 +954,7 @@ contains
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
-        ! Land data type in binary format
+        ! Land data type in ascii-grid format
         if (iTypeData == 1) then
             
             !------------------------------------------------------------------------------------------
@@ -953,8 +967,6 @@ contains
             sFileName = trim(sPathData)//trim(sDomainName)//'.dem.txt'
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .true., iErr)
             a2dVarDEM = reshape(a2dVar, (/iRows, iCols/))
-            
-            
             !------------------------------------------------------------------------------------------
             
             !------------------------------------------------------------------------------------------
@@ -973,16 +985,47 @@ contains
             
             
             !------------------------------------------------------------------------------------------
-            ! CN
-            sFileName = trim(sPathData)//trim(sDomainName)//'.cn.txt'
+            ! MASK
+            sFileName = trim(sPathData)//trim(sDomainName)//'.mask.txt'
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
             if (iErr /= 0) then 
-                call mprintf(.true., iWARN, ' CN data not found. Initializing CN with average value.')
-                where(a2dVarDEM.gt.0.0)
-                    a2dVarCN = dCN
+                ! call mprintf(.true., iWARN, ' Mask data not found. Initializing Mask with default values.')
+                ! where(a2dVarDEM .gt. 0.0)
+                !     a2iVarMask = 1 
+                ! endwhere
+                ! GIULIA
+                call mprintf(.true., iWARN, ' Mask data not found. Defining Mask based on DEM (negative elevations allowed).')
+                where(a2dVarDEM .ne. oHMC_Namelist(iID)%dNoDataL)
+                    a2iVarMask = 1 
                 endwhere
             else
-                a2dVarCN = reshape(a2dVar, (/iRows, iCols/))
+                a2iVarMask = int(reshape(a2dVar, (/iRows, iCols/)))
+            endif
+            ! ! giulia
+            ! giulia = 1.2
+            ! where( (a2iVarMask.gt.0.0) )
+            !     giulia = 7.3
+            ! endwhere
+            !write(*,*) oHMC_Namelist(iID)%dNoDataL
+            !call debug_2dVar(dble(a2iVarMask), iRows, iCols, 10)
+            ! call debug_2dVar(dble(giulia), iRows, iCols, 11)
+            !------------------------------------------------------------------------------------------
+            
+            !------------------------------------------------------------------------------------------
+            ! CN
+            if (oHMC_Namelist(iID)%iFlagSoilParamsType .eq. 1) then
+                sFileName = trim(sPathData)//trim(sDomainName)//'.cn.txt'
+                call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
+                if (iErr /= 0) then 
+                    call mprintf(.true., iWARN, ' CN data not found. Initializing CN with average value.')
+                    where(a2iVarMask.gt.0.0)  !giulia
+                        a2dVarCN = dCN
+                    endwhere
+                else
+                    a2dVarCN = reshape(a2dVar, (/iRows, iCols/))
+                endif
+            elseif (oHMC_Namelist(iID)%iFlagSoilParamsType .eq. 2) then
+                call mprintf(.true., iWARN, ' CN parameter is not used as iFlagSoilParamsType=2.')        
             endif
             !------------------------------------------------------------------------------------------
             
@@ -1035,6 +1078,18 @@ contains
             else
                 a2dVarWTMax = reshape(a2dVar, (/iRows, iCols/))
             endif
+            
+            ! WATERTABLE KSATRATIO !giulia
+            sFileName = trim(sPathData)//trim(sDomainName)//'.ksatratio.txt'
+            call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
+            if (iErr /= 0) then 
+                call mprintf(.true., iWARN, ' KSatRatio data not found. Initializing KSatRatio with scalar value from namelist.')
+                where(a2dVarDEM.gt.0.0)
+                    a2dVarKSatRatio = dKSatRatio
+                endwhere
+            else
+                a2dVarKSatRatio = reshape(a2dVar, (/iRows, iCols/))
+            endif
             !------------------------------------------------------------------------------------------
 
             !------------------------------------------------------------------------------------------
@@ -1043,7 +1098,7 @@ contains
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
             if (iErr /= 0) then 
                 call mprintf(.true., iWARN, ' Ct data not found. Initializing Ct with average value.')
-                where(a2dVarDEM.gt.0.0)
+                where(a2iVarMask.gt.0.0)  !giulia
                     a2dVarCt = dCt
                 endwhere
             else
@@ -1052,27 +1107,126 @@ contains
             !------------------------------------------------------------------------------------------
 
             !------------------------------------------------------------------------------------------
+            ! ALTERNATIVE SOIL PARAMETRIZATION: 1)saturated vertical hydraulic conductivity for infiltration capacity (mm/h)
+            if (oHMC_Namelist(iID)%iFlagSoilParamsType .eq. 2) then
+                sFileName = trim(sPathData)//trim(sDomainName)//'.soil_ksat_infilt.txt'
+                call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
+                if (iErr /= 0) then 
+                    call mprintf(.true., iWARN, &
+                    ' Using dSoil_ksat_infilt (mm/h) from info file as spatially constant value.')
+                    where(a2iVarMask.gt.0.0)  
+                        a2dVarCostF1 = oHMC_Namelist(iID)%dSoil_ksat_infilt 
+                    endwhere
+                else
+                    call mprintf(.true., iINFO_Basic, ' soil_ksat_infilt (mm/h) raster found and read ' // &
+                                 '(filename: '//trim(sFileName)//').')
+                    a2dVarCostF1 = reshape(a2dVar, (/iRows, iCols/))
+                endif
+                if (any( ((a2iVarMask .gt. 0.0) .and. (a2dVarCostF1 .le. 0.0)) )) then
+                    call mprintf(.true., iERROR,'soil_ksat_infilt raster must have only positive values inside ' // &
+                                                'the computational domain! Program stopped!') 
+                endif
+            endif
+            !------------------------------------------------------------------------------------------
+            
+            !------------------------------------------------------------------------------------------
+            ! ALTERNATIVE SOIL PARAMETRIZATION: 2) soil maximum storage volume (mm)
+            if (oHMC_Namelist(iID)%iFlagSoilParamsType .eq. 2) then
+                sFileName = trim(sPathData)//trim(sDomainName)//'.soil_vmax.txt'
+                call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
+                if (iErr /= 0) then 
+                    call mprintf(.true., iWARN, &
+                    ' Using dSoil_vmax (mm) from info file as spatially constant value.')
+                    where(a2iVarMask.gt.0.0)  
+                        a2dVarS = oHMC_Namelist(iID)%dSoil_vmax 
+                    endwhere
+                else
+                    call mprintf(.true., iINFO_Basic, ' soil_vmax raster (mm) found and read ' // &
+                                 '(filename: '//trim(sFileName)//').')
+                    a2dVarS = reshape(a2dVar, (/iRows, iCols/))
+                endif
+                if (any( ((a2iVarMask .gt. 0.0) .and. (a2dVarS .le. 0.0)) )) then
+                    call mprintf(.true., iERROR,'soil_vmax raster must have only positive values inside ' // &
+                                                'the computational domain! Program stopped!') 
+                endif
+            endif
+            !------------------------------------------------------------------------------------------
+            
+            !------------------------------------------------------------------------------------------
+            ! ALTERNATIVE SOIL PARAMETRIZATION: 3) saturated vertical hydraulic conductivity for drainage capacity (mm/h)
+            if (oHMC_Namelist(iID)%iFlagSoilParamsType .eq. 2) then
+                sFileName = trim(sPathData)//trim(sDomainName)//'.soil_ksat_drain.txt'
+                call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
+                if (iErr /= 0) then 
+                    call mprintf(.true., iWARN, &
+                    ' Using dSoil_ksat_drain (mm/h) from info file as spatially constant value.')
+                    where(a2iVarMask.gt.0.0)  
+                        a2dVarF2 = oHMC_Namelist(iID)%dSoil_ksat_drain / (1 - a2dVarCt)
+                    endwhere
+                else
+                    call mprintf(.true., iINFO_Basic, ' soil_ksat_drain raster (mm/h) found and read ' // &
+                                 '(filename: '//trim(sFileName)//').')
+                    a2dVarF2 = reshape(a2dVar, (/iRows, iCols/)) / (1 - a2dVarCt)
+                endif
+                if (any( ((a2iVarMask .gt. 0.0) .and. (a2dVarF2 .le. 0.0)) )) then
+                    call mprintf(.true., iERROR,'soil_ksat_drain raster must have only positive values inside ' // &
+                                                'the computational domain! Program stopped!') 
+                endif
+            endif
+            !------------------------------------------------------------------------------------------
+
+            !------------------------------------------------------------------------------------------
+            ! ALTERNATIVE SOIL PARAMETRIZATION: 4) aquifer horizontal saturated hydraulic conductivity (mm/h)
+            if (oHMC_Namelist(iID)%iFlagSoilParamsType .eq. 2) then
+                sFileName = trim(sPathData)//trim(sDomainName)//'.wtable_ksath.txt'
+                call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
+                if (iErr /= 0) then 
+                    call mprintf(.true., iWARN, &
+                    ' Using dWTable_ksath (mm/h) from info file as spatially constant value.')
+                    where(a2iVarMask.gt.0.0)  
+                        a2dVarWTksatH = oHMC_Namelist(iID)%dWTable_ksath
+                    endwhere
+                else
+                    call mprintf(.true., iINFO_Basic, ' wtable_ksath raster (mm/h) found and read ' // &
+                                 '(filename: '//trim(sFileName)//').')
+                    a2dVarWTksatH = reshape(a2dVar, (/iRows, iCols/))
+                endif
+                if (any( ((a2iVarMask .gt. 0.0) .and. (a2dVarWTksatH .le. 0.0)) )) then
+                    call mprintf(.true., iERROR,'wtable_ksath raster must have only positive values inside ' // &
+                                                'the computational domain! Program stopped!') 
+                endif
+            endif
+            !------------------------------------------------------------------------------------------
+            
+            !------------------------------------------------------------------------------------------
             ! CT_WP - soil moisture wilting point
             sFileName = trim(sPathData)//trim(sDomainName)//'.ct_wp.txt'
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
             if (iErr /= 0) then 
-                call mprintf(.true., iWARN, ' Permanent wilting point data not found. Initializing with default value 0.4*Ct.')
+                !call mprintf(.true., iWARN, ' Permanent wilting point data not found. Initializing with default value 0.4*Ct.')
             else
+                call mprintf(.true., iWARN, ' Permanent wilting point data NO MORE USED - raster is ineffective.')
                 a2dVarCtWP = reshape(a2dVar, (/iRows, iCols/))
             endif
             !------------------------------------------------------------------------------------------
 
             !------------------------------------------------------------------------------------------
             ! CF
-            sFileName = trim(sPathData)//trim(sDomainName)//'.cf.txt'
-            call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
-            if (iErr /= 0) then 
-                call mprintf(.true., iWARN, ' Cf data not found. Initializing Cf with average value.')
-                where(a2dVarDEM.gt.0.0)
-                    a2dVarCf = dCf
-                endwhere
-            else
-                a2dVarCf = reshape(a2dVar, (/iRows, iCols/))
+            if ((oHMC_Namelist(iID)%iFlagSoilParamsType .eq. 1) .or. &
+               ( (oHMC_Namelist(iID)%iFlagSoilParamsType .eq. 2) .and. (oHMC_Namelist(iID)%iFlagInfiltRateVariable .eq. 1) ) .or. &
+               ( (oHMC_Namelist(iID)%iFlagSoilParamsType .eq. 2) .and. (oHMC_Namelist(iID)%iFlagInfiltRateVariable .eq. 2) )) then
+                sFileName = trim(sPathData)//trim(sDomainName)//'.cf.txt'
+                call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
+                if (iErr /= 0) then
+                    call mprintf(.true., iWARN, ' Cf data not found. Initializing Cf with namelist value.')
+                    where(a2iVarMask.gt.0.0)
+                        a2dVarCf = dCf
+                    endwhere
+                else
+                    a2dVarCf = reshape(a2dVar, (/iRows, iCols/))
+                endif
+            elseif ((oHMC_Namelist(iID)%iFlagSoilParamsType .eq. 2) .and. (oHMC_Namelist(iID)%iFlagInfiltRateVariable .eq. 0)) then
+                call mprintf(.true., iWARN, ' Cf parameter is not used as iFlagSoilParamsType=2 and iFlagInfiltRateVariable=0.') 
             endif
             !------------------------------------------------------------------------------------------
 
@@ -1082,7 +1236,7 @@ contains
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
             if (iErr /= 0) then 
                 call mprintf(.true., iWARN, ' Uc data not found. Initializing Uc with average values.')
-                where(a2dVarDEM.gt.0.0)
+                where(a2iVarMask.gt.0.0)  !giulia
                     a2dVarUc = dUc
                 endwhere
             else
@@ -1096,7 +1250,7 @@ contains
             call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
             if (iErr /= 0) then 
                 call mprintf(.true., iWARN, ' Uh data not found. Initializing Uh with average values.')
-                where(a2dVarDEM.gt.0.0)
+                where(a2iVarMask.gt.0.0)  !giulia
                     a2dVarUh = dUh
                 endwhere
             else
@@ -1104,19 +1258,26 @@ contains
             endif
             !------------------------------------------------------------------------------------------
             
-            !------------------------------------------------------------------------------------------
-            ! MASK
-            sFileName = trim(sPathData)//trim(sDomainName)//'.mask.txt'
-            call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
-            if (iErr /= 0) then 
-                call mprintf(.true., iWARN, ' Mask data not found. Initializing Mask with default values.')
-                where(a2dVarDEM .gt. 0.0)
-                    a2iVarMask = 1 
-                endwhere
-            else
-                a2iVarMask = int(reshape(a2dVar, (/iRows, iCols/)))
-            endif
-            !------------------------------------------------------------------------------------------
+        !    !------------------------------------------------------------------------------------------
+        !    ! MASK
+        !    sFileName = trim(sPathData)//trim(sDomainName)//'.mask.txt'
+        !    call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
+        !    if (iErr /= 0) then 
+        !        ! call mprintf(.true., iWARN, ' Mask data not found. Initializing Mask with default values.')
+        !        ! where(a2dVarDEM .gt. 0.0)
+        !        !     a2iVarMask = 1 
+        !        ! endwhere
+        !        ! GIULIA
+        !        call mprintf(.true., iWARN, ' Mask data not found. Defining Mask based on DEM (negative elevations allowed).')
+        !        where(a2dVarDEM .ne. oHMC_Namelist(iID)%dNoDataL)
+        !            a2iVarMask = 1 
+        !        endwhere
+        !    else
+        !        a2iVarMask = int(reshape(a2dVar, (/iRows, iCols/)))
+        !    endif
+        !    ! Giulia
+        !    call debug_2dVar(dble(a2iVarMask), iRows, iCols, 11)
+        !    !------------------------------------------------------------------------------------------
             
             !------------------------------------------------------------------------------------------
             ! VegetationIA
@@ -1175,7 +1336,7 @@ contains
                 call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
                 if (iErr /= 0) then 
                     call mprintf(.true., iWARN, ' CoeffWS data not found. Initializing CoeffWS with average values.')
-                    where(a2dVarDEM.gt.0.0)
+                    where(a2iVarMask.gt.0.0)  !giulia
                         a2dVarCoeffWS = dWS
                     endwhere
                 else
@@ -1194,7 +1355,7 @@ contains
                 call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
                 if (iErr /= 0) then 
                     call mprintf(.true., iWARN, ' CoeffWDL data not found. Initializing CoeffWDL with average values.')
-                    where(a2dVarDEM.gt.0.0)
+                    where(a2iVarMask.gt.0.0)  !giulia
                         a2dVarCoeffWDL = dWDL
                     endwhere
                 else
@@ -1228,7 +1389,7 @@ contains
                 call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
                 if (iErr /= 0) then 
                     call mprintf(.true., iWARN, ' Fracturing data not found. Initializing CoeffWS with average values.')    
-                    where(a2dVarDEM.gt.0.0)
+                    where(a2iVarMask.gt.0.0)  !giulia
                         a2dVarFrac = dFrac
                     endwhere
                 else
@@ -1343,6 +1504,7 @@ contains
         a2dVarAlpha = nullborder2DVar(a2dVarAlpha, -9999.0)
         a2dVarBeta = nullborder2DVar(a2dVarBeta, -9999.0)
         a2dVarWTMax = nullborder2DVar(a2dVarWTMax, -9999.0)
+        a2dVarKSatRatio = nullborder2DVar(a2dVarKSatRatio, -9999.0) !giulia
         a2iVarMask = int(nullborder2DVar(float(a2iVarMask), -9999.0))
         a2iVarChoice = int(nullborder2DVar(float(a2iVarChoice), -9999.0))
         a2iVarPNT = int(nullborder2DVar(float(a2iVarPNT), -9999.0))
@@ -1360,71 +1522,81 @@ contains
 
         !------------------------------------------------------------------------------------------
         ! Check Ct values over domain
-        iPixCount = count((a2dVarCt.eq.0.0 .and. a2dVarDEM.gt.0.0))
+        iPixCount = count((a2dVarCt.le.0.0 .and. a2iVarMask.gt.0.0)) !giulia
         if (iPixCount.gt.0) then
             write(sPixCount, *) iPixCount;
             write(sParDefault, *) dCt;
-            call mprintf(.true., iWARN, ' Ct values are equal to 0.0 in '//trim(sPixCount)//' pixels over domain. '// &
-            'Initialize with default value: '//trim(sParDefault)//'.')
+            call mprintf(.true., iWARN, ' Ct values are lower than or equal to 0.0 in '//trim(sPixCount)// & 
+            ' pixels over domain. '// 'Initialize with default value: '//trim(sParDefault)//'.')
         endif
-        where (a2dVarCt.le.0.0 .and. a2dVarDEM.gt.0)
+        where (a2dVarCt.le.0.0 .and. a2iVarMask.gt.0.0) !giulia
             a2dVarCt = dCt
         endwhere
 
         ! Check CtWP values over domain
-        iPixCount = count((a2dVarCtWP.eq.0.0 .and. a2dVarDEM.gt.0.0))
-        if (iPixCount.gt.0) then
-            write(sPixCount, *) iPixCount;
-            call mprintf(.true., iWARN, ' CtWP values are equal to 0.0 in '//trim(sPixCount)//' pixels over domain. '// &
-            'Initialize with default value: 0.4*Ct.')
-        endif
-        where (a2dVarCtWP.le.0.0 .and. a2dVarDEM.gt.0)
+        iPixCount = count((a2dVarCtWP.le.0.0 .and. a2iVarMask.gt.0.0)) !giulia
+        !if (iPixCount.gt.0) then
+        !    write(sPixCount, *) iPixCount;
+        !    call mprintf(.true., iWARN, ' CtWP values are lower than or equal to 0.0 in '//trim(sPixCount)//& 
+        !    ' pixels over domain. '// 'Initialize with default value: 0.4*Ct.')
+        !endif
+        where (a2dVarCtWP.le.0.0 .and. a2iVarMask.gt.0.0) !giulia
             a2dVarCtWP = 0.4*a2dVarCt
         endwhere 
         
         ! Check Cf values over domain
-        iPixCount = count((a2dVarCf.eq.0.0 .and. a2dVarDEM.gt.0.0))
+        iPixCount = count((a2dVarCf.eq.0.0 .and. a2iVarMask.gt.0.0)) !giulia
         if (iPixCount.gt.0) then
             write(sPixCount, *) iPixCount;
             write(sParDefault, *) dCf;
             call mprintf(.true., iWARN, ' Cf values are equal to 0.0 in '//trim(sPixCount)//' pixels over domain. '// &
             'Initialize with default value: '//trim(sParDefault)//'.')
         endif
-        where (a2dVarCf.le.0.0 .and. a2iVarMask.gt.0)
+        where (a2dVarCf.le.0.0 .and. a2iVarMask.gt.0.0) !giulia
             a2dVarCf = dCf
         endwhere
         
         ! Check Uh values over domain
-        iPixCount = count((a2dVarUh.eq.0.0 .and. a2dVarDEM.gt.0.0))
+        iPixCount = count((a2dVarUh.eq.0.0 .and. a2iVarMask.gt.0.0)) !giulia
         if (iPixCount.gt.0) then
             write(sPixCount, *) iPixCount;
             write(sParDefault, *) dUh;
             call mprintf(.true., iWARN, ' Uh values are equal to 0.0 in '//trim(sPixCount)//' pixels over domain. '// &
             'Initialize with default value: '//trim(sParDefault)//'.')
         endif
-        where (a2dVarUh.le.0.0 .and. a2iVarMask.gt.0)
+        where (a2dVarUh.le.0.0 .and. a2iVarMask.gt.0.0) !giulia
             a2dVarUh = dUh
         endwhere
         
         ! Check Uc values over domain
-        iPixCount = count((a2dVarUc.eq.0.0 .and. a2dVarDEM.gt.0.0))
+        iPixCount = count((a2dVarUc.eq.0.0 .and. a2iVarMask.gt.0.0)) !giulia
         if (iPixCount.gt.0) then
             write(sPixCount, *) iPixCount;
             write(sParDefault, *) dUc;
             call mprintf(.true., iWARN, ' Uc values are equal to 0.0 in '//trim(sPixCount)//' pixels over domain. '// &
             'Initialize with default value: '//trim(sParDefault)//'.')
         endif
-        where (a2dVarUc.le.0.0 .and. a2iVarMask.gt.0)
+        where (a2dVarUc.le.0.0 .and. a2iVarMask.gt.0.0) !giulia
             a2dVarUc = dUc
         endwhere
         
         ! Check water-table angle(s)
-        where(a2dVarDem.gt.0.0 .and. a2dVarAlpha.le.0.0)
+        where(a2iVarMask.gt.0.0 .and. a2dVarAlpha.le.0.0) !giulia
             a2dVarAlpha = 0.00001
         endwhere
-	where(a2dVarDem.gt.0.0 .and. a2dVarBeta.le.0.0)
+        where(a2iVarMask.gt.0.0 .and. a2dVarBeta.le.0.0) !giulia    
             a2dVarBeta = 0.00001
         endwhere
+        
+        ! Check multiplier for vertical saturated hydraulic conductivity - to get horizontal conductivity !giulia
+	! Zero values should be allowed - to be confirmed
+	iPixCount = count((a2dVarKSatRatio.lt.0.0 .and. a2iVarMask.gt.0))
+        if (iPixCount.gt.0) then
+            write(sPixCount, *) iPixCount;
+            write(sParDefault, *) dKSatRatio;
+            call mprintf(.true., iWARN, ' KSatRatio values are lower than 0 in '//trim(sPixCount)//' pixels over domain. '// &
+            'Initialize with default value: '//trim(sParDefault)//'.')
+        endif 
         
         ! Info end
         call mprintf(.true., iINFO_Verbose, ' Data :: Static gridded :: Get land information ... OK' )
@@ -1435,16 +1607,16 @@ contains
         call mprintf(.true., iINFO_Verbose, ' Data :: Static gridded :: Compute derived land information ... ' )
       
         ! Defining cell area mean value (x and y)
-        dDxM = nint(sqrt(sum(a2dVarAreaCell, mask=a2dVarAreaCell.gt.0.0) / count(a2dVarAreaCell.gt.0.0)))
-        dDyM = nint(sqrt(sum(a2dVarAreaCell, mask=a2dVarAreaCell.gt.0.0) / count(a2dVarAreaCell.gt.0.0)))
+        dDxM = nint(sqrt(sum(a2dVarAreaCell, mask=a2iVarMask.gt.0.0) / count(a2iVarMask.gt.0.0))) !giulia
+        dDyM = nint(sqrt(sum(a2dVarAreaCell, mask=a2iVarMask.gt.0.0) / count(a2iVarMask.gt.0.0))) !giulia
 
         ! DEM max and min values and step mean
-        dDEMMax = maxval(maxval(a2dVarDEM,DIM = 1, MASK=a2dVarDEM.gt.0),DIM = 1)
-        dDEMMin = minval(minval(a2dVarDEM,DIM = 1, MASK=a2dVarDEM.gt.0),DIM = 1)
+        dDEMMax = maxval(maxval(a2dVarDEM,DIM = 1, MASK=a2iVarMask.gt.0),DIM = 1) !giulia
+        dDEMMin = minval(minval(a2dVarDEM,DIM = 1, MASK=a2iVarMask.gt.0),DIM = 1) !giulia
         dDEMStepMean = sqrt(dDxM*dDyM)
        
         ! Computing total catchment pixels and area
-        iDomainPixels = sum(sum(a2iVarMask,dim=1, mask=a2dVarDEM.gt.0.0))             
+        iDomainPixels = sum(sum(a2iVarMask,dim=1, mask=a2iVarMask.gt.0.0)) !giulia          
         dDomainArea = float(iDomainPixels)*dDxM*dDyM/1000000       
         
         ! Domain information
@@ -1460,14 +1632,14 @@ contains
         if ( all(a2dVarCoeffResol.eq.1.0 )) then
             
             ! Compute default value(s) based on cell area 
-            where ( a2dVarDem.gt.0.0 .and. a2iVarChoice.ge.0 ) 
+            where ( a2iVarMask.gt.0.0 .and. a2iVarChoice.ge.0 ) !giulia
                 a2dVarCoeffResol = exp(-sqrt(a2dVarAreaCell)*0.0009)
                 ! a2dVarCoeffResol = exp(-sqrt(a2dVarAreaCell)*0.0009) ! Tevere settings
                 ! a2dVarCoeffResol = exp(-sqrt(a2dVarAreaCell)*0.0007) ! Other basins settings
             endwhere
             
             ! Channels condition
-            where ( a2dVarDem.gt.0.0 .and. a2iVarChoice.eq.1 .and. a2dVarCoeffResol.gt.0.05)
+            where ( a2iVarMask.gt.0.0 .and. a2iVarChoice.eq.1 .and. a2dVarCoeffResol.gt.0.05) !giulia
         	a2dVarCoeffResol = 0.05
             endwhere
             
@@ -1482,7 +1654,7 @@ contains
         endif   
         
         ! Nullify coefficient resolution out of the domain
-        where (a2dVarDEM .lt. 0.0)
+        where (a2iVarMask .le. 0.0) !giulia
             a2dVarCoeffResol = 0.0
         endwhere
         !------------------------------------------------------------------------------------
@@ -1532,7 +1704,7 @@ contains
         where (a2dVarFrac.gt.1)
             a2dVarFrac = 1.0
         endwhere
-        where (a2dVarDEM.gt.0.0.and.a2dVarFrac.lt.0.0)
+        where (a2iVarMask.gt.0.0.and.a2dVarFrac.lt.0.0) !giulia
             a2dVarFrac = 0.0
         endwhere
         !------------------------------------------------------------------------------------
@@ -1540,7 +1712,7 @@ contains
         !------------------------------------------------------------------------------------
         ! Check minimum stomatal resistance when dynamic vegetation is active
         if (iFlagDynVeg.eq.1) then
-            where (a2dVarDEM.gt.0.0 .and. a2dVarRSmin.lt.0.0)
+            where (a2iVarMask.gt.0.0 .and. a2dVarRSmin.lt.0.0) !giulia
                 a2dVarRSmin = 0.0
             endwhere     
         endif
@@ -1548,68 +1720,83 @@ contains
         
         !------------------------------------------------------------------------------------ 
         ! Defining S and CON
-        where ( (a2dVarCN.gt.0 .and. a2dVarCN.le.100) .and. a2iVarMask.eq.1)
-            a2dVarS = (1000.0/a2dVarCN - 10)*25.4
-            a2dVarCon = int(a2dVarCN)
-        endwhere
+        if (oHMC_Namelist(iID)%iFlagSoilParamsType .eq. 1) then
+            where ( (a2dVarCN.gt.0 .and. a2dVarCN.le.100) .and. a2iVarMask.gt.0.0)
+                a2dVarS = (1000.0/a2dVarCN - 10)*25.4
+                a2dVarCon = int(a2dVarCN)
+            endwhere
+        endif
         
-        where (a2dVarDEM.gt.0.0.and.a2dVarS.lt.1.0)
+        ! Checking lower limit of a2dVarS inside the computational domain
+        where (a2iVarMask.gt.0.0.and.a2dVarS.lt.1.0)
             a2dVarS = 1.0
         endwhere
 
+        ! Checking lower limit of a2dVarS outside the computational domain
         where (a2dVarS.lt.0.0)
             a2dVarS = 0.0
         endwhere
         
-        where (a2dVarDEM.lt.0.0)
+        where (a2iVarMask.le.0.0)
             a2dVarS = 0.0
         endwhere
         !------------------------------------------------------------------------------------ 
         
         !------------------------------------------------------------------------------------ 
         ! Defining Soil Water Content at Wilting Point
-        where ( a2dVarDem.gt.0.0 ) 
+        where ( a2iVarMask.gt.0.0 ) 
             a2dVarVTotWP = 0.0 ! condizione che tagliava un 20% del vtot a2dVarS * a2dVarCtWP ! ct_wp = 0.4*ct
         endwhere
         !------------------------------------------------------------------------------------ 
         
         !------------------------------------------------------------------------------------ 
         ! Defining Horton constants
-        where (a2dVarCon.lt.1 .or. a2dVarCon.gt.99)
-            a2dVarCon = 1
-        endwhere
+        if (oHMC_Namelist(iID)%iFlagSoilParamsType .eq. 1) then
+            where (a2dVarCon.lt.1 .or. a2dVarCon.gt.99)
+                a2dVarCon = 1
+            endwhere
 
-        ! Calculating CostF
-        forall(iI = 1:iRows, iJ = 1:iCols)
-            a2dVarCostF(iI, iJ) = a1dVarFCN( int( a2dVarCon(iI, iJ) ) )
-        end forall
+            ! Calculating CostF
+            forall(iI = 1:iRows, iJ = 1:iCols)
+                a2dVarCostF(iI, iJ) = a1dVarFCN( int( a2dVarCon(iI, iJ) ) )
+            end forall
         
-        where (a2dVarDEM.gt.0.0)
-            ! Compute F1 Horton term
-            a2dVarCostF1 = a2dVarCf*a2dVarCostF
-            ! Horton exponent case I>g ( a2dCostChFix=((1-dCt)*a2dCostF+dCt*a2dCostF1)/((1-dCt)*a2dS) )
-            a2dVarCostChFix = ( (1 - a2dVarCt) * a2dVarCostF + a2dVarCt*a2dVarCostF1) / ( (1 - a2dVarCt)*a2dVarS ) 
-            ! Horton Ct correction term 1 ( a2dC1=a2dCostF1*dCt/(1-dCt) )
-            a2dVarC1 = a2dVarCostF1*a2dVarCt/(1 - a2dVarCt)
-            ! Horton Ct correction term 2 ( a2dF2=a2dCostF1/(1-dCt) )
-            a2dVarF2 = a2dVarCostF1/(1 - a2dVarCt)
-        endwhere
+            where (a2iVarMask.gt.0.0)
+                ! Compute F1 Horton term
+                a2dVarCostF1 = a2dVarCf*a2dVarCostF
+                ! Horton exponent case I>g ( a2dCostChFix=((1-dCt)*a2dCostF+dCt*a2dCostF1)/((1-dCt)*a2dS) )
+                a2dVarCostChFix = ( (1 - a2dVarCt) * a2dVarCostF + a2dVarCt*a2dVarCostF1) / ( (1 - a2dVarCt)*a2dVarS ) 
+                ! Horton Ct correction term 1 ( a2dC1=a2dCostF1*dCt/(1-dCt) )
+                a2dVarC1 = a2dVarCostF1*a2dVarCt/(1 - a2dVarCt)
+                ! Horton Ct correction term 2 ( a2dF2=a2dCostF1/(1-dCt) )
+                a2dVarF2 = a2dVarCostF1/(1 - a2dVarCt)
+                ! Compute explicitly aquifer saturated horizontal conductivity (mm/h)
+                a2dVarWTksatH =  a2dVarCostF1*oHMC_Namelist(iID)%dKSatRatio
+            endwhere
+        elseif (oHMC_Namelist(iID)%iFlagSoilParamsType .eq. 2) then
+            if (oHMC_Namelist(iID)%iFlagInfiltRateVariable .eq. 0) then
+                a2dVarCostF = a2dVarCostF1 !infiltration capacity does not change with saturation
+            elseif ((oHMC_Namelist(iID)%iFlagInfiltRateVariable .eq. 1) .or. &
+                    (oHMC_Namelist(iID)%iFlagInfiltRateVariable .eq. 2)) then
+                a2dVarCostF = a2dVarCostF1 / a2dVarCf !infiltration capacity changes with saturation
+            endif
+        endif
         !------------------------------------------------------------------------------------ 
         
         !------------------------------------------------------------------------------------ 
         ! Define priority side of flooding
         ! Initialize the matrix with 0 Same Overbanking level, 1 Right first, 2 Left first
         if(iFlagFlood.eq.1)then
-            where (a2dVarDEM.GT.0.0.and.a2dVarLevBankR.gt.a2dVarLevBankL)
+            where (a2iVarMask.GT.0.0.and.a2dVarLevBankR.gt.a2dVarLevBankL)
                 a2dVarFirst = 2
             endwhere
-            where (a2dVarDEM.GT.0.0.and.a2dVarLevBankL.gt.a2dVarLevBankR)
+            where (a2iVarMask.GT.0.0.and.a2dVarLevBankL.gt.a2dVarLevBankR)
                 a2dVarFirst = 1
             endwhere
-            where (a2dVarDEM.GT.0.0.and.a2dVarLevBankR.eq.a2dVarLevBankL)
+            where (a2iVarMask.GT.0.0.and.a2dVarLevBankR.eq.a2dVarLevBankL)
                 a2dVarFirst = 0
             endwhere
-            where (a2dVarDEM.GT.0.0.and.a2dVarLevBankR.le.0.0)
+            where (a2iVarMask.GT.0.0.and.a2dVarLevBankR.le.0.0)
                 a2dVarFirst = -9999.0
             endwhere
         endif        
@@ -1637,6 +1824,7 @@ contains
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarAlpha, a2iVarMask, 'Watertable ALPHA ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarBeta, a2iVarMask, 'Watertable BETA ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarWTMax, a2iVarMask, 'Watertable MAX ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarKSatRatio, a2iVarMask, 'KSAT RATIO ') ) !giulia
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarCon, a2iVarMask, 'CON ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarCostF, a2iVarMask, 'COSTF ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarCostF1, a2iVarMask, 'COSTF1 ') )
@@ -1655,6 +1843,7 @@ contains
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarGd, a2iVarMask, 'Gd ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarHveg, a2iVarMask, 'Hveg ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarBareSoil, a2iVarMask, 'BareSoil ') )
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarWTksatH, a2iVarMask, 'Watertable KSAT horizontal ') )
             call mprintf(.true., iINFO_Extra, ' ========= STATIC GRIDDED END =========== ') 
         endif
         !------------------------------------------------------------------------------------
@@ -1689,6 +1878,7 @@ contains
         oHMC_Vars(iID)%a2dAlpha = a2dVarAlpha
         oHMC_Vars(iID)%a2dBeta = a2dVarBeta
         oHMC_Vars(iID)%a2dWTableMax = a2dVarWTMax
+        oHMC_Vars(iID)%a2dKSatRatio = a2dVarKSatRatio !giulia
         
         oHMC_Vars(iID)%a2dS = a2dVarS
         oHMC_Vars(iID)%a2dVTotWP = a2dVarVTotWP
@@ -1698,6 +1888,8 @@ contains
         oHMC_Vars(iID)%a2dCostF = a2dVarCostF
         oHMC_Vars(iID)%a2dCostF1 = a2dVarCostF1
         oHMC_Vars(iID)%a2dCostChFix = a2dVarCostChFix
+        
+        oHMC_Vars(iID)%a2dWTksatH = a2dVarWTksatH
         
         oHMC_Vars(iID)%a2dCoeffResol = a2dVarCoeffResol
         oHMC_Vars(iID)%a2dCoeffWS = a2dVarCoeffWS
@@ -1806,36 +1998,36 @@ contains
 
         !------------------------------------------------------------------------------------------
         ! Define default watertable max values
-        where(a2dVarDEM .gt. 0)
+        where(a2iVarMask .gt. 0)
             a2dVarWTableMax_Tmp = dVarWTableHMax*(1 - (tan(a2dVarAlpha) - &
                                   tan(dVarAlphaMin))/(tan(dVarAlphaMax) - & 
                                   tan(dVarAlphaMin))*(1 - dVarWTableHMin/dVarWTableHMax))
         endwhere
         ! Check default watertable values limits
-        where( (a2dVarDEM.gt.0.0) .and. (a2dVarWTableMax_Tmp .gt. dVarWTableHMax) )
+        where( (a2iVarMask.gt.0.0) .and. (a2dVarWTableMax_Tmp .gt. dVarWTableHMax) )
             a2dVarWTableMax_Tmp = dVarWTableHMax
         endwhere
         
         ! Update watertable maximum values using default relationship where dataset is not defined
-        where( (a2dVarDEM .gt. 0) .and. (a2dVarWTableMax .lt. 0.0) )
+        where( (a2iVarMask .gt. 0) .and. (a2dVarWTableMax .lt. 0.0) )
             a2dVarWTableMax = a2dVarWTableMax_Tmp    
         endwhere
         
         ! Check watertable maximum limits 
-        where( (a2dVarDEM.gt.0.0).and.(a2dVarWTableMax.lt.0.0) )
+        where( (a2iVarMask.gt.0.0).and.(a2dVarWTableMax.lt.0.0) )
             a2dVarWTableMax = 0.0 
         endwhere
-        where(a2dVarDEM.gt.0.0)
+        where(a2iVarMask.gt.0.0)
             a2dVarWTableMax = a2dVarDEM - a2dVarWTableMax/1000.0
         endwhere
-        where( (a2dVarDEM.gt.0.0).and.(a2dVarWTableMax.lt.0.0) )
+        where( (a2iVarMask.gt.0.0).and.(a2dVarWTableMax.lt.0.0) )
             a2dVarWTableMax = 0.0 
         endwhere
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
         ! Define watertable values
-	where( a2dVarDEM.gt.0.0 )
+	where( a2iVarMask.gt.0.0 )
 		a2dVarWTable = (dVarWTableHMax - dVarWTableHUSoil)*((tan(a2dVarAlpha) - &
                                    tan(dVarAlphaMin))/(tan(dVarAlphaMax) - tan(dVarAlphaMin))) & 
                                    + dVarWTableHUSoil 
@@ -1843,7 +2035,7 @@ contains
 		a2dVarWTable = a2dVarWTable/1000.0
         endwhere
         
-	where( a2dVarDEM.gt.0.0 )
+	where( a2iVarMask.gt.0.0 )
 		a2dVarWTable = a2dVarDEM - a2dVarWTable
         endwhere
         

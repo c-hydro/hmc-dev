@@ -70,6 +70,9 @@ contains
         integer(kind = 4)       :: iFlagDynVeg
         integer(kind = 4)       :: iFlagFlood
         integer(kind = 4)       :: iFlagEnergyBalance
+        integer(kind = 4)       :: iFlagSoilParamsType
+        integer(kind = 4)       :: iFlagInfiltRateVariable
+        integer(kind = 4)       :: iFlagBetaET
         
         logical                 :: bGridCheck
 
@@ -101,6 +104,8 @@ contains
         integer(kind = 4)       :: iNData
         real(kind = 4)          :: dWTableHMin, dWTableHUSoil, dWTableHUChannel, dWTableSlopeBM, dWTableHOBedRock
         real(kind = 4)          :: dRateMin, dBc, dWTLossMax
+        real(kind = 4)          :: dRateRescaling
+        real(kind = 4)          :: dPowVarInfiltRate
         real(kind = 4)          :: dTRef, dEpsS, dSigma, dBFMin, dBFMax
         real(kind = 4)          :: dZRef, dG, dCp, dRd, dRhoS, dRhoW, dCpS, dCpW
         real(kind = 4)          :: dKq, dKw, dKo, dPorS, dFqS 
@@ -163,15 +168,20 @@ contains
         
         real(kind = 4)          :: dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax
         real(kind = 4)          :: dCN, dWS, dWDL, dFrac
+        real(kind = 4)          :: dSoil_ksat_infilt, dSoil_vmax, dSoil_ksat_drain !nuova definizione parametri per suolo giulia
+        real(kind = 4)          :: dWTable_ksath !nuova definizione parametri per falda giulia
         character(len = 256)    :: sDomainName
         
         character(len = 256)    :: sStrCf, sStrCt, sStrUh, sStrUc
+        character(len = 256)    :: sStrVmax, sStrKsat_infilt, sStrKsat_drain, sStrKsat_wtable
         !--------------------------------------------------------------------------------
 
         !--------------------------------------------------------------------------------
         ! Read namelist(s)
         namelist /HMC_Parameters/       dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax, &
                                         dCN, dWS, dWDL, dFrac, &
+                                        dSoil_ksat_infilt, dSoil_vmax, dSoil_ksat_drain, & 
+                                        dWTable_ksath, &
                                         sDomainName
         
         namelist /HMC_Namelist/         iFlagTypeData_Static, &
@@ -192,7 +202,10 @@ contains
                                         iFlagCType, &
                                         iFlagFrac, &
                                         iFlagDynVeg, &
-                                        iFlagFlood, iFlagEnergyBalance, &                                        
+                                        iFlagFlood, iFlagEnergyBalance, & 
+                                        iFlagSoilParamsType, &
+                                        iFlagInfiltRateVariable, &
+                                        iFlagBetaET, &
                                         a1dGeoForcing, a1dResForcing, a1iDimsForcing, &
                                         iScaleFactor, iTcMax, iTVeg, &
                                         iSimLength, iDtModel, &
@@ -219,6 +232,8 @@ contains
         namelist /HMC_Constants/        a1dAlbedoMonthly, a1dLAIMonthly, a1dCHMonthly, &
                                         dWTableHMin, dWTableHUSoil, dWTableHUChannel, dWTableSlopeBM, dWTableHOBedRock, &
                                         dRateMin, dBc, dWTLossMax, &
+                                        dRateRescaling, &
+                                        dPowVarInfiltRate, & 
                                         dTRef, iTdeepShift, dEpsS, dSigma, dBFMin, dBFMax, &
                                         dZRef, dG, dCp, dRd, dRhoS, dRhoW, dCpS, dCpW, & 
                                         dKq, dKw, dKo, dPorS, dFqS, &
@@ -254,6 +269,9 @@ contains
         iFlagFrac = -9999;
         iFlagDynVeg = -9999;
         iFlagFlood = -9999; iFlagEnergyBalance = -9999;
+        iFlagSoilParamsType = -9999;
+        iFlagInfiltRateVariable = -9999;
+        iFlagBetaET = 1;
         a1dGeoForcing = -9999.0; a1dResForcing = -9999.0; a1iDimsForcing = -9999; 
         iScaleFactor = -9999; iTcMax = -9999; iTVeg = -9999; iTc = -9999; 
         iSimLength = -9999; iDtModel = -9999; 
@@ -285,6 +303,8 @@ contains
         dWTableHMin = -9999.0; dWTableHUSoil = -9999.0; dWTableHUChannel = -9999.0; 
         dWTableSlopeBM = -9999.0; dWTableHOBedRock = -9999.0;
         dRateMin = -9999.0; dBc = -9999.0; dWTLossMax = -9999.0;
+        dRateRescaling = -9999.0;
+        dPowVarInfiltRate = -9999.0;
         dTRef = -9999.0; iTdeepShift = -9999; dEpsS = -9999.0; 
         dSigma = -9999.0; dBFMin = -9999.0; dBFMax = -9999.0
         dZRef = -9999.0; dG = -9999.0; dCp = -9999.0; dRd = -9999.0; dRhoS = -9999.0; 
@@ -297,8 +317,11 @@ contains
         sCommandZipFile = ""; sCommandUnzipFile = ""; sCommandRemoveFile = ""; sCommandCreateFolder = ""
         
         sReleaseDate = ""; sAuthorNames = ""; sReleaseVersion = "";
+        
+        dSoil_ksat_infilt = -9999.0; dSoil_vmax = -9999.0; dSoil_ksat_drain = -9999.0;
+        dWTable_ksath = -9999.0;
         !--------------------------------------------------------------------------------  
-                                            
+        
         !--------------------------------------------------------------------------------
         ! Checking information file availability
         !sFileName = trim(sDomainName)//'.info.txt' 
@@ -496,6 +519,52 @@ contains
         else
             oHMC_Namelist_Init%iFlagEnergyBalance = iFlagEnergyBalance      
         endif
+        
+        if (iFlagSoilParamsType .eq. -9999) then  ! backward compatibility with older version of info file (without soil params type flag)
+            oHMC_Namelist_Init%iFlagSoilParamsType = 1 ! default is classical parametrization (through CN)
+            call mprintf(.true., iWARN, ' Soil parametrization type is NOT set explicitly - ' // &
+                                        'The classical approach through CN will be used ')
+            iFlagInfiltRateVariable = -9999.0
+        else
+            oHMC_Namelist_Init%iFlagSoilParamsType = iFlagSoilParamsType      
+            if (iFlagSoilParamsType .eq. 1) then
+                call mprintf(.true., iINFO_Basic, ' Classical soil parametrization is selected (iFlagSoilParamsType=1) ' // &
+                                            '--> CN will be used')
+                call mprintf(.true., iINFO_Basic, ' IMPORTANT - when classical soil parametrization is selected, ' // &
+                                            'iFlagInfiltRateVariable is not active')    
+                iFlagInfiltRateVariable = -9999.0
+            else if (iFlagSoilParamsType .eq. 2) then
+                call mprintf(.true., iINFO_Basic, ' Alternative soil parametrization is selected (iFlagSoilParamsType=2) ' // &
+                                            '--> vmax, ksat_infilt, ksat_drain will be used')
+            endif
+        endif
+        
+        ! Soil infiltration capacity variability with soil saturation degree
+        if (iFlagInfiltRateVariable .eq. 0) then
+                call mprintf(.true., iINFO_Basic, ' Soil infiltration capacity is not set to change with soil saturation ' // &
+                                            '(iFlagInfiltRateVariable=0)')
+        elseif (iFlagInfiltRateVariable .eq. 1) then
+                call mprintf(.true., iINFO_Basic, ' Soil infiltration capacity is set to change linearly with soil ' // &
+                                            'saturation (iFlagInfiltRateVariable=1)')
+        elseif (iFlagInfiltRateVariable .eq. 2) then
+                call mprintf(.true., iINFO_Basic, ' Soil infiltration capacity is set to change NON-linearly with soil ' // &
+                                            'saturation (iFlagInfiltRateVariable=2) ' // &
+                                            '(2020 - Yang et al. - Improving the Horton infiltration equation ...)')
+                if (dPowVarInfiltRate .eq. -9999) then
+                    call mprintf(.true., iERROR,'dPowVarInfiltRate must be defined if iFlagInfiltRateVariable=2. ' // &
+                                        ' (Only positive values are appropriate) Program stopped!')                
+                endif
+        endif
+            
+        oHMC_Namelist_Init%dPowVarInfiltRate = dPowVarInfiltRate
+        oHMC_Namelist_Init%iFlagInfiltRateVariable = iFlagInfiltRateVariable !remains -9999 when not defined (not used for classical soil)
+        
+        if (iFlagBetaET .eq. 0) then
+            call mprintf(.true., iINFO_Basic, ' ATTENTION: Beta function for ET reduction with water stress is deactivated ' // &
+                                            '(iFlagBetaET=0)')
+        endif
+        oHMC_Namelist_Init%iFlagBetaET = iFlagBetaET !if not defined in the namelist, remains 1 (implicit backward compatibility)
+        
         
         ! Geographical land and forcing info
         oHMC_Namelist_Init%bGridCheck = .false.
@@ -702,9 +771,76 @@ contains
         oHMC_Namelist_Init%dWTableSlopeBM = dWTableSlopeBM
         oHMC_Namelist_Init%dWTableHOBedRock = dWTableHOBedRock
         
+        ! New soil parameters
+        oHMC_Namelist_Init%dSoil_ksat_infilt = dSoil_ksat_infilt
+        oHMC_Namelist_Init%dSoil_vmax = dSoil_vmax
+        oHMC_Namelist_Init%dSoil_ksat_drain = dSoil_ksat_drain
+        
+        ! Aquifer horizontal hydraulic conductivity
+        oHMC_Namelist_Init%dWTable_ksath = dWTable_ksath
+        
+        ! checking if dSoil_ksat_infilt & dSoil_vmax & dSoil_ksat_drain are defined in case of iFlagSoilParamsType=2  
+        ! & also dWTable_ksath (no need for specific flag --> over-flexibility)
+        if ( (iFlagSoilParamsType .eq. 2) .and. (dSoil_ksat_infilt .eq. -9999.0) ) then
+                call mprintf(.true., iERROR,'dSoil_ksat_infilt must be defined if iFlagSoilParamsType=2. ' // &
+                                        ' Program stopped!')   
+        elseif ( (iFlagSoilParamsType .eq. 2) .and. (dSoil_ksat_infilt .le. 0.0) ) then
+                call mprintf(.true., iERROR,'dSoil_ksat_infilt must be positive! ' // &
+                                        ' Program stopped!')  
+        endif        
+        ! checking if dSoil_ksat_infilt & dSoil_vmax & dSoil_ksat_drain are defined in case of iFlagSoilParamsType=2  
+        ! & also dWTable_ksath (no need for specific flag --> over-flexibility)
+        if ( (iFlagSoilParamsType .eq. 2) .and. (dSoil_vmax .eq. -9999.0) ) then
+            call mprintf(.true., iERROR,'dSoil_vmax must be defined if iFlagSoilParamsType=2.' // &
+                                        ' Program stopped!')        
+        elseif ( (iFlagSoilParamsType .eq. 2) .and. (dSoil_vmax .le. 0.0) ) then
+            call mprintf(.true., iERROR,'dSoil_vmax must be positive!' // &
+                                        ' Program stopped!')  
+        endif
+        ! checking if dSoil_ksat_infilt & dSoil_vmax & dSoil_ksat_drain are defined in case of iFlagSoilParamsType=2  
+        ! & also dWTable_ksath (no need for specific flag --> over-flexibility)
+        if ( (iFlagSoilParamsType .eq. 2) .and. (dSoil_ksat_drain .eq. -9999.0) ) then
+            call mprintf(.true., iERROR,'dSoil_ksat_drain must be defined if iFlagSoilParamsType=2.' // &
+                                        ' Program stopped!')    
+        elseif ( (iFlagSoilParamsType .eq. 2) .and. (dSoil_ksat_drain .le. 0.0) ) then
+            call mprintf(.true., iERROR,'dSoil_ksat_drain must be positive!' // &
+                                        ' Program stopped!')
+        endif
+        ! checking if dSoil_ksat_infilt & dSoil_vmax & dSoil_ksat_drain are defined in case of iFlagSoilParamsType=2  
+        ! & also dWTable_ksath (no need for specific flag --> over-flexibility)
+        if ( (iFlagSoilParamsType .eq. 2) .and. (dWTable_ksath .eq. -9999.0) ) then
+            call mprintf(.true., iERROR,'dWTable_ksath must be defined if iFlagSoilParamsType=2.' // &
+                                        ' Program stopped!')    
+        elseif ( (iFlagSoilParamsType .eq. 2) .and. (dWTable_ksath .le. 0.0) ) then
+            call mprintf(.true., iERROR,'dWTable_ksath must be positive!' // &
+                                        ' Program stopped!')   
+        endif
+        ! checking if iFlagInfiltRateVariable is defined in case of iFlagSoilParamsType=2  
+        ! & also dWTable_ksath (no need for specific flag --> over-flexibility)
+        if ( (iFlagSoilParamsType .eq. 2) .and. ( (iFlagInfiltRateVariable.ne.0) .and. &
+                                                  (iFlagInfiltRateVariable.ne.1) .and. & 
+                                                  (iFlagInfiltRateVariable.ne.2) )) then
+                call mprintf(.true., iERROR,'iFlagInfiltRateVariable must be defined if iFlagSoilParamsType=2. ' // &
+                                        ' (Allowed values are 0-1-2) Program stopped!')        
+        endif
+ 
         ! Convolution constant(s)
         oHMC_Namelist_Init%dRateMin = dRateMin
         oHMC_Namelist_Init%dBc = dBc
+        
+        ! dRateRescaling ~ rescaling factor for hypodermic flow fraction dRate
+        if (dRateRescaling .eq. -9999) then  ! backward compatibility with older version of info file 
+            oHMC_Namelist_Init%dRateRescaling = 1.0               
+        else
+            oHMC_Namelist_Init%dRateRescaling = dRateRescaling
+            if (dRateRescaling .lt. dRateMin) then
+                call mprintf(.true., iERROR,'Minimum allowed value for dRateRescaling is dRateMin.' // &
+                                        ' Program stopped!')   
+            elseif (dRateRescaling .gt. 1.0) then
+                call mprintf(.true., iERROR,'Maximum allowed value for dRateRescaling is 1.' // &
+                                        ' Program stopped!') 
+            endif
+        endif
         
         if (dWTLossMax .eq. -9999) then  ! backward compatibility with older version of info file (without watertable deep losses value)
             oHMC_Namelist_Init%dWTLossMax = -9999.0               
@@ -791,9 +927,20 @@ contains
         ! Info model
         write(sStrUc, *) dUc; write(sStrUh, *) dUh; write(sStrCt, *) dCt; write(sStrCf, *) dCf;
         call mprintf(.true., iINFO_Basic, ' PARAMETER(S) DEFAULT INFO --- dUc: '//trim(sStrUc)//' - dUh: '//trim(sStrUh)// &
-                    ' dCt: '//trim(sStrCt)//' dCf: '//trim(sStrCf) )           
+                    ' dCt: '//trim(sStrCt)//' dCf: '//trim(sStrCf) )     
+        ! Alternative soil parametrization
+        if (iFlagSoilParamsType .eq. 2) then
+            write(sStrVmax, *) dSoil_vmax; write(sStrKsat_infilt, *) dSoil_ksat_infilt; write(sStrKsat_drain, *) dSoil_ksat_drain;
+            call mprintf(.true., iINFO_Basic, ' SOIL PARAMETERS from Namelist --- Vmax: '//trim(sStrVmax)//' - ksat_infilt: '// &
+                         trim(sStrKsat_infilt)//' ksat_drain: '//trim(sStrKsat_drain) )    
+            write(sStrKsat_wtable, *) dWTable_ksath;
+            call mprintf(.true., iINFO_Basic, ' AQUIFER HORIZONTAL HYDRAULIC CONDUCTIVITY from Namelist --- WTable_ksath: ' & 
+                         //trim(sStrKsat_wtable) )
+        endif
         ! Info
         call mprintf(.true., iINFO_Main, ' Read Namelist ... OK')
+        ! Separation Line
+        call mprintf(.true., iINFO_Basic, '************************************************************************')
         !--------------------------------------------------------------------------------
         
     end subroutine HMC_Namelist_Read

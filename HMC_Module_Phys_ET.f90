@@ -118,9 +118,9 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Calculating control variable(s) 
-        dVarAE = sum(a2dVarET, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
-        dVarET = sum(a2dVarET, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
-        dVarETPot = sum(a2dVarETPot, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
+        dVarAE = sum(a2dVarET, mask=a2iVarMask.gt.0.0)/max(1,count(a2iVarMask.gt.0.0))
+        dVarET = sum(a2dVarET, mask=a2iVarMask.gt.0.0)/max(1,count(a2iVarMask.gt.0.0))
+        dVarETPot = sum(a2dVarETPot, mask=a2iVarMask.gt.0.0)/max(1,count(a2iVarMask.gt.0.0))
         dVarETTot = dVarETTot + dVarAE
 
         ! ET information time step
@@ -190,7 +190,7 @@ contains
        
         !------------------------------------------------------------------------------------------
         ! Passing evapotranspiration (ET) to Actual evapotranspiration (AE)
-        where (a2dVarDEM.gt.0.0)
+        where (a2iVarMask.gt.0.0)
             a2dVarAE = a2dVarET
         endwhere
         !------------------------------------------------------------------------------------------
@@ -198,13 +198,13 @@ contains
         !------------------------------------------------------------------------------------------
         ! Calculating retention volume 
         where( (a2dVarVRet.gt.0.0) .and. (a2dVarVRet.ge.a2dVarETPot) .and.  &
-               (a2dVarDEM.gt.0.0) .and. (a2iVarChoice.le.1) )
+               (a2iVarMask.gt.0.0) .and. (a2iVarChoice.le.1) )
                
             a2dVarVRet = a2dVarVRet - a2dVarETPot
             a2dVarAE = a2dVarETPot
             
         elsewhere( (a2dVarVRet.gt.0.0) .and. (a2dVarVRet.lt.a2dVarETPot) .and. &
-                (a2dVarDEM.gt.0.0) .and. (a2iVarChoice.le.1) )
+                (a2iVarMask.gt.0.0) .and. (a2iVarChoice.le.1) )
             
             ! Compute residual evapotranspiration demand
             a2dVarAEres = a2dVarETPot - a2dVarVRet
@@ -229,7 +229,7 @@ contains
             endwhere
             a2dVarVRet = 0.0       
             
-        elsewhere (a2dVarDEM.gt.0.0 .and. a2iVarChoice.le.1) ! Retention == 0.0 not on lakes
+        elsewhere (a2iVarMask.gt.0.0 .and. a2iVarChoice.le.1) ! Retention == 0.0 not on lakes
             
             where( a2dVarAE .lt. 0.0)
                 a2dVarAE = 0.0
@@ -251,9 +251,9 @@ contains
 
         !------------------------------------------------------------------------------------------
         ! Calculating control variable(s) 
-        dVarAE = sum(a2dVarAE, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
-        dVarET = sum(a2dVarET, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
-        dVarETPot = sum(a2dVarETPot, mask=a2dVarDem.gt.0.0)/max(1,count(a2dVarDem.gt.0.0))
+        dVarAE = sum(a2dVarAE, mask=a2iVarMask.gt.0.0)/max(1,count(a2iVarMask.gt.0.0))
+        dVarET = sum(a2dVarET, mask=a2iVarMask.gt.0.0)/max(1,count(a2iVarMask.gt.0.0))
+        dVarETPot = sum(a2dVarETPot, mask=a2iVarMask.gt.0.0)/max(1,count(a2iVarMask.gt.0.0))
         dVarETTot = dVarETTot + dVarAE
 
         ! ET information time step
@@ -292,7 +292,7 @@ contains
                 oHMC_Vars(iID)%a3dAE(:,:,int(iStep-1)) = oHMC_Vars(iID)%a3dAE(:,:,int(iStep))
             enddo
             ! Updating with new field
-            where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
+            where(oHMC_Vars(iID)%a2iMask.gt.0.0)
                 oHMC_Vars(iID)%a3dAE(:,:,int(iDaySteps)) =  a2dVarAE
             elsewhere
                 oHMC_Vars(iID)%a3dAE(:,:,int(iDaySteps)) = -9999.0
@@ -308,7 +308,7 @@ contains
                 oHMC_Vars(iID)%a3dAEpot(:,:,int(iStep-1)) = oHMC_Vars(iID)%a3dAEpot(:,:,int(iStep))
             enddo
             ! Updating with new field
-            where(oHMC_Vars(iID)%a2dDEM.gt.0.0)
+            where(oHMC_Vars(iID)%a2iMask.gt.0.0)
                 oHMC_Vars(iID)%a3dAEpot(:,:,int(iDaySteps)) =  a2dVarETPot
             elsewhere
                 oHMC_Vars(iID)%a3dAEpot(:,:,int(iDaySteps)) = -9999.0
