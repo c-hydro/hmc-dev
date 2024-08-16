@@ -89,7 +89,7 @@ contains
         if (iFlagLAI .eq. 0) then
             
             ! Without LAI data (all LAI values are undefined)
-            where (a2dVarDEM.gt.0.0)
+            where (a2iVarMask.gt.0.0)
                 a2dVarVRetMax = (0.038*a2dVarS + 0.4909)*1 ! magic numbers :)
             elsewhere
                 a2dVarVRetMax = 0.0
@@ -98,7 +98,7 @@ contains
         elseif (iFlagLAI .eq. 1) then
             
             ! With LAI data
-            where (a2dVarDEM.gt.0.0.and.a2dVarLAI.gt.0.0)
+            where (a2iVarMask.gt.0.0.and.a2dVarLAI.gt.0.0)
                 a2dVarVRetMax = 0.95 + 0.5*a2dVarLAI-0.006*a2dVarLAI**2
             elsewhere
                 a2dVarVRetMax = 0.0
@@ -114,12 +114,12 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Calculating rain and retention volume 
-        where( (a2dVarVRet + a2dVarRain) .le. a2dVarVRetMax .and. a2dVarDEM.gt.0.0 )
+        where( (a2dVarVRet + a2dVarRain) .le. a2dVarVRetMax .and. a2iVarMask.gt.0.0 )
             a2dVarVRet = a2dVarVRet + a2dVarRain
             a2dVarRain = 0.0
         endwhere
 
-        where( (a2dVarVRet + a2dVarRain) .gt. a2dVarVRetMax .and. a2dVarDEM.gt.0.0 )
+        where( (a2dVarVRet + a2dVarRain) .gt. a2dVarVRetMax .and. a2iVarMask.gt.0.0 )
             a2dVarRain = (a2dVarVRet + a2dVarRain) - a2dVarVRetMax
             a2dVarVRet = a2dVarVRetMax
         endwhere

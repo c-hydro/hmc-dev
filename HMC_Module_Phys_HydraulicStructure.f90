@@ -185,10 +185,10 @@ contains
                     
                     ! If volume exceed the maximum volume that the dam can contain spill add to the spilled water
                     ! the amount of water needed to take the level to and acceptable one
-                    if (a1dVarVDam(iD).gt.oHMC_Vars(iID)%a1dVMaxDam(iD)) then
-                        a1dVarQoutDam(iD) = a1dVarQoutDam(iD) + (a1dVarVDam(iD) - oHMC_Vars(iID)%a1dVMaxDam(iD))/dDt
-                        a1dVarVDam(iD) = oHMC_Vars(iID)%a1dVMaxDam(iD)
-                    endif
+                    ! if (a1dVarVDam(iD).gt.oHMC_Vars(iID)%a1dVMaxDam(iD)) then    !! commented andrea  
+                    !     a1dVarQoutDam(iD) = a1dVarQoutDam(iD) + (a1dVarVDam(iD) - oHMC_Vars(iID)%a1dVMaxDam(iD))/dDt !! commented andrea
+                    !     a1dVarVDam(iD) = oHMC_Vars(iID)%a1dVMaxDam(iD) !! commented andrea
+                    ! endif !! commented andrea
                     
                         
                     ! Discharge in [mm]
@@ -458,7 +458,7 @@ contains
 
                     ! Lake equation to fill lake [mm]
                     if (oHMC_Vars(iID)%a1dCodeLake(iL).gt.0) then
-                        where (oHMC_Vars(iID)%a2iChoice.eq.oHMC_Vars(iID)%a1dCodeLake(iL) .and. oHMC_Vars(iID)%a2dDem.gt.0.0)
+                        where (oHMC_Vars(iID)%a2iChoice.eq.oHMC_Vars(iID)%a1dCodeLake(iL) .and. oHMC_Vars(iID)%a2iMask.gt.0.0)
                             ! Lake volume to lake mean level
                             a2dVarHydro = a1dVarVLake(iL)/(oHMC_Vars(iID)%a1dCodeLake(iL)*oHMC_Vars(iID)%a2dAreaCell(iI,iJ))*1000
                         endwhere

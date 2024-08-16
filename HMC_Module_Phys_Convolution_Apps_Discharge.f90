@@ -109,12 +109,12 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Discharge in channel cells [mm/s]
-        where( (oHMC_Vars(iID)%a2iChoice.eq.1) .and. (oHMC_Vars(iID)%a2dDEM.gt.0.0) )
+        where( (oHMC_Vars(iID)%a2iChoice.eq.1) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) )
             a2dVarQTot = a2dVarQTot + a2dVarQVolOut
         endwhere
 
         ! Discharge in hills cells [mm/s]
-        where( (oHMC_Vars(iID)%a2iChoice.eq.0) .and. (oHMC_Vars(iID)%a2dDEM.gt.0.0) )
+        where( (oHMC_Vars(iID)%a2iChoice.eq.0) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) )
             a2dVarQTot = a2dVarQTot + a2dVarQVolOut
         endwhere
         !------------------------------------------------------------------------------------------
@@ -125,7 +125,7 @@ contains
             
             !------------------------------------------------------------------------------------------
             ! Compute distributed discharge (total and for each step)
-            where( oHMC_Vars(iID)%a2dDEM.gt.0.0 )
+            where( oHMC_Vars(iID)%a2iMask.gt.0.0 )
                 a2dVarQTot = a2dVarQTot/(real(iTq)*1000)*oHMC_Vars(iID)%a2dAreaCell
                 a2dVarQout = a2dVarQTot                                
             endwhere
@@ -284,7 +284,7 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Discharge in channel part of cells [m^3/s]
-        where( (oHMC_Vars(iID)%a2iChoice.le.1) .and. (oHMC_Vars(iID)%a2dDEM.gt.0.0) )
+        where( (oHMC_Vars(iID)%a2iChoice.le.1) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) )
             a2dVarQTot = a2dVarQTot + a2dVarQVolOut
         endwhere
         !------------------------------------------------------------------------------------------
@@ -292,7 +292,7 @@ contains
         !------------------------------------------------------------------------------------------
         !If Flooding is activated build the Average Qflooding maps
         if (iFlagFlood.eq.1) then
-            where( (oHMC_Vars(iID)%a2iChoice.le.1) .and. (oHMC_Vars(iID)%a2dDEM.gt.0.0) )				
+            where( (oHMC_Vars(iID)%a2iChoice.le.1) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) )				
                 a2dVarQfloodCR = a2dVarQfloodCR + a2dVarQfloodIR
                 a2dVarQfloodCL = a2dVarQfloodCL + a2dVarQfloodIL
             endwhere
@@ -305,7 +305,7 @@ contains
             
             !------------------------------------------------------------------------------------------
             ! Compute distributed discharge (total and for each step)
-            where( oHMC_Vars(iID)%a2dDEM.gt.0.0 )
+            where( oHMC_Vars(iID)%a2iMask.gt.0.0 )
                 a2dVarQTot = a2dVarQTot/(real(iTq))
                 a2dVarQout = a2dVarQTot                                
             endwhere
@@ -314,7 +314,7 @@ contains
             !------------------------------------------------------------------------------------------
             !If Flooding is activated build the Average Qflooding maps
             if (iFlagFlood.eq.1) then
-                where( (oHMC_Vars(iID)%a2iChoice.le.1) .and. (oHMC_Vars(iID)%a2dDEM.gt.0.0) )				
+                where( (oHMC_Vars(iID)%a2iChoice.le.1) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) )				
                     a2dVarQfloodCR = a2dVarQfloodCR / (real(iTq))
                     a2dVarQfloodCL = a2dVarQfloodCL / (real(iTq))
                 endwhere

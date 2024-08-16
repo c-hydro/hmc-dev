@@ -404,7 +404,8 @@ contains
             
             !------------------------------------------------------------------------------------
             ! Check value on mask
-            where(a2iVarMask.ge.0.0)
+            ! where(a2iVarMask.ge.0.0) !giulia perché era .ge.0 e non .gt.0
+            where(a2iVarMask.gt.0.0) !giulia
 
                 !------------------------------------------------------------------------------------
                 ! Lower limit
@@ -435,7 +436,8 @@ contains
             !------------------------------------------------------------------------------------
             ! Check value on mask
             dVarNoData = -9999.0
-            where(a2iVarMask.ge.0.0)
+            ! where(a2iVarMask.ge.0.0) !giulia perché era .ge.0 e non .gt.0
+            where(a2iVarMask.gt.0.0) !giulia
 
                 !------------------------------------------------------------------------------------
                 ! Lower limit

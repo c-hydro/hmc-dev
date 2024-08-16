@@ -101,8 +101,8 @@ contains
          
         !------------------------------------------------------------------------------------------
         ! Conditions on total and loss volume
-        where( (oHMC_Vars(iID)%a2dDEM.gt.0.0).and.(a2dVarVTot.lt.0.0) ) a2dVarVTot = 0.0
-        where( (oHMC_Vars(iID)%a2dDEM.gt.0.0).and.(a2dVarVLoss.lt.0.0) ) a2dVarVLoss = 0.0
+        where( (oHMC_Vars(iID)%a2iMask.gt.0.0).and.(a2dVarVTot.lt.0.0) ) a2dVarVTot = 0.0
+        where( (oHMC_Vars(iID)%a2iMask.gt.0.0).and.(a2dVarVLoss.lt.0.0) ) a2dVarVLoss = 0.0
         !------------------------------------------------------------------------------------------
          
         !------------------------------------------------------------------------------------------
@@ -128,7 +128,7 @@ contains
             do iI = 1, iRows
                 
                 ! DEM condition
-                if (oHMC_Vars(iID)%a2dDEM(iI,iJ).gt.0.0) then
+                if (oHMC_Vars(iID)%a2iMask(iI,iJ).gt.0.0) then
                     
                     ! Pointers definition
   
@@ -160,9 +160,15 @@ contains
                         dRate = sin(oHMC_Vars(iID)%a2dBeta(iI,iJ))
                         
                         ! Checking rate value
-                        if(dRate.gt.1.0)        dRate = 0.99
+                        if(dRate.gt.0.99)        dRate = 0.99
                         if(dRate.lt.dRateMin)   dRate = dRateMin
 
+                        ! Rescaling dRate according to dRateRescaling set in the namelist
+                        !(dRate=fraction to hypodermic flow; (1-dRate)=fraction to percolation)
+                        ! No rescaling if dRateRescaling>=0.99; otherwise, dRateRescaling will be the new maximum
+                        if(oHMC_Namelist(iID)%dRateRescaling.ge.0.99)  oHMC_Namelist(iID)%dRateRescaling = 0.99
+                        dRate = dRateMin + (dRate-dRateMin)/(0.99-dRateMin) *(oHMC_Namelist(iID)%dRateRescaling-dRateMin)
+                        
                         ! VTot
                         if(iIII.ge.1.and.iJJJ.ge.1) then
                             a2dVarVTotStep(iIII,iJJJ) = a2dVarVTotStep(iIII,iJJJ) + oHMC_Vars(iID)%a2dVSub(iI, iJ)*dRate
@@ -187,7 +193,7 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Checking total volume and calculating exfiltration volume
-	where ( (oHMC_Vars(iID)%a2dDEM.gt.0.0) .and. (a2dVarVTot.gt.oHMC_Vars(iID)%a2dS) )
+	where ( (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (a2dVarVTot.gt.oHMC_Vars(iID)%a2dS) )
             ! Calculating esfiltration flow [m/seconds]
             a2dVarFlowExf = (a2dVarVTot - oHMC_Vars(iID)%a2dS)/(1000.0*dDtSubflow) !in m/sec
             ! Updating total volume information

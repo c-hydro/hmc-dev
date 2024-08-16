@@ -11,7 +11,7 @@ Archive_Default="hmc_v316.tar.gz"
 # Default folder
 Lib_Dir_Deps_Default="$HOME/fp_libs_system"
 # Executables folder
-Lib_Dir_Exec_Default="$Lib_Dir_Deps_Default/hmc"
+Lib_Dir_Exec_Default="/share/coordinator/fp-libs/libs_hmc"
 # Compilation Mode
 Lib_Building_Default=false
 # Executable name

@@ -255,7 +255,7 @@ contains
                 
                 !------------------------------------------------------------------------------------------
                 ! Variable(s) conversion (Watertable)
-                where(a2dVarDem.gt.0.0)
+                where(oHMC_Vars(iID)%a2iMask.gt.0.0)
                     a2dVarWTableUpd = a2dVarDem - a2dVarWTable/1000
                 endwhere
                 

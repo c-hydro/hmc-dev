@@ -24,6 +24,9 @@ TYPE HMC_Type_Namelist
     integer(kind = 4)       :: iFlagDynVeg
     integer(kind = 4)       :: iFlagFlood
     integer(kind = 4)       :: iFlagEnergyBalance
+    integer(kind = 4)       :: iFlagSoilParamsType
+    integer(kind = 4)       :: iFlagInfiltRateVariable
+    integer(kind = 4)       :: iFlagBetaET
 
     logical                 :: bGridCheck
 
@@ -58,6 +61,8 @@ TYPE HMC_Type_Namelist
     integer(kind = 4)       :: iTdeepShift, iNTime, iEtime
     integer(kind = 4)       :: iNData
     real(kind = 4)          :: dRateMin, dBc, dWTLossMax
+    real(kind = 4)          :: dRateRescaling
+    real(kind = 4)          :: dPowVarInfiltRate
     real(kind = 4)          :: dTRef, dEpsS, dSigma, dBFMin, dBFMax
     real(kind = 4)          :: dZRef, dG, dCp, dRd, dRhoS, dRhoW, dCpS, dCpW
     real(kind = 4)          :: dKq, dKw, dKo, dPorS, dFqS 
@@ -115,6 +120,8 @@ TYPE HMC_Type_Namelist
 
     real(kind = 4)          :: dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax
     real(kind = 4)          :: dCN, dFrac, dWS, dWDL
+    real(kind = 4)          :: dSoil_ksat_infilt, dSoil_vmax,dSoil_ksat_drain
+    real(kind = 4)          :: dWTable_ksath
     character(len = 256)    :: sDomainName
    
 END TYPE HMC_Type_Namelist

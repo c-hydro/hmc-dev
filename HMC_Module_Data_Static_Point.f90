@@ -235,7 +235,7 @@ contains
 
                 ! Cell counter to estimate lake extension (before dam)
 		a2iVarCounter = 0
-                where ( (a2iVarChoice .eq. int(a1dVarCodeLake(iI))) .and. (a2dVarDem .gt. 0.0) )
+                where ( (a2iVarChoice .eq. int(a1dVarCodeLake(iI))) .and. (oHMC_Vars(iID)%a2iMask .gt. 0.0) )
                     a2iVarCounter = 1
                 endwhere
                 ! Lake cell domain before dam outlet section
@@ -677,7 +677,7 @@ contains
                 !------------------------------------------------------------------------------------------
                 ! Cell counter to estimate lake extension (before dam)
 		a2iVarCounter = 0
-                where ( (a2iVarChoice .eq. int(a1dVarCodeDam(iI))) .and. (a2dVarDem .gt. 0.0) )
+                where ( (a2iVarChoice .eq. int(a1dVarCodeDam(iI))) .and. (oHMC_Vars(iID)%a2iMask .gt. 0.0) )
                     a2iVarCounter = 1
                 endwhere
                 ! Lake cell domain before dam outlet section
@@ -821,6 +821,11 @@ contains
             
         endif
         !------------------------------------------------------------------------------------------
+        
+        ! giulia
+        ! call debug_2dVar(dble(oHMC_Vars(iID)%a2dVDam), 9, 800, iI)
+        ! call debug_2dVar(dble(oHMC_Vars(iID)%a2dLDam), 9, 800, iI+70)
+        !!!!!!!! 
         
         !------------------------------------------------------------------------------------------
         ! Info end

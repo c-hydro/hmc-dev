@@ -395,7 +395,7 @@ contains
             if ( all(a2dVarPaL.eq.101.3) ) then
                 call mprintf(.true., iWARN, ' All air pressure values are equal to 101.3 [kPa]!'// &
                                             ' AirPressure will be initialized using altitude (DEM) information!')
-                where (oHMC_Vars(iID)%a2dDem.gt.0.0)
+                where (oHMC_Vars(iID)%a2iMask.gt.0.0)
                     a2dVarPaL = 101.3*((293-0.0065*oHMC_Vars(iID)%a2dDem)/293)**5.26 ![kPa]
                 elsewhere
                     a2dVarPaL = 0.0
@@ -441,11 +441,11 @@ contains
         endif 
        
         !check limits
-        where (oHMC_Vars(iID)%a2dDem.gt.0.0.and.a2dVarLAIL.lt.0.0)
+        where (oHMC_Vars(iID)%a2iMask.gt.0.0.and.a2dVarLAIL.lt.0.0)
             a2dVarLAIL = -9999.0
-        elsewhere (oHMC_Vars(iID)%a2dDem.gt.0.0.and.a2dVarLAIL.ge.0.0.and.a2dVarLAIL.le.0.01) !to avoid very small LAI values
+        elsewhere (oHMC_Vars(iID)%a2iMask.gt.0.0.and.a2dVarLAIL.ge.0.0.and.a2dVarLAIL.le.0.01) !to avoid very small LAI values
             a2dVarLAIL = 0.01            
-        elsewhere (oHMC_Vars(iID)%a2dDem.gt.0.0.and.a2dVarLAIL.gt.8.0)
+        elsewhere (oHMC_Vars(iID)%a2iMask.gt.0.0.and.a2dVarLAIL.gt.8.0)
             a2dVarLAIL = 8.0
         endwhere
         oHMC_Vars(iID)%a2dLAI = a2dVarLAIL
@@ -456,10 +456,10 @@ contains
                 call mprintf(.true., iWARN, ' Fractional vegetation cover valid values not found. ' // &
                                             'Use empirical formulation based on LAI!')
                 !check limits
-                where (oHMC_Vars(iID)%a2dDem.gt.0.0.and.a2dVarLAIL.ge.0.0)
+                where (oHMC_Vars(iID)%a2iMask.gt.0.0.and.a2dVarLAIL.ge.0.0)
                     !compute Fractional vegetation cover by empirical function (source Model NOAH)
                     a2dVarFCL = 1 - exp(-0.52 * a2dVarLAIL)
-                elsewhere (oHMC_Vars(iID)%a2dDem.gt.0.0)
+                elsewhere (oHMC_Vars(iID)%a2iMask.gt.0.0)
                     a2dVarFCL = 0.0 !where LAI is not valid assumed as not vegetated pixel                   
                 endwhere                    
 
@@ -472,9 +472,9 @@ contains
         endif   
 
         ! check limits
-        where (oHMC_Vars(iID)%a2dDem.gt.0.0.and.a2dVarFCL.lt.0.0)
+        where (oHMC_Vars(iID)%a2iMask.gt.0.0.and.a2dVarFCL.lt.0.0)
             a2dVarFCL = 0.0
-        elsewhere (oHMC_Vars(iID)%a2dDem.gt.0.0.and.a2dVarFCL.gt.1.0)
+        elsewhere (oHMC_Vars(iID)%a2iMask.gt.0.0.and.a2dVarFCL.gt.1.0)
             a2dVarFCL = 1.0
         endwhere
         oHMC_Vars(iID)%a2dFC = a2dVarFCL

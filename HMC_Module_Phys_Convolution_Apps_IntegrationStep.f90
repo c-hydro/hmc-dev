@@ -182,17 +182,17 @@ contains
                 
             !------------------------------------------------------------------------------------------
             ! Dynamic integration step evaluation
-            where( (oHMC_Vars(iID)%a2iChoice.eq.1) .and. (oHMC_Vars(iID)%a2dDem.gt.0.0) )
+            where( (oHMC_Vars(iID)%a2iChoice.eq.1) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) )
                 a2dVarUcAct = a2dVarUc*(tan(oHMC_Vars(iID)%a2dBeta)**0.5)*a2dVarHydro**dBc
                 a2dVarUDt = a2dVarHydro*a2dVarUcAct/(1000*3600)*oHMC_Vars(iID)%a2dAreaCell !m^3/s
             endwhere
 
-            where( (oHMC_Vars(iID)%a2iChoice.eq.0) .and. (oHMC_Vars(iID)%a2dDem.gt.0.0) ) 
+            where( (oHMC_Vars(iID)%a2iChoice.eq.0) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) ) 
                 a2dVarUDt = a2dVarHydro*a2dVarUh/(1000*3600)*oHMC_Vars(iID)%a2dAreaCell !m^3/s
             endwhere
 
             ! Checking waterlevel and updating 
-            where( (a2dVarHydro.gt.0.0) .and. (oHMC_Vars(iID)%a2dDem.gt.0.0) )
+            where( (a2dVarHydro.gt.0.0) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) )
                 a2dVarUDt = a2dVarUDt/(a2dVarHydro/1000*dDEMStepMean) !m/s
             elsewhere
                 a2dVarUDt = 0.0
@@ -430,7 +430,7 @@ contains
                 
             !------------------------------------------------------------------------------------------
             ! Dynamic integration step evaluation
-            where( (oHMC_Vars(iID)%a2iChoice.eq.1) .and. (oHMC_Vars(iID)%a2dDem.gt.0.0) .and. (oHMC_Vars(iID)%a2dQC.gt.0.0) )
+            where( (oHMC_Vars(iID)%a2iChoice.eq.1) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. (oHMC_Vars(iID)%a2dQC.gt.0.0) )
                 a2dVarUcAct = oHMC_Vars(iID)%a2dQC/(oHMC_Vars(iID)%a2dWidthC*oHMC_Vars(iID)%a2dHydroC) !m/s
                 a2dVarUDt = oHMC_Vars(iID)%a2dQC/(oHMC_Vars(iID)%a2dWidthC*oHMC_Vars(iID)%a2dHydroC) !m3/s
             elsewhere

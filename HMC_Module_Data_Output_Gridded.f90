@@ -193,13 +193,13 @@ contains
         endif
         
         !set no valid cells as no data
-        where (a2dVarDEM.le.0.0)
+        where (oHMC_Vars(iID)%a2iMask.le.0.0)
             a2dVarETCum = -9999.0
             a2dVarETPotCum = -9999.0
         endwhere
 
         ! Compute derived information
-        where (a2dVarDEM.gt.0.0)
+        where (oHMC_Vars(iID)%a2iMask.gt.0.0)
             a2dVarSM = a2dVarVTot/a2dVarS
         elsewhere
             a2dVarSM = -9999.0
