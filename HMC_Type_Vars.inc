@@ -24,7 +24,7 @@ TYPE HMC_Type_Vars
     real(kind = 4),         allocatable, dimension (:, :)       :: a2dDem, a2dS, a2dCN, a2dAreaCell
     real(kind = 4),         allocatable, dimension (:, :)       :: a2dC1, a2dF2, a2dCostF, a2dCostK, a2dCostF1, a2dCostChFix
     real(kind = 4),         allocatable, dimension (:, :)       :: a2dWTksatH
-    real(kind = 4),         allocatable, dimension (:, :)       :: a2dAlpha, a2dBeta, a2dWTable, a2dWTableMax, a2dKSatRatio !giulia
+    real(kind = 4),         allocatable, dimension (:, :)       :: a2dAlpha, a2dBeta, a2dWTable, a2dWTableMax
     real(kind = 4),         allocatable, dimension (:, :)       :: a2dCt, a2dCf, a2dUc, a2dUh
     real(kind = 4),         allocatable, dimension (:, :)       :: a2dCtWP
     real(kind = 4),         allocatable, dimension (:, :)       :: a2dKb1, a2dKc1, a2dKb2, a2dKc2 

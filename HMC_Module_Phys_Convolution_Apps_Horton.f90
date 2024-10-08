@@ -50,9 +50,6 @@ contains
         real(kind = 4), dimension (iRows, iCols)         :: a2dVarRouting, a2dVarFlowDeep
         
         integer(kind = 4) :: iTq, iTime, iNTime
-        
-        ! giulia per debug
-        real(kind = 4),     dimension (iRows, iCols)    :: giulia
         !------------------------------------------------------------------------------------------
 
         !------------------------------------------------------------------------------------------
@@ -113,9 +110,6 @@ contains
                 a2dVarG = 0.0
             endwhere
         endif
-        ! giulia per debug
-        !call debug_2dVar(dble(a2dVarVTot), iRows, iCols, 11)
-        !call debug_2dVar(dble(a2dVarG), iRows, iCols, 12)
         !------------------------------------------------------------------------------------------
                 
         !------------------------------------------------------------------------------------------
@@ -170,7 +164,6 @@ contains
         !-------------------------------------------------------------------------------
         
         ! DA QUI GIULIA - ATTENZIONE costruito senza WiltingPoint !!!
-        ! call debug_2dVar(dble(a2dVarVSub), iRows, iCols, 01) !giulia
         !------------------------------------------------------------------------------------------
         ! Intensity Evaluation
         ! Condition ----> Intensity == 0 
@@ -228,8 +221,6 @@ contains
 
         endwhere			
         !------------------------------------------------------------------------------------------
-        ! call debug_2dVar(dble(a2dVarVSub), iRows, iCols, 02) !giulia
-        ! call debug_2dVar(dble(a2dVarVTot), iRows, iCols, 03) !giulia
         ! FINE VERSIONE GIULIA
         
                           
@@ -475,7 +466,6 @@ contains
         !-------------------------------------------------------------------------------
          
         ! DA QUI GIULIA - ATTENZIONE costruito senza WiltingPoint !!!
-        ! call debug_2dVar(dble(a2dVarVSub), iRows, iCols, 01) !giulia
         !------------------------------------------------------------------------------------------
         ! Intensity Evaluation
         ! Condition ----> Intensity == 0 
@@ -533,8 +523,6 @@ contains
 
         endwhere			
         !------------------------------------------------------------------------------------------
-        ! call debug_2dVar(dble(a2dVarVSub), iRows, iCols, 02) !giulia
-        ! call debug_2dVar(dble(a2dVarVTot), iRows, iCols, 03) !giulia
         ! FINE VERSIONE GIULIA
         
         !!------------------------------------------------------------------------------------------
