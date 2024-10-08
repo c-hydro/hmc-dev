@@ -74,7 +74,6 @@ contains
         allocate( oHMC_Vars(iID)%a2dBeta            (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dWTable          (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dWTableMax       (iRows, iCols) )
-        allocate( oHMC_Vars(iID)%a2dKSatRatio       (iRows, iCols) ) !giulia
         
         allocate( oHMC_Vars(iID)%a2dExpRhoLow       (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dExpRhoHigh      (iRows, iCols) )
@@ -356,7 +355,6 @@ contains
         oHMC_Vars(iID)%a2dBeta = 0.0
         oHMC_Vars(iID)%a2dWTable = 0.0
         oHMC_Vars(iID)%a2dWTableMax = 0.0
-        oHMC_Vars(iID)%a2dKSatRatio = 0.0 !giulia
         
         ! Static model parameter(s) variable(s)
         oHMC_Vars(iID)%a2dCt = oHMC_Namelist(iID)%dCt
