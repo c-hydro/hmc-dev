@@ -2,7 +2,7 @@
 Changelog
 =========
 
-Version 3.1.7 [2024-10-08]
+Version 3.1.7 [2024-10-23]
 **************************
 - ADD: new (optional) parametrization of soil and groundwater;
 - ADD: new (optional) soil infiltration rate dependency on the soil saturation degree (only with new soil parametrization);
@@ -12,6 +12,7 @@ Version 3.1.7 [2024-10-08]
 - FIX: management of the domain mask and of the dem values minor than 0;
 - FIX: fixed a bug in the mass balance of the soil;
 - FIX: complete removal of the Ct-WP
+- UPD: updatetd model license to EUPL 1.2
 
 Version 3.1.6 [2022-06-23]
 **************************
