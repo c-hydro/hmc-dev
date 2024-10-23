@@ -5,10 +5,13 @@ Changelog
 Version 3.1.7 [2024-10-08]
 **************************
 - ADD: new (optional) parametrization of soil and groundwater;
-- ADD: new (optionl) soil infiltration rate dependency on the soil saturation degree (only with new soil parametrization);
+- ADD: new (optional) soil infiltration rate dependency on the soil saturation degree (only with new soil parametrization);
 - ADD: add the possibility of constraining the actual evapotraspiration only by soil water availability;
-- ADD: rescaling factor for hypodermic flow ration;
-- FIX: management of the domain mask and of the dem values minor than 0.
+- ADD: rescaling factor for hypodermic flow ratio;
+- ADD: add the possibility of providing the KSatRatio as a spatial map (domain.ksatratio.txt);
+- FIX: management of the domain mask and of the dem values minor than 0;
+- FIX: fixed a bug in the mass balance of the soil;
+- FIX: complete removal of the Ct-WP
 
 Version 3.1.6 [2022-06-23]
 **************************
