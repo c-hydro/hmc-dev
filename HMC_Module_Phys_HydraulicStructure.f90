@@ -185,10 +185,10 @@ contains
                     
                     ! If volume exceed the maximum volume that the dam can contain spill add to the spilled water
                     ! the amount of water needed to take the level to and acceptable one
-                    if (a1dVarVDam(iD).gt.oHMC_Vars(iID)%a1dVMaxDam(iD)) then
-                        a1dVarQoutDam(iD) = a1dVarQoutDam(iD) + (a1dVarVDam(iD) - oHMC_Vars(iID)%a1dVMaxDam(iD))/dDt
-                        a1dVarVDam(iD) = oHMC_Vars(iID)%a1dVMaxDam(iD)
-                    endif
+                    ! if (a1dVarVDam(iD).gt.oHMC_Vars(iID)%a1dVMaxDam(iD)) then    !! commented andrea  
+                    !     a1dVarQoutDam(iD) = a1dVarQoutDam(iD) + (a1dVarVDam(iD) - oHMC_Vars(iID)%a1dVMaxDam(iD))/dDt !! commented andrea
+                    !     a1dVarVDam(iD) = oHMC_Vars(iID)%a1dVMaxDam(iD) !! commented andrea
+                    ! endif !! commented andrea
                     
                         
                     ! Discharge in [mm]

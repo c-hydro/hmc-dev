@@ -50,6 +50,9 @@ contains
         real(kind = 4), dimension (iRows, iCols)         :: a2dVarRouting, a2dVarFlowDeep
         
         integer(kind = 4) :: iTq, iTime, iNTime
+        
+        ! giulia per debug
+        real(kind = 4),     dimension (iRows, iCols)    :: giulia
         !------------------------------------------------------------------------------------------
 
         !------------------------------------------------------------------------------------------
@@ -110,6 +113,9 @@ contains
                 a2dVarG = 0.0
             endwhere
         endif
+        ! giulia per debug
+        !call debug_2dVar(dble(a2dVarVTot), iRows, iCols, 11)
+        !call debug_2dVar(dble(a2dVarG), iRows, iCols, 12)
         !------------------------------------------------------------------------------------------
                 
         !------------------------------------------------------------------------------------------
@@ -163,25 +169,26 @@ contains
         !                  a2dVarFlowDeep*3600.0/dDtDataForcing)
         !-------------------------------------------------------------------------------
         
-        ! DA QUI GIULIA - ATTENZIONE costruito senza WiltingPoint (anche il vecchio)!!!
+        ! DA QUI GIULIA - ATTENZIONE costruito senza WiltingPoint !!!
+        ! call debug_2dVar(dble(a2dVarVSub), iRows, iCols, 01) !giulia
         !------------------------------------------------------------------------------------------
         ! Intensity Evaluation
-        ! Condition ----> Intensity == 0        
+        ! Condition ----> Intensity == 0 
         where ( (a2dVarIntensity.eq.0.0) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. &
-                (a2dVarVTot.ge.oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS) )     
+                (a2dVarVTot.ge.a2dVarVSub) )     
+         
+            a2dVarVTot = a2dVarVTot - a2dVarVSub
+            
+        elsewhere ( (a2dVarIntensity.eq.0.0) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. &
+                    (a2dVarVTot.lt.a2dVarVSub) )  
+            
+            a2dVarVSub = a2dVarVTot
+            a2dVarVTot = 0
+        endwhere          
         
-                where (a2dVarVtot.ge.(oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS + a2dVarVSub))
-                    a2dVarVTot = a2dVarVTot - a2dVarVSub	
-                elsewhere
-                    a2dVarVSub = a2dVarVTot - oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS
-                    a2dVarVTot = oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS
-                endwhere
-                         
-        endwhere                  
-           
-        ! Condition ----> 0 < Intensity <= G
+        ! Condition ----> 0 < Intensity <= G					
         where ( (a2dVarIntensity.gt.0.0) .and. (a2dVarIntensity.le.a2dVarG) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) ) 
-        
+
                 where ( (a2dVarVTot.lt.oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) )
                         a2dVarVTot = a2dVarVTot + a2dVarRain/dDtDataForcing*dDtHorton + &
                                      oHMC_Vars(iID)%a2dCoeffResol*a2dVarRouting + &
@@ -190,34 +197,39 @@ contains
                 elsewhere(oHMC_Vars(iID)%a2iMask.gt.0.0)
                         a2dVarVTot = a2dVarVTot + a2dVarIntensity*dDtHorton/3600.0
                         a2dVarIntensity = 0.0
-                        where (a2dVarVtot.ge.(oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS + a2dVarVSub))
-                            a2dVarVTot = a2dVarVTot - a2dVarVSub	
+                        
+                        where (a2dVarVTot.ge.a2dVarVSub)
+                            a2dVarVTot = a2dVarVTot - a2dVarVSub
                         elsewhere
-                            a2dVarVSub = a2dVarVTot - oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS
-                            a2dVarVTot = oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS
+                            a2dVarVSub = a2dVarVTot
+                            a2dVarVTot = 0 
                         endwhere
-                endwhere
+                endwhere 
                 
         endwhere
         
         ! Condition ----> Intensity > G	
         where ( (a2dVarIntensity.gt.a2dVarG) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) ) 						
-        
+
                 where ( (a2dVarVTot.lt.oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) )
                         a2dVarVTot = a2dVarVTot + a2dVarG*dDtHorton/3600.0              
                 elsewhere (oHMC_Vars(iID)%a2iMask.gt.0.0)
-                        a2dVarVTot = a2dVarVTot + a2dVarG*dDtHorton/3600.0                        
+                        a2dVarVTot = a2dVarVTot + a2dVarG*dDtHorton/3600.0
+                        
+                        where (a2dVarVTot.ge.a2dVarVSub)
+                            a2dVarVTot = a2dVarVTot - a2dVarVSub
+                        elsewhere
+                            a2dVarVSub = a2dVarVTot
+                            a2dVarVTot = 0  
+                        endwhere
                 endwhere
-                where (a2dVarVtot.ge.(oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS + a2dVarVSub))
-                        a2dVarVTot = a2dVarVTot - a2dVarVSub	
-                elsewhere
-                        a2dVarVSub = a2dVarVTot - oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS
-                        a2dVarVTot = oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS
-                endwhere
+                
                 a2dVarIntensity = a2dVarIntensity - a2dVarG
-        
-        endwhere						
+
+        endwhere			
         !------------------------------------------------------------------------------------------
+        ! call debug_2dVar(dble(a2dVarVSub), iRows, iCols, 02) !giulia
+        ! call debug_2dVar(dble(a2dVarVTot), iRows, iCols, 03) !giulia
         ! FINE VERSIONE GIULIA
         
                           
@@ -400,22 +412,13 @@ contains
          
         !------------------------------------------------------------------------------------------
         ! Horton filter equation
-        if (oHMC_Namelist(iID)%iFlagInfiltRateVariable .eq. 2) then
-            where (oHMC_Vars(iID)%a2dS.gt.0.0)          
-                    a2dVarG = oHMC_Vars(iID)%a2dCostF1 + (oHMC_Vars(iID)%a2dCostF - oHMC_Vars(iID)%a2dCostF1) * &
-                              exp( -oHMC_Namelist(iID)%dPowVarInfiltRate * & 
-                                   ( a2dVarVTot / (oHMC_Vars(iID)%a2dS-a2dVarVTot) ) )    
-            elsewhere
-                a2dVarG = 0.0
-            endwhere
-        else
-            where (oHMC_Vars(iID)%a2dS.gt.0.0)
-                a2dVarG = oHMC_Vars(iID)%a2dCostF - &
-                         (oHMC_Vars(iID)%a2dCostF - oHMC_Vars(iID)%a2dCostF1)/oHMC_Vars(iID)%a2dS*a2dVarVTot
-            elsewhere
-                a2dVarG = 0.0
-            endwhere
-        endif
+        where (oHMC_Vars(iID)%a2dS.gt.0.0)
+            !a2dVarG = oHMC_Vars(iID)%a2dCostF - &
+            !         (oHMC_Vars(iID)%a2dCostF - oHMC_Vars(iID)%a2dCostF1)/oHMC_Vars(iID)%a2dS*a2dVarVTot
+            a2dVarG = oHMC_Vars(iID)%a2dCostF !giulia prova
+        elsewhere
+            a2dVarG = 0.0
+        endwhere
         !------------------------------------------------------------------------------------------
                 
         !------------------------------------------------------------------------------------------
@@ -462,64 +465,69 @@ contains
                           a2dVarFlowDeep*3600.0/dDtDataForcing*oHMC_Vars(iID)%a2dWidthH/sqrt(oHMC_Vars(iID)%a2dAreaCell)
         !-------------------------------------------------------------------------------
          
-        ! DA QUI GIULIA - ATTENZIONE costruito senza WiltingPoint (anche il vecchio)!!!
+        ! DA QUI GIULIA - ATTENZIONE costruito senza WiltingPoint !!!
+        ! call debug_2dVar(dble(a2dVarVSub), iRows, iCols, 01) !giulia
         !------------------------------------------------------------------------------------------
         ! Intensity Evaluation
-        ! Condition ----> Intensity == 0        
+        ! Condition ----> Intensity == 0 
         where ( (a2dVarIntensity.eq.0.0) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. &
-                (a2dVarVTot.ge.oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS) )     
+                (a2dVarVTot.ge.a2dVarVSub) )     
+         
+            a2dVarVTot = a2dVarVTot - a2dVarVSub
+            
+        elsewhere ( (a2dVarIntensity.eq.0.0) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) .and. &
+                    (a2dVarVTot.lt.a2dVarVSub) )  
+            
+            a2dVarVSub = a2dVarVTot
+            a2dVarVTot = 0
+        endwhere          
         
-                where (a2dVarVtot.ge.(oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS + a2dVarVSub))
-                    a2dVarVTot = a2dVarVTot - a2dVarVSub	
-                elsewhere
-                    a2dVarVSub = a2dVarVTot - oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS
-                    a2dVarVTot = oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS
-                endwhere
-                         
-        endwhere    
-          
-        ! Condition ----> 0 < Intensity <= G
+        ! Condition ----> 0 < Intensity <= G					
         where ( (a2dVarIntensity.gt.0.0) .and. (a2dVarIntensity.le.a2dVarG) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) ) 
-        
+
                 where ( (a2dVarVTot.lt.oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) )
                         a2dVarVTot = a2dVarVTot + a2dVarRain/dDtDataForcing*dDtHorton + &
-                                     a2dVarRouting + &
-                                     a2dVarFlowDeep/dDtDataForcing*dDtHorton* &
-                                     oHMC_Vars(iID)%a2dWidthH/sqrt(oHMC_Vars(iID)%a2dAreaCell)
+                                     oHMC_Vars(iID)%a2dCoeffResol*a2dVarRouting + &
+                                     a2dVarFlowDeep/dDtDataForcing*dDtHorton
                         a2dVarIntensity = 0.0
                 elsewhere(oHMC_Vars(iID)%a2iMask.gt.0.0)
                         a2dVarVTot = a2dVarVTot + a2dVarIntensity*dDtHorton/3600.0
                         a2dVarIntensity = 0.0
-                        where (a2dVarVtot.ge.(oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS + a2dVarVSub))
-                            a2dVarVTot = a2dVarVTot - a2dVarVSub	
+                        
+                        where (a2dVarVTot.ge.a2dVarVSub)
+                            a2dVarVTot = a2dVarVTot - a2dVarVSub
                         elsewhere
-                            a2dVarVSub = a2dVarVTot - oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS
-                            a2dVarVTot = oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS
+                            a2dVarVSub = a2dVarVTot
+                            a2dVarVTot = 0 
                         endwhere
-                endwhere
+                endwhere 
                 
         endwhere
-                
+        
         ! Condition ----> Intensity > G	
         where ( (a2dVarIntensity.gt.a2dVarG) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) ) 						
-        
+
                 where ( (a2dVarVTot.lt.oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) )
                         a2dVarVTot = a2dVarVTot + a2dVarG*dDtHorton/3600.0              
                 elsewhere (oHMC_Vars(iID)%a2iMask.gt.0.0)
                         a2dVarVTot = a2dVarVTot + a2dVarG*dDtHorton/3600.0
-                        where (a2dVarVtot.ge.(oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS + a2dVarVSub))
-                            a2dVarVTot = a2dVarVTot - a2dVarVSub	
+                        
+                        where (a2dVarVTot.ge.a2dVarVSub)
+                            a2dVarVTot = a2dVarVTot - a2dVarVSub
                         elsewhere
-                            a2dVarVSub = a2dVarVTot - oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS
-                            a2dVarVTot = oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS
+                            a2dVarVSub = a2dVarVTot
+                            a2dVarVTot = 0  
                         endwhere
                 endwhere
+                
                 a2dVarIntensity = a2dVarIntensity - a2dVarG
-        
-        endwhere						
+
+        endwhere			
         !------------------------------------------------------------------------------------------
-        ! FINE VERSIONE GIULIA                  
-                              
+        ! call debug_2dVar(dble(a2dVarVSub), iRows, iCols, 02) !giulia
+        ! call debug_2dVar(dble(a2dVarVTot), iRows, iCols, 03) !giulia
+        ! FINE VERSIONE GIULIA
+        
         !!------------------------------------------------------------------------------------------
         !! Intensity Evaluation
         !! Condition ----> Intensity == 0
