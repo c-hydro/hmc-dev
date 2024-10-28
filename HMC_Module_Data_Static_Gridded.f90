@@ -435,7 +435,7 @@ contains
         real(kind = 4)          :: dDtDataForcing
         
         real(kind = 4)          :: dUc, dUh, dCt, dCf
-        real(kind = 4)          :: dCN, dWS, dWDL, dFrac, dKSatRatio !giulia
+        real(kind = 4)          :: dCN, dWS, dWDL, dFrac
         real(kind = 4)          :: dWTLossMax
         
         character(len = 256)    :: sVarName
@@ -448,11 +448,11 @@ contains
         
         integer(kind = 4),  dimension (iRows, iCols)    :: a2iVarPNT, a2iVarMask, a2iVarChoice, a2iVarArea
         integer(kind = 4),  dimension (iRows, iCols)    :: a2iVarNature
-          
+         
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarLon, a2dVarLat 
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarDEM, a2dVarCN, a2dVarS, a2dVarVTotWP
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarAreaCell
-        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarAlpha, a2dVarBeta, a2dVarWTMax, a2dVarKSatRatio !giulia
+        real(kind = 4),     dimension (iRows, iCols)    :: a2dVarAlpha, a2dVarBeta, a2dVarWTMax
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarWTksatH
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarC1, a2dVarF2 
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarCostF, a2dVarCostF1, a2dVarCostChFix
@@ -472,7 +472,6 @@ contains
         
         character(len = 256)                            :: sStrDomPix, sStrDomArea, sStrTc, sStrDemMax
         character(len = 256)                            :: sPixCount, sParDefault
-        
         !------------------------------------------------------------------------------------------
 
         !------------------------------------------------------------------------------------------
@@ -489,7 +488,7 @@ contains
         a2dVarLon = 0.0; a2dVarLat = 0.0; 
         a2dVarDEM = 0.0; a2dVarCN = 0.0; a2dVarS = 0.0; a2dVarVTotWP = 0.0;
         a2dVarAreaCell = 0.0; 
-        a2dVarAlpha = 0.0; a2dVarBeta = 0.0; a2dVarWTMax = -9999.0; a2dVarKSatRatio = 0.0; !giulia
+        a2dVarAlpha = 0.0; a2dVarBeta = 0.0; a2dVarWTMax = -9999.0;
         a2dVarWTksatH = 0.0
         a2dVarC1 = 0.0; a2dVarF2 = 0.0; 
         a2dVarCostF = 0.0; a2dVarCostF1 = 0.0; a2dVarCostChFix = 0.0;
@@ -502,7 +501,6 @@ contains
         
         dUc = -9999.0; dUh = -9999.0; dCt = -9999.0; dCf = -9999.0; dCN = -9999.0; 
         dWS = -9999.0; dWDL = -9999.0; dFrac = -9999.0;
-        dKSatRatio = -9999.0; !giulia
         
         iFlagCoeffRes = -9999; 
         iFlagWS = -9999; iFlagWDL = -9999; iFlagFrac = -9999; 
@@ -530,7 +528,6 @@ contains
         dWS = oHMC_Namelist(iID)%dWS
         dWDL = oHMC_Namelist(iID)%dWDL
         dFrac = oHMC_Namelist(iID)%dFrac
-        dKSatRatio = oHMC_Namelist(iID)%dKSatRatio !giulia
         dWTLossMax = oHMC_Namelist(iID)%dWTLossMax
         
         ! Flag to set coeff resolution map default mode
@@ -678,16 +675,6 @@ contains
                     a2dVarWTMax = -9999.0
                 else
                     a2dVarWTMax = transpose(a2dVar)
-                endif
-                
-                ! WATERTABLE KSATRATIO !giulia
-                sVarName = 'KSatRatio'
-                call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
-                if (iErr /= 0) then
-                    call mprintf(.true., iWARN, 'KSatRatio data not found. Initializing KSatRatio with scalar value from namelist.')   
-                    a2dVarKSatRatio = dKSatRatio
-                else
-                    a2dVarKSatRatio = transpose(a2dVar)
                 endif
                 !------------------------------------------------------------------------------------------
                 
@@ -1002,6 +989,14 @@ contains
             else
                 a2iVarMask = int(reshape(a2dVar, (/iRows, iCols/)))
             endif
+            ! ! giulia
+            ! giulia = 1.2
+            ! where( (a2iVarMask.gt.0.0) )
+            !     giulia = 7.3
+            ! endwhere
+            !write(*,*) oHMC_Namelist(iID)%dNoDataL
+            !call debug_2dVar(dble(a2iVarMask), iRows, iCols, 10)
+            ! call debug_2dVar(dble(giulia), iRows, iCols, 11)
             !------------------------------------------------------------------------------------------
             
             !------------------------------------------------------------------------------------------
@@ -1070,18 +1065,6 @@ contains
                 a2dVarWTMax = -9999.0
             else
                 a2dVarWTMax = reshape(a2dVar, (/iRows, iCols/))
-            endif
-            
-            ! WATERTABLE KSATRATIO !giulia
-            sFileName = trim(sPathData)//trim(sDomainName)//'.ksatratio.txt'
-            call HMC_Tools_IO_GetArcGrid_ASCII(sFileName, a2dVar, iCols, iRows, .false., iErr)
-            if (iErr /= 0) then 
-                call mprintf(.true., iWARN, ' KSatRatio data not found. Initializing KSatRatio with scalar value from namelist.')
-                where(a2dVarDEM.gt.0.0)
-                    a2dVarKSatRatio = dKSatRatio
-                endwhere
-            else
-                a2dVarKSatRatio = reshape(a2dVar, (/iRows, iCols/))
             endif
             !------------------------------------------------------------------------------------------
 
@@ -1200,8 +1183,6 @@ contains
             else
                 call mprintf(.true., iWARN, ' Permanent wilting point data NO MORE USED - raster is ineffective.')
                 a2dVarCtWP = reshape(a2dVar, (/iRows, iCols/))
-                !giulia - da azzerare anche CtWP e non solo a2dVarVTotWP (più avanti)
-                ! ma non qui perché poi controllo successivo riassegna 0.4*ct
             endif
             !------------------------------------------------------------------------------------------
 
@@ -1270,6 +1251,8 @@ contains
         !    else
         !        a2iVarMask = int(reshape(a2dVar, (/iRows, iCols/)))
         !    endif
+        !    ! Giulia
+        !    call debug_2dVar(dble(a2iVarMask), iRows, iCols, 11)
         !    !------------------------------------------------------------------------------------------
             
             !------------------------------------------------------------------------------------------
@@ -1497,7 +1480,6 @@ contains
         a2dVarAlpha = nullborder2DVar(a2dVarAlpha, -9999.0)
         a2dVarBeta = nullborder2DVar(a2dVarBeta, -9999.0)
         a2dVarWTMax = nullborder2DVar(a2dVarWTMax, -9999.0)
-        a2dVarKSatRatio = nullborder2DVar(a2dVarKSatRatio, -9999.0) !giulia
         a2iVarMask = int(nullborder2DVar(float(a2iVarMask), -9999.0))
         a2iVarChoice = int(nullborder2DVar(float(a2iVarChoice), -9999.0))
         a2iVarPNT = int(nullborder2DVar(float(a2iVarPNT), -9999.0))
@@ -1580,16 +1562,6 @@ contains
         where(a2iVarMask.gt.0.0 .and. a2dVarBeta.le.0.0) !giulia    
             a2dVarBeta = 0.00001
         endwhere
-        
-        ! Check multiplier for vertical saturated hydraulic conductivity - to get horizontal conductivity !giulia
-	! Zero values should be allowed - to be confirmed
-	iPixCount = count((a2dVarKSatRatio.lt.0.0 .and. a2iVarMask.gt.0))
-        if (iPixCount.gt.0) then
-            write(sPixCount, *) iPixCount;
-            write(sParDefault, *) dKSatRatio;
-            call mprintf(.true., iWARN, ' KSatRatio values are lower than 0 in '//trim(sPixCount)//' pixels over domain. '// &
-            'Initialize with default value: '//trim(sParDefault)//'.')
-        endif
         
         ! Info end
         call mprintf(.true., iINFO_Verbose, ' Data :: Static gridded :: Get land information ... OK' )
@@ -1739,7 +1711,6 @@ contains
         ! Defining Soil Water Content at Wilting Point
         where ( a2iVarMask.gt.0.0 ) 
             a2dVarVTotWP = 0.0 ! condizione che tagliava un 20% del vtot a2dVarS * a2dVarCtWP ! ct_wp = 0.4*ct
-            a2dVarCtWP = 0.0 !giulia - per azzerare anche CtWP e non solo a2dVarVTotWP
         endwhere
         !------------------------------------------------------------------------------------ 
         
@@ -1818,7 +1789,6 @@ contains
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarAlpha, a2iVarMask, 'Watertable ALPHA ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarBeta, a2iVarMask, 'Watertable BETA ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarWTMax, a2iVarMask, 'Watertable MAX ') )
-            call mprintf(.true., iINFO_Extra, checkvar(a2dVarKSatRatio, a2iVarMask, 'KSAT RATIO ') ) !giulia
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarCon, a2iVarMask, 'CON ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarCostF, a2iVarMask, 'COSTF ') )
             call mprintf(.true., iINFO_Extra, checkvar(a2dVarCostF1, a2iVarMask, 'COSTF1 ') )
@@ -1857,7 +1827,7 @@ contains
         oHMC_Vars(iID)%a2dCf = a2dVarCf
         oHMC_Vars(iID)%a2dUc = a2dVarUc
         oHMC_Vars(iID)%a2dUh = a2dVarUh
-          
+        
         oHMC_Vars(iID)%a2iMask = a2iVarMask
         oHMC_Vars(iID)%a2iPNT = a2iVarPNT
         oHMC_Vars(iID)%a2iChoice = a2iVarChoice
@@ -1872,7 +1842,6 @@ contains
         oHMC_Vars(iID)%a2dAlpha = a2dVarAlpha
         oHMC_Vars(iID)%a2dBeta = a2dVarBeta
         oHMC_Vars(iID)%a2dWTableMax = a2dVarWTMax
-        oHMC_Vars(iID)%a2dKSatRatio = a2dVarKSatRatio !giulia
         
         oHMC_Vars(iID)%a2dS = a2dVarS
         oHMC_Vars(iID)%a2dVTotWP = a2dVarVTotWP
