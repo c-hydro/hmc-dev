@@ -267,7 +267,7 @@ contains
                         ! VDam < VDamMax --> Q**6;
                         a1dVarQPlant(iP) = oHMC_Vars(iID)%a1dQMaxPlant(iP)* &
                                            (a1dVarVDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP))/ &
-                                            oHMC_Vars(iID)%a1dVMaxDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)))**2 !!Andrea per Lery Volta (ERA 6)
+                                            oHMC_Vars(iID)%a1dVMaxDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)))**6
                                             
                     else
                         ! VDam => VDamMax --> QMax
