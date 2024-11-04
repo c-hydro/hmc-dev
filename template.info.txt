@@ -27,14 +27,14 @@ dFrac = 0.0
 dWS = 0.0
 ! Watertable deep losses average initialization [1/t]
 dWDL = 0.0
-! Soil saturated vertical hydraulic conductivity (for infiltration capacity) [mm/h] - da qui giulia
+! Soil saturated vertical hydraulic conductivity (for infiltration capacity) [mm/h]
 dSoil_ksat_infilt = 9
 ! Soil total storage capacity (gravitational+capillary) [mm]
 dSoil_vmax = 700
 ! Soil saturated vertical hydraulic conductivity (for drainage capacity) [mm/h] 
 dSoil_ksat_drain = 3
 ! Aquifer saturated horizontal hydraulic conductivity [mm/h]
-dWtable_ksath = 10
+dWtable_ksath = 1
 ! -----------------------------------------------------------------------------------------------
 
 /
@@ -113,10 +113,10 @@ iFlagEnergyBalance = 1
 iFlagSoilParamsType = 2
 ! Soil infiltration capacity variability with soil saturation (0=no variability, 1=linear variability, 2=non linear variability)
 ! (non linear is from Yang et al. 2020, Improving the Horton infiltration ...)
-iFlagInfiltRateVariable = 0
+iFlagInfiltRateVariable = 2
 ! Evapotranspiration reduction with water stress 
 ! (0=no reduction except for mass balance constraint; 1=classical beta function-different between Jarvis and pre-Jarvis ET module)
-iFlagBetaET = 0
+iFlagBetaET = 1
 ! -----------------------------------------------------------------------------------------------
 
 ! GEOGRAPHICAL INFO ------------------------------------------------------------------------------
@@ -373,10 +373,10 @@ sCommandCreateFolder = 'mkdir -p path'
 
 ! INFO MODEL ------------------------------------------------------------------------------------
 ! Release version     (x.x.x)
-sReleaseVersion = '3.1.6'
+sReleaseVersion = '3.1.7'
 ! Author(s)         (Surname N.)
 sAuthorNames = 'Delogu F., Silvestro F., Gabellani S., Libertino A., Ercolani G.'
 ! Release Date      (yyyy/mm/dd)
-sReleaseDate = '2022/03/28'
+sReleaseDate = '2024/10/08'
 ! -----------------------------------------------------------------------------------------------
 

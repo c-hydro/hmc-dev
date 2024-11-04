@@ -448,7 +448,7 @@ contains
         
         integer(kind = 4),  dimension (iRows, iCols)    :: a2iVarPNT, a2iVarMask, a2iVarChoice, a2iVarArea
         integer(kind = 4),  dimension (iRows, iCols)    :: a2iVarNature
-         
+          
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarLon, a2dVarLat 
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarDEM, a2dVarCN, a2dVarS, a2dVarVTotWP
         real(kind = 4),     dimension (iRows, iCols)    :: a2dVarAreaCell
@@ -472,6 +472,7 @@ contains
         
         character(len = 256)                            :: sStrDomPix, sStrDomArea, sStrTc, sStrDemMax
         character(len = 256)                            :: sPixCount, sParDefault
+        
         !------------------------------------------------------------------------------------------
 
         !------------------------------------------------------------------------------------------
@@ -1001,14 +1002,6 @@ contains
             else
                 a2iVarMask = int(reshape(a2dVar, (/iRows, iCols/)))
             endif
-            ! ! giulia
-            ! giulia = 1.2
-            ! where( (a2iVarMask.gt.0.0) )
-            !     giulia = 7.3
-            ! endwhere
-            !write(*,*) oHMC_Namelist(iID)%dNoDataL
-            !call debug_2dVar(dble(a2iVarMask), iRows, iCols, 10)
-            ! call debug_2dVar(dble(giulia), iRows, iCols, 11)
             !------------------------------------------------------------------------------------------
             
             !------------------------------------------------------------------------------------------
@@ -1207,6 +1200,8 @@ contains
             else
                 call mprintf(.true., iWARN, ' Permanent wilting point data NO MORE USED - raster is ineffective.')
                 a2dVarCtWP = reshape(a2dVar, (/iRows, iCols/))
+                !giulia - da azzerare anche CtWP e non solo a2dVarVTotWP (più avanti)
+                ! ma non qui perché poi controllo successivo riassegna 0.4*ct
             endif
             !------------------------------------------------------------------------------------------
 
@@ -1275,8 +1270,6 @@ contains
         !    else
         !        a2iVarMask = int(reshape(a2dVar, (/iRows, iCols/)))
         !    endif
-        !    ! Giulia
-        !    call debug_2dVar(dble(a2iVarMask), iRows, iCols, 11)
         !    !------------------------------------------------------------------------------------------
             
             !------------------------------------------------------------------------------------------
@@ -1596,7 +1589,7 @@ contains
             write(sParDefault, *) dKSatRatio;
             call mprintf(.true., iWARN, ' KSatRatio values are lower than 0 in '//trim(sPixCount)//' pixels over domain. '// &
             'Initialize with default value: '//trim(sParDefault)//'.')
-        endif 
+        endif
         
         ! Info end
         call mprintf(.true., iINFO_Verbose, ' Data :: Static gridded :: Get land information ... OK' )
@@ -1746,6 +1739,7 @@ contains
         ! Defining Soil Water Content at Wilting Point
         where ( a2iVarMask.gt.0.0 ) 
             a2dVarVTotWP = 0.0 ! condizione che tagliava un 20% del vtot a2dVarS * a2dVarCtWP ! ct_wp = 0.4*ct
+            a2dVarCtWP = 0.0 !giulia - per azzerare anche CtWP e non solo a2dVarVTotWP
         endwhere
         !------------------------------------------------------------------------------------ 
         
@@ -1863,7 +1857,7 @@ contains
         oHMC_Vars(iID)%a2dCf = a2dVarCf
         oHMC_Vars(iID)%a2dUc = a2dVarUc
         oHMC_Vars(iID)%a2dUh = a2dVarUh
-        
+          
         oHMC_Vars(iID)%a2iMask = a2iVarMask
         oHMC_Vars(iID)%a2iPNT = a2iVarPNT
         oHMC_Vars(iID)%a2iChoice = a2iVarChoice
