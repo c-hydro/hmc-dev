@@ -412,22 +412,13 @@ contains
          
         !------------------------------------------------------------------------------------------
         ! Horton filter equation
-        if (oHMC_Namelist(iID)%iFlagInfiltRateVariable .eq. 2) then
-            where (oHMC_Vars(iID)%a2dS.gt.0.0)          
-                    a2dVarG = oHMC_Vars(iID)%a2dCostF1 + (oHMC_Vars(iID)%a2dCostF - oHMC_Vars(iID)%a2dCostF1) * &
-                              exp( -oHMC_Namelist(iID)%dPowVarInfiltRate * & 
-                                   ( a2dVarVTot / (oHMC_Vars(iID)%a2dS-a2dVarVTot) ) )    
-            elsewhere
-                a2dVarG = 0.0
-            endwhere
-        else
-            where (oHMC_Vars(iID)%a2dS.gt.0.0)
-                a2dVarG = oHMC_Vars(iID)%a2dCostF - &
-                         (oHMC_Vars(iID)%a2dCostF - oHMC_Vars(iID)%a2dCostF1)/oHMC_Vars(iID)%a2dS*a2dVarVTot
-            elsewhere
-                a2dVarG = 0.0
-            endwhere
-        endif
+        where (oHMC_Vars(iID)%a2dS.gt.0.0)
+            !a2dVarG = oHMC_Vars(iID)%a2dCostF - &
+            !         (oHMC_Vars(iID)%a2dCostF - oHMC_Vars(iID)%a2dCostF1)/oHMC_Vars(iID)%a2dS*a2dVarVTot
+            a2dVarG = oHMC_Vars(iID)%a2dCostF !giulia prova
+        elsewhere
+            a2dVarG = 0.0
+        endwhere
         !------------------------------------------------------------------------------------------
                 
         !------------------------------------------------------------------------------------------
