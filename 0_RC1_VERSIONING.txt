@@ -1,0 +1,22 @@
+Second release candidate version of the new soil dynamic.
+
+It includes the following feats:
+- ADD: new (optional) parametrization of soil and groundwater;
+- ADD: new (optional) soil infiltration rate dependency on the soil saturation degree (only with new soil parametrization);
+- ADD: add the possibility of constraining the actual evapotraspiration only by soil water availability;
+- ADD: rescaling factor for hypodermic flow ratio;
+- FIX: management of the domain mask and of the dem values minor than 0;
+- UPD: updated model license to EUPL 1.2
+
+Compare to the released version it lacks:
+- ADD: add the possibility of providing the KSatRatio as a spatial map (domain.ksatratio.txt);
+- FIX: fixed a bug in the mass balance of the soil;
+- FIX: complete removal of the Ct-WP
+
+Operational in the following implementations:
+- Flood-PROOFS East Africa (v2)
+- Flood-PROOFS Belize
+- Flood-PROOFS Lebanon
+
+
+
