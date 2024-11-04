@@ -803,9 +803,7 @@ contains
         where ((a2iVarMask.gt.0.0) .and. (a2dVarBareSoil.gt.0.0)) ! bare soil
             ! Approach proposed by Sellers et al. 1992 for soil surface resistance 
             ! (Sellers, P. J., A.Berry, J., Collatz, G. J., Field, C. B., Hall, F. G. (1992) Canopy reflectance,....)
-            ! a2dVarRcan = exp(8.206-4.255*(a2dVarSM - a2dVarCtWP) / (dSMsat - a2dVarCtWP))
-            ! GIULIA: prova ritorno alla vecchia beta anche per suolo
-            a2dVarRcan =  exp(8.206-4.255) / (a2dVarBF)
+            a2dVarRcan = exp(8.206-4.255*(a2dVarSM - a2dVarCtWP) / (dSMsat - a2dVarCtWP))
             a2dVarRcan_pot = exp(8.206-4.255)
         elsewhere ((a2iVarMask.gt.0.0) .and. (a2dVarGd.lt.0.0)) ! rocks, urban, open water
             a2dVarRcan = a2dVarRSmin 
@@ -814,11 +812,8 @@ contains
             a2dVarRcan = a2dVarRSmin 
             a2dVarRcan_pot = a2dVarRSmin      
         elsewhere (a2iVarMask.gt.0.0) ! all vegetated pixels according to land cover map
-            ! a2dVarRcan = a2dVarFC * a2dVarRSmin / (a2dVarfS * a2dVarfDa * a2dVarBF * a2dVarLAI) + &
-            !             (1-a2dVarFC)*exp(8.206-4.255*(a2dVarSM - a2dVarCtWP) / (dSMsat - a2dVarCtWP))
-            ! GIULIA: prova ritorno alla vecchia beta anche per suolo
             a2dVarRcan = a2dVarFC * a2dVarRSmin / (a2dVarfS * a2dVarfDa * a2dVarBF * a2dVarLAI) + &
-                        (1-a2dVarFC)*exp(8.206-4.255) / (a2dVarBF)
+                        (1-a2dVarFC)*exp(8.206-4.255*(a2dVarSM - a2dVarCtWP) / (dSMsat - a2dVarCtWP))
             a2dVarRcan_pot = a2dVarFC * a2dVarRSmin / (a2dVarfS * a2dVarfDa * a2dVarLAI) + &
                         (1-a2dVarFC)*exp(8.206-4.255)
         endwhere            

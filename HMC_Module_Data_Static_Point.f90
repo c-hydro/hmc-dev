@@ -821,12 +821,7 @@ contains
             
         endif
         !------------------------------------------------------------------------------------------
-        
-        ! giulia
-        ! call debug_2dVar(dble(oHMC_Vars(iID)%a2dVDam), 9, 800, iI)
-        ! call debug_2dVar(dble(oHMC_Vars(iID)%a2dLDam), 9, 800, iI+70)
-        !!!!!!!! 
-        
+            
         !------------------------------------------------------------------------------------------
         ! Info end
         call mprintf(.true., iINFO_Verbose, ' Define dam storage curve ... OK')
