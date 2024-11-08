@@ -2,7 +2,7 @@
 Changelog
 =========
 
-Version 3.1.7 [2024-11-04]
+Version 3.2.0 [2024-11-04]
 **************************
 - ADD: new (optional) parametrization of soil and groundwater;
 - ADD: new (optional) soil infiltration rate dependency on the soil saturation degree (only with new soil parametrization);
@@ -11,7 +11,7 @@ Version 3.1.7 [2024-11-04]
 - ADD: add the possibility of providing the KSatRatio as a spatial map (domain.ksatratio.txt);
 - FIX: management of the domain mask and of the dem values minor than 0;
 - FIX: fixed a bug in the mass balance of the soil;
-- FIX: complete removal of the Ct-WP
+- FIX: complete removal of the Ct-WP;
 - UPD: updated model license to EUPL 1.2
 
 Version 3.1.6 [2022-06-23]
