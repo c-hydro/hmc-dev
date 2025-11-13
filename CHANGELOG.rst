@@ -2,6 +2,14 @@
 Changelog
 =========
 
+Version 3.3.0 [2025-11-13]
+**************************
+- ADD: groundwater initialization with a fill level percentage (only when thickness raster is available);
+- FIX: incorrect configuration in the channel network mode;
+- FIX: deep-losses activation flag;
+- FIX: groundwater subflow at the outlet cell (unit units);
+- FIX: numeric limits uc, uh in the channel fraction.
+
 Version 3.2.0 [2024-11-04]
 **************************
 - ADD: new (optional) parametrization of soil and groundwater;

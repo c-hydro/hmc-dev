@@ -206,13 +206,13 @@ contains
                 where ( (a2dVarVTot.lt.oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) )
                         a2dVarVTot = a2dVarVTot + a2dVarG*dDtHorton/3600.0              
                 elsewhere (oHMC_Vars(iID)%a2iMask.gt.0.0)
-                        a2dVarVTot = a2dVarVTot + a2dVarG*dDtHorton/3600.0                        
-                endwhere
-                where (a2dVarVtot.ge.(oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS + a2dVarVSub))
-                        a2dVarVTot = a2dVarVTot - a2dVarVSub	
-                elsewhere
-                        a2dVarVSub = a2dVarVTot - oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS
-                        a2dVarVTot = oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS
+                        a2dVarVTot = a2dVarVTot + a2dVarG*dDtHorton/3600.0
+                        where (a2dVarVtot.ge.(oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS + a2dVarVSub))
+                            a2dVarVTot = a2dVarVTot - a2dVarVSub	
+                        elsewhere
+                            a2dVarVSub = a2dVarVTot - oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS
+                            a2dVarVTot = oHMC_Vars(iID)%a2dCt*oHMC_Vars(iID)%a2dS
+                        endwhere                        
                 endwhere
                 a2dVarIntensity = a2dVarIntensity - a2dVarG
         
@@ -631,7 +631,7 @@ contains
             call mprintf(.true., iINFO_Extra, ' Phys :: Convolution :: Horton ... OK' )
         endif
         !------------------------------------------------------------------------------------------
-        
+              
     end subroutine HMC_Phys_Convolution_Apps_Horton_ChannelFraction
     !------------------------------------------------------------------------------------
         

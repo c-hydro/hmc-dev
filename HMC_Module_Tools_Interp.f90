@@ -99,5 +99,72 @@ contains
     end subroutine nearest_interp_1d
     !------------------------------------------------------------------------------------
 
+    !------------------------------------------------------------------------------------------
+    ! Subroutine to linear interp data
+    subroutine linear_interp_1d(ndata, xdata, ydata, ninterp, xinterp, yinterp)
+        
+        ! Interpolate input data (xdata, ydata) to determine the value 
+        ! of yinterp at the given points xinterp.
+        !
+        ! INPUTs:
+        ! ndata = number of input data (i.e. size of xdata, ydata arrays)
+        ! xdata, ydata = arrays of input data
+        ! ninterp = number of points to interp
+        ! xinterp = points to interp
+        !
+        ! OUTPUT:
+        ! yinterp = interpolated values corresponding to points "xinterp"
+        !
+        ! WARING: ndata must be >= 2
+        
+        integer(kind = 4)                           :: ndata, ninterp
+        real(kind = 4),     dimension(ndata)        :: xdata, ydata
+        real(kind = 4),     dimension(ninterp)      :: xinterp, yinterp
+   
+        integer(kind = 4)                           :: iI, kneg, kpos, kexact
+        real(kind = 4),     dimension(ndata)        :: xdiff
+        
+        ! check if data are sufficient for linear interpolation
+        if (ndata.lt.2) then
+            write(6, *) "ERROR: Linear interpolation requires at least 2 known data"
+            stop "Program stopped"
+        endif
+        
+        ! linear interpolation and extrapolation
+        do iI = 1, ninterp
+            
+            ! giulia: commentato perche' funziona solo da gfortran >= 9.0 in avanti
+            ! https://gcc.gnu.org/wiki/Fortran2008Status
+            ! Find location in an array	Yes (since 9.0, 2018-10-28)
+            ! kexact = findloc(xdata, xinterp(iI), dim=1)
+            
+            ! giulia: kexact=0 da togliere se si riattiva il findloc 
+            kexact = 0;
+
+            if (kexact.gt.0) then
+                yinterp(iI) = ydata(kexact)
+            else
+                xdiff = xdata - xinterp(iI)
+                kneg = maxloc(xdiff, dim=1, mask=(xdiff<0))
+                kpos = minloc(xdiff, dim=1, mask=(xdiff>=0))
+            
+                if ( (kneg.gt.0) .and. (kpos.gt.0) ) then
+                    yinterp(iI) = ( ydata(kpos) - ydata(kneg) ) / ( xdata(kpos) - xdata(kneg) ) * &
+                                  ( xinterp(iI) - xdata(kneg) ) + ydata(kneg)
+                elseif ( (kneg.gt.0) ) then
+                    yinterp(iI) = ( ydata(kneg) - ydata(kneg-1) ) / ( xdata(kneg) - xdata(kneg-1) ) * &
+                                  ( xinterp(iI) - xdata(kneg-1) ) + ydata(kneg-1)
+                elseif ( (kpos.gt.0) ) then
+                    yinterp(iI) = ( ydata(kpos+1) - ydata(kpos) ) / ( xdata(kpos+1) - xdata(kpos) ) * &
+                                  ( xinterp(iI) - xdata(kpos) ) + ydata(kpos)
+                endif
+                                  
+            endif
+
+        enddo
+        
+    end subroutine linear_interp_1d
+    !------------------------------------------------------------------------------------------
+    
 end module HMC_Module_Tools_Interp
 !------------------------------------------------------------------------------------------

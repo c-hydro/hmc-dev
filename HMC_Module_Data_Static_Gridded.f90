@@ -545,6 +545,8 @@ contains
         iFlagDynVeg = oHMC_Namelist(iID)%iFlagDynVeg
         !Flooding flag
         iFlagFlood = oHMC_Namelist(iID)%iFlagFlood  
+        ! Deep Losses flag (giulia)
+        iFlagWDL = oHMC_Namelist(iID)%iFlagWDL
         
         ! Get Initialized variable(s)
         a2dVarS = oHMC_Vars(iID)%a2dS
@@ -785,7 +787,8 @@ contains
                 if (iFlagWS .eq. 1) then
                     call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                     if (iErr /= 0) then
-                        call mprintf(.true., iWARN, ' CoeffWS data not found. Initializing CoeffWS with default values.')
+                        call mprintf(.true., iWARN, ' CoeffWS data not found in raster format. ' // &
+                                                    'Initializing CoeffWS with default values.')
                         a2dVarCoeffWS = dWS
                     else
                         a2dVarCoeffWS = transpose(a2dVar)
@@ -802,7 +805,8 @@ contains
                 if (iFlagWDL .eq. 1) then
                     call HMC_Tools_IO_Get2d_NC(sVarName, iFileID, a2dVar, sVarUnits, iCols, iRows, .false., iErr)
                     if (iErr /= 0) then
-                        call mprintf(.true., iWARN, ' CoeffWDL data not found. Initializing CoeffDL with default values.')
+                        call mprintf(.true., iWARN, ' CoeffWDL data not found in raster format. ' // &
+                                                    'Initializing CoeffDL with info file value.')
                         a2dVarCoeffWDL = dWDL
                     else
                         a2dVarCoeffWDL = transpose(a2dVar)
@@ -1068,8 +1072,19 @@ contains
             if (iErr /= 0) then 
                 call mprintf(.true., iWARN, ' WT maximum data not found. Initializing WT maximum data with default values.')
                 a2dVarWTMax = -9999.0
+                if (oHMC_Namelist(iID)%dWTable_init.gt.0.0) then
+                    oHMC_Namelist(iID)%dWTable_init = -9999.0
+                    call mprintf(.true., iWARN, ' WT initialization cannot use dWTable_init in case wt_max raster'// &
+                                                ' is not defined. dWTable_init ignored.')
+                endif
             else
                 a2dVarWTMax = reshape(a2dVar, (/iRows, iCols/))
+                if (oHMC_Namelist(iID)%dWTable_init.lt.0.0) then
+                    call mprintf(.true., iERROR,' dWTable_init not defined. Required in case wt_max raster is used.'// &
+                                                ' Program stopped!')
+                elseif (oHMC_Namelist(iID)%dWTable_init.gt.1.0) then
+                    call mprintf(.true., iERROR,' dWTable_init must be <= 1. Program stopped!')
+                endif
             endif
             
             ! WATERTABLE KSATRATIO !giulia
@@ -1918,6 +1933,7 @@ contains
         real(kind = 4) :: dVarAlphaMin, dVarAlphaMax, dVarAlphaExtreme
         real(kind = 4) :: dVarWTableHUSoil, dVarWTableHUChannel, dVarWTableSlopeBM, dVarWTableHOBedRock
         real(kind = 4) :: dVarWTableAlphaMin, dVarWTableAlphaMax
+        real(kind = 4) :: dVarWTable_init
         
         integer(kind = 4), dimension (iRows, iCols)      :: a2iVarMask
         real(kind = 4), dimension (iRows, iCols)         :: a2iVarChoice
@@ -1930,6 +1946,7 @@ contains
         ! Parameter(s)
         dVarAlphaMin = 10.0; dVarAlphaMax = 0.0; 
         dVarWTableHMin = 10.0 ! Min value in [mm]
+        dVarWTable_init = -9999.9 ! Water table initial relative level
         
         dVarWTableHUSoil = 0.0      ! fmin
         dVarWTableHUChannel = 0.0   ! fcan
@@ -1962,6 +1979,8 @@ contains
         dVarWTableHUChannel = oHMC_Namelist(iID)%dWTableHUChannel
         dVarWTableSlopeBM = oHMC_Namelist(iID)%dWTableSlopeBM
         dVarWTableHOBedRock = oHMC_Namelist(iID)%dWTableHOBedRock
+        
+        dVarWTable_init = oHMC_Namelist(iID)%dWTable_init
 
         ! Info start
         call mprintf(.true., iINFO_Verbose, ' Data :: Static gridded :: Get watertable information ... ' )
@@ -2021,24 +2040,41 @@ contains
         
         !------------------------------------------------------------------------------------------
         ! Define watertable values
-	where( a2iVarMask.gt.0.0 )
-		a2dVarWTable = (dVarWTableHMax - dVarWTableHUSoil)*((tan(a2dVarAlpha) - &
+        if (dVarWTable_init.lt.0.0) then
+            where( a2iVarMask.gt.0.0 )
+                a2dVarWTable = (dVarWTableHMax - dVarWTableHUSoil)*((tan(a2dVarAlpha) - &
                                    tan(dVarAlphaMin))/(tan(dVarAlphaMax) - tan(dVarAlphaMin))) & 
                                    + dVarWTableHUSoil 
                 
 		a2dVarWTable = a2dVarWTable/1000.0
-        endwhere
-        
-	where( a2iVarMask.gt.0.0 )
-		a2dVarWTable = a2dVarDEM - a2dVarWTable
-        endwhere
-        
-	! Riempimento WT in mm per pendenze elevate
-	where( a2dVarAlpha.gt.dVarWTableSlopeBM )  a2dVarWTable = a2dVarWTableMax + dVarWTableHOBedRock/1000.0 
+            endwhere
             
-        ! Riempimento WT in mm sotto i canali
-	where( a2iVarChoice.eq.1 )  a2dVarWTable = a2dVarDEM - dVarWTableHUChannel/1000.0
-
+            ! giulia: qui a2dVarWTable diventa quota pelo libero WT in m s.l.m. (almeno credo...)
+            !         quindi a2dVarWTable in partenza deve essere il volume vuoto, non il pieno (almeno credo...)
+	    where( a2iVarMask.gt.0.0 )
+		a2dVarWTable = a2dVarDEM - a2dVarWTable
+            endwhere
+        
+	    ! Riempimento WT in mm per pendenze elevate
+	    where( a2dVarAlpha.gt.dVarWTableSlopeBM )  a2dVarWTable = a2dVarWTableMax + dVarWTableHOBedRock/1000.0 
+            
+            ! Riempimento WT in mm sotto i canali
+	    where( a2iVarChoice.eq.1 )  a2dVarWTable = a2dVarDEM - dVarWTableHUChannel/1000.0
+                
+            call mprintf(.true., iWARN, ' Watertable  initialization using Continuum formula' )
+        else
+            ! giulia: attenzione che qui ormai a2dVarWTableMax è quota bedrock in m s.l.m. (almeno credo...)
+            !         uso (1-dVarWTable_init) perché se capisco bene serve il volume vuoto; vedi sotto
+            where( a2iVarMask.gt.0.0 )
+                a2dVarWTable = ((a2dVarDEM-a2dVarWTableMax)*1000)*(1-dVarWTable_init)
+                a2dVarWTable = a2dVarWTable/1000.0
+                ! come nell'inizializzazione classica, dovrebbe servire ad avere la quota del pelo libero in m s.l.m. 
+                a2dVarWTable = a2dVarDEM - a2dVarWTable
+            endwhere
+            
+            call mprintf(.true., iWARN, ' Watertable  initialization using dWTable_init' )
+        endif
+          
         ! Check watertable limits
         ! Upper limit
         where(a2dVarWTable.gt.a2dVarDEM)

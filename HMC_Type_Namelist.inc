@@ -122,6 +122,7 @@ TYPE HMC_Type_Namelist
     real(kind = 4)          :: dCN, dFrac, dWS, dWDL
     real(kind = 4)          :: dSoil_ksat_infilt, dSoil_vmax,dSoil_ksat_drain
     real(kind = 4)          :: dWTable_ksath
+    real(kind = 4)          :: dWTable_init
     character(len = 256)    :: sDomainName
    
 END TYPE HMC_Type_Namelist

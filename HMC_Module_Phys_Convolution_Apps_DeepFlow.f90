@@ -221,8 +221,14 @@ contains
                         a2dVarDarcy(iI, iJ) = oHMC_Vars(iID)%a2dAlpha(iI,iJ)* &
                                               oHMC_Vars(iID)%a2dWTksatH(iI,iJ) * dDtDataForcing/3600 !giulia - credo /1000=baco
 
-                        if ( a2dVarDarcy(iI,iJ) .gt. (a2dVarWTable(iI,iJ) - oHMC_Vars(iID)%a2dWTableMax(iI,iJ)) ) then
-                            a2dVarDarcy(iI,iJ) = (a2dVarWTable(iI,iJ) - oHMC_Vars(iID)%a2dWTableMax(iI,iJ))
+                        ! giulia - credo baco (mancava il *1000)                      
+                        !if ( a2dVarDarcy(iI,iJ) .gt. (a2dVarWTable(iI,iJ) - oHMC_Vars(iID)%a2dWTableMax(iI,iJ)) ) then
+                        !    a2dVarDarcy(iI,iJ) = (a2dVarWTable(iI,iJ) - oHMC_Vars(iID)%a2dWTableMax(iI,iJ))
+                        !endif
+                                                                   
+                        ! giulia - credo baco (mancava il *1000)                      
+                        if ( a2dVarDarcy(iI,iJ) .gt. (a2dVarWTable(iI,iJ) - oHMC_Vars(iID)%a2dWTableMax(iI,iJ))*1000 ) then
+                            a2dVarDarcy(iI,iJ) = (a2dVarWTable(iI,iJ) - oHMC_Vars(iID)%a2dWTableMax(iI,iJ))*1000 
                         endif
 
                     endif
@@ -508,8 +514,14 @@ contains
                         a2dVarDarcy(iI, iJ) = oHMC_Vars(iID)%a2dAlpha(iI,iJ)* &
                                               oHMC_Vars(iID)%a2dWTksatH(iI,iJ) * dDtDataForcing/3600 !giulia - credo /1000=baco
 
-                        if ( a2dVarDarcy(iI,iJ) .gt. (a2dVarWTable(iI,iJ) - oHMC_Vars(iID)%a2dWTableMax(iI,iJ)) ) then
-                            a2dVarDarcy(iI,iJ) = (a2dVarWTable(iI,iJ) - oHMC_Vars(iID)%a2dWTableMax(iI,iJ))
+                        ! giulia - credo baco (mancava il *1000)                      
+                        !if ( a2dVarDarcy(iI,iJ) .gt. (a2dVarWTable(iI,iJ) - oHMC_Vars(iID)%a2dWTableMax(iI,iJ)) ) then
+                        !    a2dVarDarcy(iI,iJ) = (a2dVarWTable(iI,iJ) - oHMC_Vars(iID)%a2dWTableMax(iI,iJ)) 
+                        !endif
+                        
+                        ! giulia - credo baco (mancava il *1000)                      
+                        if ( a2dVarDarcy(iI,iJ) .gt. (a2dVarWTable(iI,iJ) - oHMC_Vars(iID)%a2dWTableMax(iI,iJ))*1000 ) then
+                            a2dVarDarcy(iI,iJ) = (a2dVarWTable(iI,iJ) - oHMC_Vars(iID)%a2dWTableMax(iI,iJ))*1000 
                         endif
 
                     endif

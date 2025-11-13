@@ -170,6 +170,7 @@ contains
         real(kind = 4)          :: dCN, dWS, dWDL, dFrac
         real(kind = 4)          :: dSoil_ksat_infilt, dSoil_vmax, dSoil_ksat_drain !nuova definizione parametri per suolo giulia
         real(kind = 4)          :: dWTable_ksath !nuova definizione parametri per falda giulia
+        real(kind = 4)          :: dWTable_init !inizializzazione falda se WTmax raster
         character(len = 256)    :: sDomainName
         
         character(len = 256)    :: sStrCf, sStrCt, sStrUh, sStrUc
@@ -181,7 +182,7 @@ contains
         namelist /HMC_Parameters/       dUc, dUh, dCt, dCf, dCPI, dWTableHbr, dKSatRatio, dSlopeMax, &
                                         dCN, dWS, dWDL, dFrac, &
                                         dSoil_ksat_infilt, dSoil_vmax, dSoil_ksat_drain, & 
-                                        dWTable_ksath, &
+                                        dWTable_ksath, dWTable_init, &
                                         sDomainName
         
         namelist /HMC_Namelist/         iFlagTypeData_Static, &
@@ -319,7 +320,7 @@ contains
         sReleaseDate = ""; sAuthorNames = ""; sReleaseVersion = "";
         
         dSoil_ksat_infilt = -9999.0; dSoil_vmax = -9999.0; dSoil_ksat_drain = -9999.0;
-        dWTable_ksath = -9999.0;
+        dWTable_ksath = -9999.0; dWTable_init = -9999.0;
         !--------------------------------------------------------------------------------  
         
         !--------------------------------------------------------------------------------
@@ -560,8 +561,11 @@ contains
         oHMC_Namelist_Init%iFlagInfiltRateVariable = iFlagInfiltRateVariable !remains -9999 when not defined (not used for classical soil)
         
         if (iFlagBetaET .eq. 0) then
-            call mprintf(.true., iINFO_Basic, ' ATTENTION: Beta function for ET reduction with water stress is deactivated ' // &
+            call mprintf(.true., iINFO_Basic, ' IMPORTANT: Beta function for ET reduction with water stress is deactivated ' // &
                                             '(iFlagBetaET=0)')
+        elseif (iFlagBetaET .eq. 2) then
+            call mprintf(.true., iINFO_Basic, ' IMPORTANT: iFlagBetaET=2 is not official!!! Please use with caution! ' // &
+                                              '(2=classical BF employed also for soil)')
         endif
         oHMC_Namelist_Init%iFlagBetaET = iFlagBetaET !if not defined in the namelist, remains 1 (implicit backward compatibility)
         
@@ -778,6 +782,8 @@ contains
         
         ! Aquifer horizontal hydraulic conductivity
         oHMC_Namelist_Init%dWTable_ksath = dWTable_ksath
+        ! Water table initial relative level
+        oHMC_Namelist_Init%dWTable_init = dWTable_init 
         
         ! checking if dSoil_ksat_infilt & dSoil_vmax & dSoil_ksat_drain are defined in case of iFlagSoilParamsType=2  
         ! & also dWTable_ksath (no need for specific flag --> over-flexibility)

@@ -344,7 +344,7 @@ contains
         endwhere
         
         ! CHANNELS
-        ! Surface equation for channels (direct euler's method)
+        ! Surface equation for channels (direct euler's method) - first guess
         where ( (oHMC_Vars(iID)%a2iChoice.eq.1.0) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) ) 
 
             a2dVarUcAct = oHMC_Vars(iID)%a2dUc*(tan(oHMC_Vars(iID)%a2dBeta)**0.5)*a2dVarHydroUpd**dBc ! FPI settings
@@ -353,6 +353,7 @@ contains
                 a2dVarUcAct = dUMax
             endwhere
 
+	    ! non usato
             a2dVarQDisOut = a2dVarHydroUpd*a2dVarUcAct*dDtSurfaceflow/3600.0
 
             ! Surface tank equation (runoff with routing + exfiltration) 
@@ -361,6 +362,7 @@ contains
 
         endwhere
         
+        ! using first guess for final update
         where ( (oHMC_Vars(iID)%a2iChoice.eq.1.0) .and. (oHMC_Vars(iID)%a2iMask.gt.0.0) ) 
 
             a2dVarQDisOut = oHMC_Vars(iID)%a2dUc*(tan(oHMC_Vars(iID)%a2dBeta)**0.5)*(0.5*a2dVarHydroPrev**(1 + dBc) + &
@@ -537,10 +539,12 @@ contains
                             iRank = size(a2dVarHydroRelease, dim = 2)
 
                             if (iTTemp + iShift .lt. iRank ) then
-                                a2dVarHydroRelease(iC, iTTemp + 1) = dDh/dDtSurfaceflow*3600
+!                               a2dVarHydroRelease(iC, iTTemp + 1) = dDh/dDtSurfaceflow*3600  !giulia - bug? iTTemp+iShift ???
+                                a2dVarHydroRelease(iC, iTTemp + iShift) = dDh/dDtSurfaceflow*3600  !giulia - modificato
                             endif
 
                         endif
+                        ! AGGIUNGERE WARNING per dire che se Catch e Release sono diversi non si fa la correzione 
                     endif
 
                     if(a2dVarRouting(iIII, iJJJ).lt.0.0)then
@@ -867,14 +871,14 @@ contains
                     
         ! Hill overland equation 
         a2dVarUhAct = oHMC_Vars(iID)%a2dUh
-        where ( (oHMC_Vars(iID)%a2iChoice.eq.0) .and. (a2dVarUhact.gt.dUMax) )  ! numerical check
-            a2dVarUhAct = dUMax
-        endwhere
+        ! where ( (oHMC_Vars(iID)%a2iChoice.eq.0) .and. (a2dVarUhact.gt.dUMax) )  ! numerical check - giulia - via perché refuso
+        !    a2dVarUhAct = dUMax
+        ! endwhere
         
         a2dVarUcAct = oHMC_Vars(iID)%a2dUc
-        where ( (oHMC_Vars(iID)%a2iChoice.eq.0) .and. (a2dVarUcAct.gt.dUMax) )  ! numerical check
-            a2dVarUcAct = dUMax
-        endwhere
+        ! where ( (oHMC_Vars(iID)%a2iChoice.eq.0) .and. (a2dVarUcAct.gt.dUMax) )  ! numerical check - giulia - via perché refuso
+        !     a2dVarUcAct = dUMax
+        ! endwhere
         
         dTmmm = MAXVAL(MAXVAL(oHMC_Vars(iID)%a2dUh,dim=1,mask=oHMC_Vars(iID)%a2iChoice.le.1.and. &
                     oHMC_Vars(iID)%a2iMask.gt.0))
@@ -1029,8 +1033,14 @@ contains
                 !------------------------------------------------------------------------------------------
                 
                 !------------------------------------------------------------------------------------------
-                ! Check dam volume
-                if(a1dVarVDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)) .lt. 0.0) a1dVarVDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)) = 0.0
+                ! Check dam volume - mod. giulia
+                ! if(a1dVarVDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)) .lt. 0.0) a1dVarVDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)) = 0.0
+                if(a1dVarVDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)) .lt. 0.0) then
+                    a1dVarVDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)) = 0.0
+                    write(sDamNumber, *) oHMC_Vars(iID)%a1iFlagDamPlant(iP);
+                    call mprintf(.true., iINFO_Main, ' Dam volume < 0 after plant intake --> restored to 0. ' // &
+                                 '(Dam n. '//trim(sDamNumber)//')')
+                endif
                 !------------------------------------------------------------------------------------------
                 
             enddo 
@@ -1144,8 +1154,10 @@ contains
                             iRank = size(a2dVarHydroRelease, dim = 2)
 
                             if (iTTemp + iShift .lt. iRank ) then
-                                a2dVarHydroRelease(iC, iTTemp + 1) = dDh*(1000.0*3600) &
-                                             /dVarAreaCell ! in m^3/s to maintain the mass balance
+!                                a2dVarHydroRelease(iC, iTTemp + 1) = dDh*(1000.0*3600)/dVarAreaCell ! giulia - bug per iShift?
+!                                                                     ! in m^3/s to maintain the mass balance
+                                a2dVarHydroRelease(iC, iTTemp + iShift) = dDh*(1000.0*3600)/dVarAreaCell ! giulia - modificato
+                                                                          ! in m^3/s to maintain the mass balance
                             endif
 
                         endif
