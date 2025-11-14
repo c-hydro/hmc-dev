@@ -1037,9 +1037,9 @@ contains
                 ! if(a1dVarVDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)) .lt. 0.0) a1dVarVDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)) = 0.0
                 if(a1dVarVDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)) .lt. 0.0) then
                     a1dVarVDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)) = 0.0
-                    write(sDamNumber, *) oHMC_Vars(iID)%a1iFlagDamPlant(iP);
-                    call mprintf(.true., iINFO_Main, ' Dam volume < 0 after plant intake --> restored to 0. ' // &
-                                 '(Dam n. '//trim(sDamNumber)//')')
+                    !write(sDamNumber, *) oHMC_Vars(iID)%a1iFlagDamPlant(iP);
+                    !call mprintf(.true., iINFO_Main, ' Dam volume < 0 after plant intake --> restored to 0. ' // &
+                    !             '(Dam n. '//trim(sDamNumber)//')')
                 endif
                 !------------------------------------------------------------------------------------------
                 
