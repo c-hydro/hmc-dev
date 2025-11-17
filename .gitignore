@@ -36,4 +36,5 @@
 # Project folder(s) and file(s)
 /build/
 /nbproject/
+nbproject/private/
 .dep.inc
