@@ -33,5 +33,7 @@
 *.out
 *.app
 
-# End of https://www.toptal.com/developers/gitignore/api/fortran
+# Project folder(s) and file(s)
 /build/
+/nbproject/
+.dep.inc

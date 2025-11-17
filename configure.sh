@@ -3,8 +3,8 @@
 #-----------------------------------------------------------------------------------------
 # Script option(s)
 Script="HMC Library Builder"
-Version="1.6.0"
-Date='2022/03/28'
+Version="3.3.0"
+Date='2025/11/14'
 
 # Other option(s)
 Archive_Default="hmc_v316.tar.gz"
