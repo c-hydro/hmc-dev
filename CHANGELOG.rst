@@ -2,6 +2,13 @@
 Changelog
 =========
 
+Version 3.3.1 [2026-03-18]
+**************************
+- ADD: get the exponent on plant release curve from file (compatibility with the previous versions exp = 6);
+- ADD: get the minimum of plant discharge from file (compatibility with the previous versions min = 0);
+- ADD: use of compressed/not compressed forcing and updating netcdf files;
+- ADD: evaluation of UDt with different methods [iUDtMethod] (1) maximum, (2) percentage dUDtParam=[0,1], (3) percentile dUDtParam=[[25, 100]; defualt is 1
+
 Version 3.3.0 [2025-11-13]
 **************************
 - ADD: groundwater initialization with a fill level percentage (only when thickness raster is available);

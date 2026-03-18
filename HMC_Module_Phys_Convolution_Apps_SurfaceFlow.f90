@@ -61,6 +61,7 @@ contains
         real(kind = 4)      :: dVLake, dDh, dDhPrev, dRoutPrev
         real(kind = 4)      :: dQt, dHinFD
         real(kind = 4)      :: dVarAreaCell, dVarTcCatch, dVarQMinCatch
+        real(kind = 4)      :: dQRelExpPlant
         
         real(kind = 4), dimension (iRows, iCols)            :: a2dVarIntensityPrev, a2dVarIntensityUpd
         real(kind = 4), dimension (iRows, iCols)            :: a2dVarHydroPrev, a2dVarHydroUpd
@@ -265,17 +266,19 @@ contains
                          oHMC_Vars(iID)%a1dVMaxDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)) )then
                         
                         ! VDam < VDamMax --> Q**6;
+                        ! Plant discharge (or release) computed as a function of the dam filling level.
+                        dQRelExpPlant = oHMC_Vars(iID)%a1dQReleaseExpPlant(iP)
                         a1dVarQPlant(iP) = oHMC_Vars(iID)%a1dQMaxPlant(iP)* &
                                            (a1dVarVDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP))/ &
-                                            oHMC_Vars(iID)%a1dVMaxDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)))**6
+                                            oHMC_Vars(iID)%a1dVMaxDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)))**dQRelExpPlant
                                             
                     else
                         ! VDam => VDamMax --> QMax
                         a1dVarQPlant(iP) = oHMC_Vars(iID)%a1dQMaxPlant(iP)
                     endif
 
-                    ! Check plant discharge
-                    if (a1dVarQPlant(iP) .lt. 0.0) a1dVarQPlant(iP) = 0.0
+                    ! Check plant discharge (set to min in case of negative values; usually = 0)
+                    if (a1dVarQPlant(iP) .lt. 0.0) a1dVarQPlant(iP) = oHMC_Vars(iID)%a1dQMinPlant(iP)
                     !------------------------------------------------------------------------------------------
                     
                     !------------------------------------------------------------------------------------------
@@ -712,6 +715,7 @@ contains
         real(kind = 4)      :: dQt, dHinFD
         real(kind = 4)      :: dVarAreaCell, dVarTcCatch, dVarQMinCatch
         real(kind = 4)      :: dPa, dPb, dTmmm !parameters for length of inundation
+        real(kind = 4)      :: dQRelExpPlant
         
         real(kind = 4), dimension (iRows, iCols)            :: a2dVarIntensityPrev, a2dVarIntensityUpd
         real(kind = 4), dimension (iRows, iCols)            :: a2dVarHydroPrevC, a2dVarHydroUpdC
@@ -998,25 +1002,27 @@ contains
                         
                 else
                     
-                    !------------------------------------------------------------------------------------------
-                    ! Compute plant max discharge (m^3/s)
+                    !------------------------------------------------------------------------------------------            !------------------------------------------------------------------------------------------
+                    ! Compute plant max discharge (transform to mm/h)
                     if ( a1dVarVDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)) .lt. &
                          oHMC_Vars(iID)%a1dVMaxDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)) )then
                         
                         ! VDam < VDamMax --> Q**6;
+                        ! Plant discharge (or release) computed as a function of the dam filling level.
+                        dQRelExpPlant = oHMC_Vars(iID)%a1dQReleaseExpPlant(iP)
                         a1dVarQPlant(iP) = oHMC_Vars(iID)%a1dQMaxPlant(iP)* &
                                            (a1dVarVDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP))/ &
-                                            oHMC_Vars(iID)%a1dVMaxDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)))**6
+                                            oHMC_Vars(iID)%a1dVMaxDam(oHMC_Vars(iID)%a1iFlagDamPlant(iP)))**dQRelExpPlant
                                             
                     else
                         ! VDam => VDamMax --> QMax
                         a1dVarQPlant(iP) = oHMC_Vars(iID)%a1dQMaxPlant(iP)
                     endif
 
-                    ! Check plant discharge
-                    if (a1dVarQPlant(iP) .lt. 0.0) a1dVarQPlant(iP) = 0.0
+                    ! Check plant discharge (set to min in case of negative values; usually = 0)
+                    if (a1dVarQPlant(iP) .lt. 0.0) a1dVarQPlant(iP) = oHMC_Vars(iID)%a1dQMinPlant(iP)
                     !------------------------------------------------------------------------------------------
-                    
+          
                     !------------------------------------------------------------------------------------------
                     ! Update intensity
                     a2dVarIntensityUpd(iI, iJ) = a2dVarIntensityUpd(iI, iJ) + &

@@ -129,7 +129,11 @@ contains
         ! Plant array(s)
         allocate( oHMC_Vars(iID)%a2iXYPlant         (iNPlant, 2) )
         allocate( oHMC_Vars(iID)%a1iFlagDamPlant    (iNPlant) )
-        allocate( oHMC_Vars(iID)%a1dQMaxPlant       (iNPlant) )
+        
+        allocate( oHMC_Vars(iID)%a1dQReleaseExpPlant (iNPlant) )
+        allocate( oHMC_Vars(iID)%a1dQMaxPlant        (iNPlant) )
+        allocate( oHMC_Vars(iID)%a1dQMinPlant        (iNPlant) )
+        
         allocate( oHMC_Vars(iID)%a1dTcPlant         (iNPlant) )
         allocate( oHMC_Vars(iID)%a1sNamePlant       (iNPlant) )
         
@@ -415,7 +419,9 @@ contains
         ! Plant array(s)
         oHMC_Vars(iID)%a2iXYPlant = 0
         oHMC_Vars(iID)%a1iFlagDamPlant = 0
+        oHMC_Vars(iID)%a1dQReleaseExpPlant = 6  ! default value for Q exponent release expression
         oHMC_Vars(iID)%a1dQMaxPlant = 0.0
+        oHMC_Vars(iID)%a1dQMinPlant = 0.0
         oHMC_Vars(iID)%a1dTcPlant = 0.0
         oHMC_Vars(iID)%a1sNamePlant = ""
         

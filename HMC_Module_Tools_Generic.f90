@@ -34,7 +34,75 @@ contains
         write (str, "(I10)") pid !length of PID number to be checked!!if different from I5 does not work
             
     endfunction getProcessID
+    !------------------------------------------------------------------------------------
+    
+    !------------------------------------------------------------------------------------
+    ! function to compute percentile
+    function compute_percentile_2d(a2d, perc) result(pval)
 
+        real(kind=4), intent(in) :: a2d(:,:)
+        real(kind=4), intent(in) :: perc   ! percentile [25–100]
+        real(kind=4)             :: pval
+
+        real(kind=4), allocatable :: v1d(:)
+        integer :: n, i, j, k
+        integer :: nx, ny, idx
+
+        ! enforce bounds [25,100]
+        real(kind=8) :: p
+        p = max(25.0d0, min(100.0d0, perc))
+
+        ! sizes
+        nx = size(a2d,1)
+        ny = size(a2d,2)
+        n  = nx * ny
+
+        ! flatten 2D → 1D
+        allocate(v1d(n))
+        k = 0
+        do j = 1, ny
+            do i = 1, nx
+                k = k + 1
+                v1d(k) = a2d(i,j)
+            enddo
+        enddo
+
+        ! sort ascending
+        call sort_real(v1d, n)
+
+        ! compute index
+        idx = int((p/100.0d0) * (n-1)) + 1
+        idx = max(1, min(n, idx))
+
+        pval = v1d(idx)
+
+        deallocate(v1d)
+
+    end function compute_percentile_2d
+    !------------------------------------------------------------------------------------
+    
+     !------------------------------------------------------------------------------------
+    ! subroutine to sort values
+    subroutine sort_real(a, n)
+        
+        integer, intent(in) :: n
+        real(kind=4), intent(inout) :: a(n)
+
+        integer :: i, j
+        real(kind=4) :: temp
+
+        do i = 1, n-1
+            do j = i+1, n
+                if (a(j) < a(i)) then
+                    temp = a(i)
+                    a(i) = a(j)
+                    a(j) = temp
+                endif
+            enddo
+        enddo
+    end subroutine sort_real
+     !------------------------------------------------------------------------------------
+    
     !------------------------------------------------------------------------------------
     ! Subroutine to get integration boundaries
     subroutine getIntRange(a1dDemStep, a1dIntStep, dDEMStepMean, dDemDelta, iIndexStart, iIndexEnd)
@@ -507,6 +575,58 @@ contains
     end subroutine HMC_Tools_Generic_SetUnit
     !------------------------------------------------------------------------------------------
     
+    
+    !------------------------------------------------------------------------------------------
+    ! Subroutine to copy file
+    subroutine HMC_Tools_Generic_CopyFile(sCommandCopyRaw, sFileNameSrc, sFileNameDst, bFatalError)
+
+        !------------------------------------------------------------------------------------------
+        ! Variable(s) declaration
+        integer(kind = 4)                   :: iErr
+        character(len = 700)                :: sFileNameSrc
+        character(len = 700)                :: sFileNameDst
+        character(len = 700), intent(in)    :: sCommandCopyRaw
+        character(len = 700)                :: sCommandCopyDef
+
+        logical                             :: bFatalError
+        !------------------------------------------------------------------------------------------
+
+        !------------------------------------------------------------------------------------------
+        ! Initialize variable(s)
+        iErr = 0
+
+        ! Set default command if empty
+        if (len_trim(sCommandCopyRaw) == 0) then
+            sCommandCopyDef = 'cp -f "filename_src" "filename_dst"'
+        else
+            sCommandCopyDef = sCommandCopyRaw
+        endif
+        !------------------------------------------------------------------------------------------
+
+        !------------------------------------------------------------------------------------------
+        ! Define command line
+        call HMC_Tools_Generic_ReplaceText(sCommandCopyDef, 'filename_src', trim(sFileNameSrc))
+        call HMC_Tools_Generic_ReplaceText(sCommandCopyDef, 'filename_dst', trim(sFileNameDst))
+        !------------------------------------------------------------------------------------------
+
+        !------------------------------------------------------------------------------------------
+        ! Call command line using system to copy file
+        call execute_command_line(sCommandCopyDef, EXITSTAT = iErr)
+        if(iErr /= 0) then
+            if (bFatalError) then
+                call mprintf(.true., iERROR, 'Error in copying file: '// &
+                             trim(sFileNameSrc)//' --> '//trim(sFileNameDst)// &
+                             ' | cmd: '//trim(sCommandCopyDef) )
+            else
+                iErr = 0
+                return
+            endif
+        endif
+        !------------------------------------------------------------------------------------------
+
+    end subroutine HMC_Tools_Generic_CopyFile
+    !------------------------------------------------------------------------------------------
+
     !------------------------------------------------------------------------------------------
     ! Subroutine to remove file
     subroutine HMC_Tools_Generic_RemoveFile(sCommandRemoveRaw, sFileName, bFatalError)

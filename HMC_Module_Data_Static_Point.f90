@@ -537,7 +537,7 @@ contains
         character(len = 256)            :: sFileNameCurveTV, sFileNameCurveTVComplete
         character(len = 256)            :: sVarNameDam
         
-        integer(kind = 4)               :: iVarQFlagPlant
+        real(kind = 4)                  :: dVarQReleaseExpPlant
         
         integer(kind = 4), dimension (iRows, iCols) :: a2iVarChoice, a2iVarCounter
         real(kind = 4), dimension (iRows, iCols) :: a2dVarDem
@@ -550,10 +550,15 @@ contains
         integer(kind = 4), dimension (iNPlant, 2)   :: a2iVarXYPlant
         integer(kind = 4), dimension (iNPlant)      :: a1iVarFlagDamPlant
         
-        real(kind = 4), dimension (iNPlant)         :: a1dVarQMaxPlant, a1dVarTcPlant
+        real(kind = 4), dimension (iNPlant)         :: a1dVarQMinPlant, a1dVarQMaxPlant, a1dVarTcPlant
+        real(kind = 4), dimension (iNPlant)         :: a1dVarQReleaseExpPlant
+        
         character(len = 500), dimension(iNPlant)    :: a1sVarNamePlant
         
         character(len = 10)                         :: sI, sJ
+        
+        character(len=256) :: sRowData
+        integer :: iRowData
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -563,7 +568,9 @@ contains
         a1dVarCodeDam = -9999.0; a1dVarVMaxDam  = -9999.0; a1dVarVDam = -9999.0; 
         a1dVarQcSLDam = -9999.0; a1dVarLDam = -9999.0; a1dVarHMaxDam = -9999.0; a1dVarCoeffDam = -9999.0; 
         a2iVarXYPlant = -9999; a1iVarFlagDamPlant = -9999
-        a1dVarQMaxPlant = -9999.0; a1dVarTcPlant = -9999.0; 
+        
+        a1dVarQReleaseExpPlant = 6
+        a1dVarQMinPlant = -9999.0; a1dVarQMaxPlant = -9999.0; a1dVarTcPlant = -9999.0; 
         a1sVarNamePlant = ''
         
         a2iVarCounter = 0
@@ -657,15 +664,47 @@ contains
                     
                     ! Dam-Plant time corrivation (dismiss)
                     read(1, *) a1dVarTcPlant(iJ)
-                    ! Plant max discharge
-                    read(1, *) a1dVarQMaxPlant(iJ)
-                    ! Plant-Dam flag
-                    read(1, *) iVarQFlagPlant
+                    
+                    
+                    ! Plant max/min discharge line
+                    read(1,'(A)',iostat=iRowData) sRowData
+
+                    ! Try reading two values (check due to different version of the model )
+                    read(sRowData,*,iostat=iRowData) a1dVarQMaxPlant(iJ), a1dVarQMinPlant(iJ)
+
+                    if (iRowData /= 0) then
+                        
+                        ! hmc version <= 3.3.0
+                        ! Only QMax present
+                        read(sRowData,*) a1dVarQMaxPlant(iJ)
+                   
+                        a1dVarQMinPlant(iJ) = 0   ! default or missing value
+                        a1dVarQReleaseExpPlant(iJ) = 6 ! default or missing value
+                        
+                        read(1, *) !empty reading to keep the file progression
+                        
+                    else
+                        ! hmc version > 3.3.0
+                        ! Qmin and QMax present
+                        read(sRowData,*) a1dVarQMaxPlant(iJ)
+                        read(sRowData,*) a1dVarQMinPlant(iJ)
+                        read(1, *) a1dVarQReleaseExpPlant(iJ)
+                        
+                    end if
                     
                     ! Refer dam index to plant 
                     a1iVarFlagDamPlant(iJ) = int(iI)
-                    
+                                        
                 enddo
+                
+                ! check of dams file format
+                if (iRowData /= 0) then
+                    call mprintf(.true., iINFO_Main, &
+                    ' Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]')
+                else
+                    call mprintf(.true., iINFO_Main, &
+                    ' Dams file format: ReleaseExp = [from_file], Qmin = [from_file], Qmax = [from_file] [HMC version > 3.3.0]')
+                end if
                 !------------------------------------------------------------------------------------------
                 
                 !------------------------------------------------------------------------------------------
@@ -707,7 +746,9 @@ contains
             ! Plant(s)
             oHMC_Vars(iID)%a2iXYPlant = a2iVarXYPlant
             oHMC_Vars(iID)%a1iFlagDamPlant = a1iVarFlagDamPlant
+            oHMC_Vars(iID)%a1dQReleaseExpPlant = a1dVarQReleaseExpPlant
             oHMC_Vars(iID)%a1dQMaxPlant = a1dVarQMaxPlant
+            oHMC_Vars(iID)%a1dQMinPlant = a1dVarQMinPlant
             oHMC_Vars(iID)%a1dTcPlant = a1dVarTcPlant
             oHMC_Vars(iID)%a1sNamePlant = a1sVarNamePlant
             ! Info

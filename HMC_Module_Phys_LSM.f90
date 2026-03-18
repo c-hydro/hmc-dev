@@ -227,7 +227,9 @@ contains
             if( ALL(a2dVarLSTPStep.le.0.0) ) then
                 where(a2dVarTa.ge.-40.0.and.a2iVarMask.gt.0.0) a2dVarLSTPStep = a2dVarTaK + 1.0
             endif
-
+            
+            call mprintf(.true., iINFO_Extra, checkvar(a2dVarSM, a2iVarMask, 'SM START ') )
+            
             !a2dVarLSTPStep = check2Dvar(a2dVarLSTPStep, oHMC_Vars(iID)%a2iMask, -70.0,  60.0,   273.15 )
             !-------------------------------------------------------------------------------------
 

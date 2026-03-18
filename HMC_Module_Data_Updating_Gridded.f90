@@ -35,6 +35,7 @@ module HMC_Module_Data_Updating_Gridded
                                             HMC_Tools_Generic_SwitchGrid, &
                                             HMC_Tools_Generic_UnzipFile, &
                                             HMC_Tools_Generic_RemoveFile, &
+                                            HMC_Tools_Generic_CopyFile, &
                                             check2Dvar, getProcessID
                                             
     use HMC_Module_Tools_Time,      only:   HMC_Tools_Time_MonthVal
@@ -61,7 +62,7 @@ contains
         character(len = 19)         :: sTime
         character(len = 12)         :: sTimeMonth
         
-        character(len = 256)        :: sPathData_Updating
+        character(len = 1024)        :: sPathData_Updating
         
         real(kind = 4)              :: dVarLAI, dVarAlbedo
         
@@ -329,8 +330,6 @@ contains
         ! Variable(s)
         integer(kind = 4)                       :: iID                  
         
-        character(len = 256), intent(in)        :: sPathData_Updating
-        character(len = 700)                    :: sFileNameData_Updating, sFileNameData_Updating_Zip, sFileNameData_Temp
         character(len = 700)                    :: sCommandUnzipFile, sCommandRemoveFile
         character(len = 256)                    :: sVarName
         integer(kind = 4), intent(in)           :: iRows, iCols
@@ -355,8 +354,14 @@ contains
         character(len = 256):: sVarUnits, sPID
         integer(kind = 4)   :: iErr
         integer(kind = 4)   :: iFileID
-        
-        logical             :: bFileExist
+
+        ! Variables
+        logical :: bFileExistNc, bFileExistZip
+        logical :: bFileProcessed
+        character(len = 1024), intent(in)       :: sPathData_Updating
+        character(len = 1024)                   :: sFileNameData_Updating
+        character(len = 1024)                   :: sFileNameData_Updating_Zip
+        character(len = 1024)                   :: sFileNameData_Updating_Unzip
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -389,55 +394,105 @@ contains
         sPID = adjustl(getProcessID())
         !------------------------------------------------------------------------------------------
         
+                !------------------------------------------------------------------------------------------
+        ! Get unique process ID
+        sPID = adjustl(getProcessID())
         !------------------------------------------------------------------------------------------
-        ! Filename updating (example: hmc.updating-grid.201404300000.nc.gz)
+        
+        !------------------------------------------------------------------------------------------
+        ! Original forcing filename (.nc)
         sFileNameData_Updating = trim(sPathData_Updating)//"hmc.updating-grid."// &
-            sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
-            sTime(12:13)//sTime(15:16)// &
-            ".nc"
-        ! Create Filename with unique PID number to avoid simultaneously access to the same Forcing file       
-        sFileNameData_Temp = trim(sPathData_Updating)//"hmc.updating-grid."// &
-            sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
-            sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
-            ".nc"  
+            sTime(1:4)//sTime(6:7)//sTime(9:10)// &
+            sTime(12:13)//sTime(15:16)//".nc"
 
-        ! Info netCDF filename
-        call mprintf(.true., iINFO_Verbose, ' Get filename (updating gridded): '//trim(sFileNameData_Updating)//' ... ' )
-        !------------------------------------------------------------------------------------------
-
-        !------------------------------------------------------------------------------------------
-        ! Checking file input availability
+        ! Compressed filename (.nc.gz)
         sFileNameData_Updating_Zip = trim(sFileNameData_Updating)//'.gz'
-        inquire (file = trim(sFileNameData_Updating)//'.gz', exist = bFileExist)
-        if ( .not. bFileExist ) then
-            !------------------------------------------------------------------------------------------
-            ! Warning message
-            call mprintf(.true., iWARN, ' No compressed updating netCDF data found: '//trim(sFileNameData_Updating_Zip) )
-            ! Info netCDF filename
+
+        ! PID-safe working file (always uncompressed)
+        sFileNameData_Updating_Unzip = trim(sPathData_Updating)//"hmc.updating-grid."// &
+            sTime(1:4)//sTime(6:7)//sTime(9:10)// &
+            sTime(12:13)//sTime(15:16)//'_'//trim(sPID)//".nc"
+
+        ! Info
+        call mprintf(.true., iINFO_Verbose, &
+            ' Get filename (updating gridded): '//trim(sFileNameData_Updating)//' ... ')
+        !------------------------------------------------------------------------------------------
+
+        !------------------------------------------------------------------------------------------
+        ! Check availability
+        inquire(file=trim(sFileNameData_Updating), exist=bFileExistNc)
+        inquire(file=trim(sFileNameData_Updating_Zip), exist=bFileExistZip)
+
+        bFileProcessed = .false.
+        !------------------------------------------------------------------------------------------
+
+        !------------------------------------------------------------------------------------------
+        ! Priority: uncompressed file
+        if (bFileExistNc) then
+
+            ! Copy to PID-safe file
+            call HMC_Tools_Generic_CopyFile(oHMC_Namelist(iID)%sCommandCopyFile, &
+                                            sFileNameData_Updating, sFileNameData_Updating_Unzip, .true.)
+
+            bFileProcessed = .true.
+
             call mprintf(.true., iINFO_Verbose, &
-                         ' Get filename (updating gridded): '//trim(sFileNameData_Updating)//' ... FAILED' )
-            ! Info end
-            call mprintf(.true., iINFO_Extra, ' Data :: Updating gridded :: NetCDF ... SKIPPED!' )
-            !------------------------------------------------------------------------------------------
-        else
-            
-            !------------------------------------------------------------------------------------------
-            ! Unzip file
+                ' Using uncompressed updating file (copied to PID file): '// &
+                trim(sFileNameData_Updating_Unzip))
+
+        ! Fallback: compressed file
+        elseif (bFileExistZip) then
+
+            ! Unzip to PID-safe file
             call HMC_Tools_Generic_UnzipFile(oHMC_Namelist(iID)%sCommandUnzipFile, &
                                              sFileNameData_Updating_Zip, &
-                                             sFileNameData_Temp, .true.)
-            !------------------------------------------------------------------------------------------
+                                             sFileNameData_Updating_Unzip, .true.)
+
+            bFileProcessed = .true.
+
+            call mprintf(.true., iINFO_Verbose, &
+                ' Using compressed updating file (unzipped to PID file): '// &
+                trim(sFileNameData_Updating_Unzip))
+
+        ! No file available
+        else
+
+            call mprintf(.true., iWARN, &
+                ' No updating netCDF data found: '// &
+                trim(sFileNameData_Updating)//' or '//trim(sFileNameData_Updating_Zip))
+
+            call mprintf(.true., iINFO_Verbose, &
+                ' Get filename (updating gridded): '//trim(sFileNameData_Updating)//' ... FAILED')
+
+            call mprintf(.true., iINFO_Extra, &
+                ' Data :: Updating gridded :: NetCDF ... SKIPPED!')
+
+        endif
+        !------------------------------------------------------------------------------------------
         
-            !------------------------------------------------------------------------------------------
-            ! Open netCDF file
-            iErr = nf90_open(trim(sFileNameData_Temp), NF90_NOWRITE, iFileID)
+        !------------------------------------------------------------------------------------------
+        ! Open and read file
+        if (bFileProcessed) then
+            
+            ! open file 
+            iErr = nf90_open(trim(sFileNameData_Updating_Unzip), NF90_NOWRITE, iFileID)
+            
+            ! check code error of opening file
             if (iErr /= 0) then
-                call mprintf(.true., iWARN, ' Problem opening uncompressed netCDF file: '// &
-                             trim(sFileNameData_Updating)//' --> Undefined updating data values' )
+
+                call mprintf(.true., iWARN, &
+                    ' Problem opening netCDF file: '// &
+                    trim(sFileNameData_Updating_Unzip)//' --> Undefined updating data values')
+
                 call mprintf(.true., iINFO_Verbose, &
-                             ' Get filename (updating gridded): '//trim(sFileNameData_Updating)//' ... FAILED' )
+                    ' Get filename (updating gridded): '//trim(sFileNameData_Updating)//' ... FAILED')
+                    
+                ! Remove uncompressed file (to save space on disk)
+                call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, &
+                                                  sFileNameData_Updating, .false.)
+
             else
-                
+        
                 !------------------------------------------------------------------------------------------
                 ! Soil moisture variables
                 if (iFlagSMAssim.eq.1) then
@@ -597,7 +652,7 @@ contains
                 iErr = nf90_close(iFileID)
    
                 ! Remove uncompressed file (to save space on disk)
-                call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Temp, .false.)
+                call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, sFileNameData_Updating_Unzip, .false.)
                 !------------------------------------------------------------------------------------------
                 
                 !------------------------------------------------------------------------------------------
@@ -631,7 +686,7 @@ contains
         ! Variable(s)
         integer(kind = 4)                   :: iID
                                       
-        character(len = 256), intent(in)    :: sPathData_Updating
+        character(len = 1024), intent(in)   :: sPathData_Updating
         character(len = 700)                :: sFileNameData_Updating, sFileNameData_Updating_Zip, sFileNameData_Temp
         character(len = 700)                :: sCommandUnzipFile
         character(len = 256)                :: sVarName

@@ -41,6 +41,9 @@ TYPE HMC_Type_Namelist
     
     integer(kind = 4)       :: iDtPhysConv, iDtPhysConvPrevious
     integer(kind = 4)       :: iDtPhysMethod
+    
+    integer(kind = 4)       :: iUDtMethod
+    real(kind = 4)          :: dUdtParam
 
     integer(kind = 4)       :: iScaleFactor, iTcMax, iTc, iTVeg
     
@@ -112,6 +115,7 @@ TYPE HMC_Type_Namelist
     character(len = 700)    :: sCommandUnzipFile
     character(len = 700)    :: sCommandZipFile
     character(len = 700)    :: sCommandRemoveFile
+    character(len = 700)    :: sCommandCopyFile
     character(len = 700)    :: sCommandCreateFolder
     
     character(len = 10)     :: sReleaseDate
