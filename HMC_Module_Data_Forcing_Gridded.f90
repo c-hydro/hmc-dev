@@ -34,7 +34,7 @@ module HMC_Module_Data_Forcing_Gridded
     use HMC_Module_Tools_Generic,   only:   HMC_Tools_Generic_ReplaceText, &
                                             HMC_Tools_Generic_SwitchGrid, &
                                             HMC_Tools_Generic_UnzipFile, &
-                                            HMC_Tools_Generic_RemoveFile, &
+                                            HMC_Tools_Generic_RemoveFile, HMC_Tools_Generic_CopyFile, &
                                             check2Dvar, getProcessID
                                             
     use HMC_Module_Tools_Time,      only:   HMC_Tools_Time_MonthVal, &
@@ -68,7 +68,7 @@ contains
 
         character(len = 12)         :: sTimeMonth
         
-        character(len = 256)        :: sPathData_Forcing
+        character(len = 1024)        :: sPathData_Forcing
         
         real(kind = 4)              :: dVarLAI, dVarAlbedo
         
@@ -530,8 +530,7 @@ contains
         ! Variable(s)
         integer(kind = 4)                       :: iID, iDtModel, iTVeg                  
         
-        character(len = 256), intent(in)        :: sPathData_Forcing
-        character(len = 700)                    :: sFileNameData_Forcing, sFileNameData_Temp, sFileNameData_Forcing_Zip
+        
         character(len = 700)                    :: sCommandUnzipFile, sCommandRemoveFile
         character(len = 256)                    :: sVarName
         integer(kind = 4), intent(in)           :: iRows, iCols
@@ -560,7 +559,13 @@ contains
         integer(kind = 4)   :: iErr, iFlagDynVeg, iFlagEnergyBalance
         integer(kind = 4)   :: iFileID, iDtIntegr
 
-        logical             :: bFileExist
+        ! Variables
+        logical :: bFileExistNc, bFileExistZip
+        logical :: bFileProcessed
+        character(len = 1024), intent(in)           :: sPathData_Forcing
+        character(len = 1024)                       :: sFileNameData_Forcing
+        character(len = 1024)                       :: sFileNameData_Forcing_Zip
+        character(len = 1024)                       :: sFileNameData_Forcing_Unzip
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -569,7 +574,7 @@ contains
         a2dVarRelHum = -9999.0; a2dVarPa = -9999.0; a2dVarAlbedo = -9999.0; a2dVarLAI = -9999.0;
         a2dVarFC = -9999.0; a2dVarAEvt = -9999.0; a2dVarPEvt = -9999.0
 
-        sFileNameData_Forcing = ''; sFileNameData_Temp = ''; sFileNameData_Forcing_Zip = ''; sTimeMonth = ''; 
+        sFileNameData_Forcing = ''; sFileNameData_Forcing_Unzip = ''; sFileNameData_Forcing_Zip = ''; sTimeMonth = ''; 
         sTimeEndLAI = ''; sTimeEndFC = ''; sTimeStartLAI = ''; sTimeStartFC = '';
         
         ! Checking date
@@ -600,58 +605,102 @@ contains
         !------------------------------------------------------------------------------------------
         ! Get unique process ID
         sPID = adjustl(getProcessID())
-              
-        ! Filename forcing (example: hmc.dynamicdata.201404300000.nc.gz)
+        !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
+        ! Original forcing filename (.nc)
         sFileNameData_Forcing = trim(sPathData_Forcing)//"hmc.forcing-grid."// &
-            sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
-            sTime(12:13)//sTime(15:16)// &
-            ".nc"       
-        
-        ! Create Filename with unique PID number to avoid simultaneously access to the same Forcing file       
-        sFileNameData_Temp = trim(sPathData_Forcing)//"hmc.forcing-grid."// &
-            sTime(1:4)//sTime(6:7)//sTime(9:10)// & 
-            sTime(12:13)//sTime(15:16)//'_'//trim(sPID)// &
-            ".nc"  
-        
-        ! Info netCDF filename
-        call mprintf(.true., iINFO_Verbose, ' Get filename (forcing gridded): '//trim(sFileNameData_Forcing)//' ... ' )
+            sTime(1:4)//sTime(6:7)//sTime(9:10)// &
+            sTime(12:13)//sTime(15:16)//".nc"
+
+        ! Compressed filename (.nc.gz)
+        sFileNameData_Forcing_Zip = trim(sFileNameData_Forcing)//'.gz'
+
+        ! PID-safe working file (always uncompressed)
+        sFileNameData_Forcing_Unzip = trim(sPathData_Forcing)//"hmc.forcing-grid."// &
+            sTime(1:4)//sTime(6:7)//sTime(9:10)// &
+            sTime(12:13)//sTime(15:16)//'_'//trim(sPID)//".nc"
+
+        ! Info
+        call mprintf(.true., iINFO_Verbose, &
+            ' Get filename (forcing gridded): '//trim(sFileNameData_Forcing)//' ... ')
         !------------------------------------------------------------------------------------------
 
         !------------------------------------------------------------------------------------------
-        ! Checking file input availability
-        sFileNameData_Forcing_Zip = trim(sFileNameData_Forcing)//'.gz'
-        inquire (file = trim(sFileNameData_Forcing)//'.gz', exist = bFileExist)
-        if ( .not. bFileExist ) then
-            !------------------------------------------------------------------------------------------
-            ! Warning message
-            call mprintf(.true., iWARN, ' No compressed forcing netCDF data found: '//trim(sFileNameData_Forcing_Zip) )
-            ! Info netCDF filename
+        ! Check availability
+        inquire(file=trim(sFileNameData_Forcing), exist=bFileExistNc)
+        inquire(file=trim(sFileNameData_Forcing_Zip), exist=bFileExistZip)
+
+        bFileProcessed = .false.
+        !------------------------------------------------------------------------------------------
+
+        !------------------------------------------------------------------------------------------
+        ! Priority: uncompressed file
+        if (bFileExistNc) then
+
+            ! Copy to PID-safe file
+            call HMC_Tools_Generic_CopyFile(oHMC_Namelist(iID)%sCommandCopyFile, &
+                                            sFileNameData_Forcing, sFileNameData_Forcing_Unzip, .true.)
+
+            bFileProcessed = .true.
+
             call mprintf(.true., iINFO_Verbose, &
-                         ' Get filename (forcing gridded): '//trim(sFileNameData_Forcing)//' ... FAILED' )
-            ! Info end
-            call mprintf(.true., iINFO_Extra, ' Data :: Forcing gridded :: NetCDF ... SKIPPED!' )
-            !------------------------------------------------------------------------------------------
-        else
-            
-            !------------------------------------------------------------------------------------------
-            ! Unzip file
+                ' Using uncompressed forcing file (copied to PID file): '// &
+                trim(sFileNameData_Forcing_Unzip))
+
+        ! Fallback: compressed file
+        elseif (bFileExistZip) then
+
+            ! Unzip to PID-safe file
             call HMC_Tools_Generic_UnzipFile(oHMC_Namelist(iID)%sCommandUnzipFile, &
                                              sFileNameData_Forcing_Zip, &
-                                             sFileNameData_Temp, .true.)
-            !-----------------------------------------------------------------------------------------
+                                             sFileNameData_Forcing_Unzip, .true.)
+
+            bFileProcessed = .true.
+
+            call mprintf(.true., iINFO_Verbose, &
+                ' Using compressed forcing file (unzipped to PID file): '// &
+                trim(sFileNameData_Forcing_Unzip))
+
+        ! No file available
+        else
+
+            call mprintf(.true., iWARN, &
+                ' No forcing netCDF data found: '// &
+                trim(sFileNameData_Forcing)//' or '//trim(sFileNameData_Forcing_Zip))
+
+            call mprintf(.true., iINFO_Verbose, &
+                ' Get filename (forcing gridded): '//trim(sFileNameData_Forcing)//' ... FAILED')
+
+            call mprintf(.true., iINFO_Extra, &
+                ' Data :: Forcing gridded :: NetCDF ... SKIPPED!')
+
+        endif
+        !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
+        ! Open and read file
+        if (bFileProcessed) then
             
-                                                                           
-            !------------------------------------------------------------------------------------------
-            ! Open netCDF file
-            iErr = nf90_open(trim(sFileNameData_Temp), NF90_NOWRITE, iFileID)
+            ! open file 
+            iErr = nf90_open(trim(sFileNameData_Forcing_Unzip), NF90_NOWRITE, iFileID)
+            
+            ! check code error of opening file
             if (iErr /= 0) then
-                call mprintf(.true., iWARN, ' Problem opening uncompressed netCDF file: '// &
-                             trim(sFileNameData_Forcing)//' --> Undefined forcing data values' )
+
+                call mprintf(.true., iWARN, &
+                    ' Problem opening netCDF file: '// &
+                    trim(sFileNameData_Forcing_Unzip)//' --> Undefined forcing data values')
+
                 call mprintf(.true., iINFO_Verbose, &
-                             ' Get filename (forcing gridded): '//trim(sFileNameData_Forcing)//' ... FAILED' )
+                    ' Get filename (forcing gridded): '//trim(sFileNameData_Forcing)//' ... FAILED')
+                    
+                ! Remove uncompressed file (to save space on disk)
+                call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, &
+                                                  sFileNameData_Forcing, .false.)
+
             else
-                
-                
+
                 !------------------------------------------------------------------------------------------
                 ! RAIN
 #ifdef LIB_DYNARRAY
@@ -668,7 +717,6 @@ contains
                 endif
                 !------------------------------------------------------------------------------------------
                 
-                  
                 !------------------------------------------------------------------------------------------
                 ! AIR TEMPERATURE
 #ifdef LIB_DYNARRAY
@@ -684,9 +732,7 @@ contains
                     a2dVarTa = transpose(a2dVar)
                 endif
                 !------------------------------------------------------------------------------------------
-                
-                
-                
+
                 !------------------------------------------------------------------------------------------
                 ! INCOMING RADIATION
 #ifdef LIB_DYNARRAY
@@ -873,9 +919,9 @@ contains
                 !------------------------------------------------------------------------------------------
                 ! Closing netCDF file
                 iErr = nf90_close(iFileID)
-                ! Remove uncompressed file (to save space on disk)
+                ! Remove uncompressed file (to save space on disk)  
                 call HMC_Tools_Generic_RemoveFile(oHMC_Namelist(iID)%sCommandRemoveFile, &
-                                                  sFileNameData_Temp, .false.)
+                                              sFileNameData_Forcing_Unzip, .false.)
                 !------------------------------------------------------------------------------------------
                 
                 !------------------------------------------------------------------------------------------
@@ -910,7 +956,7 @@ contains
         ! Variable(s)
         integer(kind = 4)                   :: iID, iTVeg, iDtModel, iFlagDynVeg, iFlagEnergyBalance
                                       
-        character(len = 256), intent(in)    :: sPathData_Forcing
+        character(len = 1024), intent(in)    :: sPathData_Forcing
         character(len = 700)                :: sFileNameData_Forcing, sFileNameData_Forcing_Zip, sFileNameData_Temp
         character(len = 700)                :: sCommandUnzipFile
         character(len = 256)                :: sVarName

@@ -22,7 +22,7 @@ module HMC_Module_Phys_Convolution_Apps_IntegrationStep
                                                   HMC_Phys_Dam_Discharge, &
                                                   HMC_Phys_Lake_Tank
                                                   
-    use HMC_Module_Tools_Generic,           only: getIntValue, getIntRange
+    use HMC_Module_Tools_Generic,           only: getIntValue, getIntRange, compute_percentile_2d
     
     ! Implicit none for all subroutines in this module
     implicit none
@@ -45,8 +45,9 @@ contains
         integer(kind = 4)               :: iFlagVarDtPhysConv
         real(kind = 4)                  :: dBc
         real(kind = 4)                  :: dDtRef, dDtRefRatio, dDtIntegrMin
-        real(kind = 4)                  :: dDEMStepMean, dVarRainMax, dVarUDtMax
+        real(kind = 4)                  :: dDEMStepMean, dVarRainMax, dVarUDtValue, dVarUDtTmp
         real(kind = 4)                  :: dVarHydroMax
+        
         
         real(kind = 4), dimension (iRows, iCols)            :: a2dVarUc, a2dVarUh
         
@@ -55,15 +56,19 @@ contains
         real(kind = 4), dimension (iRows, iCols)            :: a2dVarUcAct
         real(kind = 4), dimension (iRows, iCols)            :: a2dVarUDt
         
-        character(len = 10)                                 :: sDtIntegrStep, sVarUDtMax, sVarRainMax
+        character(len = 10)                                 :: sDtIntegrStep, sVarUDtMax, sVarRainMax, sVarUDtValue
         character(len = 10), parameter                      :: sFMTDtIntegrStep = "(I4)"
         character(len = 10), parameter                      :: sFMTVarUDtMax = "(F8.5)"
         character(len = 10), parameter                      :: sFMTVarRainMax = "(F8.5)"
+        character(len = 10), parameter                      :: sFMTVarUDtValue = "(F6.2)"
         
         integer(kind = 4)                                   :: iDtPhysMethod
         real(kind = 4), dimension(4)                        :: a1dDemStep, a1dIntegStep, a1dDtRef, a1dDtRefRatio
         real(kind = 4)                                      :: dDemDelta
         integer(kind = 4)                                   :: iIndexEnd, iIndexStart
+        
+        integer(kind = 4)                                   :: iUDtMethod
+        real(kind = 4)                                      :: dUDtParam
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -92,6 +97,9 @@ contains
         
         dDtPhysConv = real(oHMC_Namelist(iID)%iDtPhysConv)
         iDtPhysMethod = oHMC_Namelist(iID)%iDtPhysMethod
+        
+        iUDtMethod = oHMC_Namelist(iID)%iUDtMethod
+        dUDtParam = oHMC_Namelist(iID)%dUDtParam
         
         a1dDemStep = oHMC_Namelist(iID)%a1dDemStep
         a1dIntegStep = oHMC_Namelist(iID)%a1dIntStep
@@ -202,16 +210,74 @@ contains
             !------------------------------------------------------------------------------------------
             ! Rain intensity max value
             dVarRainMax = maxval(maxval(a2dVarRain,DIM = 1),DIM = 1)*3600.0/dDtDataForcing
-            ! Velocity max value
-            dVarUDtMax = maxval(maxval(a2dVarUDt,DIM = 1),DIM = 1)
-            if (dVarUDtMax.le.0.1) dVarUDtMax = 0.1
+            
+            
+            ! method to compute the udt value (using different methods)
+            if (iUDtMethod .eq. 1) then
+
+                ! Method 1: max
+                dVarUDtValue = maxval(a2dVarUDt)
+                if (dVarUDtValue .le. 0.1d0) dVarUDtValue = 0.1d0
+
+                if (iDEBUG .gt. 0) then
+                    write(sVarUDtValue, sFMTVarUDtValue) dVarUDtValue
+                    call mprintf(.true., iINFO_Extra, &
+                        ' Phys :: Convolution :: IntegrationStep : Udt - Method Max - Value: ' // trim(sVarUDtValue))
+                endif
+
+            elseif (iUDtMethod .eq. 2) then
+
+                ! Method 2: max * param (param in [0,1])
+                dUDtParam = max(0.0d0, min(1.0d0, dUDtParam))
+
+                dVarUDtTmp   = maxval(a2dVarUDt)
+                dVarUDtValue = dVarUDtTmp * dUDtParam
+
+                if (dVarUDtValue .le. 0.1d0) dVarUDtValue = 0.1d0
+
+                if (iDEBUG .gt. 0) then
+                    write(sVarUDtValue, sFMTVarUDtValue) dVarUDtValue
+                    call mprintf(.true., iINFO_Extra, &
+                        ' Phys :: Convolution :: IntegrationStep : Udt - Method Percentage - Value: ' // trim(sVarUDtValue))
+                endif
+
+            elseif (iUDtMethod .eq. 3) then
+
+                ! Method 3: percentile (param in [25,100]) ---
+                dUDtParam = max(25.0d0, min(100.0d0, dUDtParam))
+
+                ! method to compute percenitle
+                dVarUDtValue = compute_percentile_2d(a2dVarUDt, dUDtParam)
+
+                if (dVarUDtValue .le. 0.1d0) dVarUDtValue = 0.1d0
+
+                if (iDEBUG .gt. 0) then
+                    write(sVarUDtValue, sFMTVarUDtValue) dVarUDtValue
+                    call mprintf(.true., iINFO_Extra, &
+                        ' Phys :: Convolution :: IntegrationStep : Udt - Method Percentile[25-100] - Value: ' // trim(sVarUDtValue))
+                endif
+
+            else
+
+                ! Default: max
+                dVarUDtValue = maxval(a2dVarUDt)
+                if (dVarUDtValue .le. 0.1d0) dVarUDtValue = 0.1d0
+
+                if (iDEBUG .gt. 0) then
+                    write(sVarUDtValue, sFMTVarUDtValue) dVarUDtValue
+                    call mprintf(.true., iINFO_Extra, &
+                        ' Phys :: Convolution :: IntegrationStep : Udt - Default Method Max - Value: ' // trim(sVarUDtValue))
+                endif
+
+            endif
+                    
             ! Hydro max value
             dVarHydroMax = maxval(maxval(a2dVarHydro,DIM = 1),DIM = 1)
             !------------------------------------------------------------------------------------------
 
             !------------------------------------------------------------------------------------------
             ! First estimation of integration step
-            dDtIntegrAct = dDEMStepMean/dVarUDtMax*0.6
+            dDtIntegrAct = dDEMStepMean/dVarUDtValue*0.6
 
             ! Checking Integration step value
             if (dDtIntegrAct.gt.dDtDataForcing/dDtRefRatio) then
@@ -253,11 +319,11 @@ contains
         !------------------------------------------------------------------------------------------
         ! Temporal integration step info
         write(sDtIntegrStep, sFMTDtIntegrStep) int(dDtIntegrAct)
-        write(sVarUDtMax, sFMTVarUDtMax) dVarUDtMax
+        write(sVarUDtValue, sFMTVarUDtValue) dVarUDtValue
         write(sVarRainMax, sFMTVarRainMax) dVarRainMax
         call mprintf(.true., iINFO_Basic, ' Phys :: Convolution :: IntegrationStep :: '//sDtIntegrStep//' [s]')
-        call mprintf(.true., iINFO_Basic, ' Phys :: Convolution :: MaxValue :: '// &
-                                          ' Uc: '//sVarUDtMax//' [m/s] '// &
+        call mprintf(.true., iINFO_Basic, ' Phys :: Convolution :: Values :: '// &
+                                          ' Uc: '//sVarUDtValue//' [m/s] '// &
                                           ' Rain: '//sVarRainMax//' [mm]')
 
         !------------------------------------------------------------------------------------------

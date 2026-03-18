@@ -88,6 +88,9 @@ contains
         integer(kind = 4)       :: iDtPhysPrev
         integer(kind = 4)       :: iDtPhysMethod
         
+        integer(kind = 4)       :: iUDtMethod
+        real(kind = 4)          :: dUDtParam
+        
         integer(kind = 4)       :: iScaleFactor, iTcMax, iTc, iTVeg
 
         integer(kind = 4)       :: iRowsL, iColsL
@@ -160,6 +163,7 @@ contains
         character(len = 700)    :: sCommandUnzipFile
         character(len = 700)    :: sCommandZipFile
         character(len = 700)    :: sCommandRemoveFile
+        character(len = 700)    :: sCommandCopyFile
         character(len = 700)    :: sCommandCreateFolder
         
         character(len = 10)     :: sReleaseDate
@@ -211,6 +215,7 @@ contains
                                         iScaleFactor, iTcMax, iTVeg, &
                                         iSimLength, iDtModel, &
                                         iDtPhysMethod, iDtPhysConv, &
+                                        iUDtMethod, dUDtParam, &
                                         a1dDemStep, a1dIntStep, a1dDtStep, a1dDtRatioStep, &
                                         iDtData_Forcing, &
                                         iDtData_Updating, &
@@ -245,6 +250,7 @@ contains
         namelist /HMC_Command/          sCommandZipFile, &
                                         sCommandUnzipFile, &
                                         sCommandRemoveFile, &
+                                        sCommandCopyFile, &
                                         sCommandCreateFolder
         
         namelist /HMC_Info/             sReleaseDate, &
@@ -277,6 +283,7 @@ contains
         iScaleFactor = -9999; iTcMax = -9999; iTVeg = -9999; iTc = -9999; 
         iSimLength = -9999; iDtModel = -9999; 
         iDtPhysMethod = -9999; iDtPhysConv = -9999; 
+        iUDtMethod = -9999; dUDtParam = -9999;
         a1dDemStep = -9999.0; a1dIntStep = -9999.0; a1dDtStep = -9999.0; a1dDtRatioStep = -9999.0;
         iDtData_Forcing = -9999; 
         iDtData_Updating = -9999; 
@@ -315,7 +322,7 @@ contains
         dTV = -9999.0; dDamSpillH = -9999.0
         dSMGain = -9999.0;
         
-        sCommandZipFile = ""; sCommandUnzipFile = ""; sCommandRemoveFile = ""; sCommandCreateFolder = ""
+        sCommandZipFile = ""; sCommandUnzipFile = ""; sCommandRemoveFile = ""; sCommandCopyFile = ""; sCommandCreateFolder = ""
         
         sReleaseDate = ""; sAuthorNames = ""; sReleaseVersion = "";
         
@@ -630,6 +637,19 @@ contains
             oHMC_Namelist_Init%iDtPhysMethod = iDtPhysMethod
         endif
         
+        ! method and parameter to compute the udt in integration step evaluation
+        if (iUDtMethod .eq. -9999) then                      ! backward compatibility with older version of info file (without integration step scalar or linear)
+            oHMC_Namelist_Init%iUDtMethod = 1
+        else
+            oHMC_Namelist_Init%iUDtMethod = iUDtMethod
+        endif
+        
+        if (dUDtParam .eq. -9999) then                      ! backward compatibility with older version of info file (without integration step scalar or linear)
+            oHMC_Namelist_Init%dUDtParam = 1
+        else
+            oHMC_Namelist_Init%dUDtParam = dUDtParam
+        endif
+               
         if (all(a1dDemStep .eq. -9999.0)) then                 ! backward compatibility with older version of info file (without declaration of arrays to dynamically compute integration step)
             oHMC_Namelist_Init%a1dDemStep = (/ 1, 10, 100, 1000 /)
         else
@@ -731,6 +751,14 @@ contains
         oHMC_Namelist_Init%sCommandZipFile = sCommandZipFile
         oHMC_Namelist_Init%sCommandUnzipFile = sCommandUnzipFile
         oHMC_Namelist_Init%sCommandRemoveFile = sCommandRemoveFile
+        
+        if (sCommandCopyFile == "") then     ! backward compatibility with older version of info file (without output time-series)
+            oHMC_Namelist_Init%sCommandCopyFile = 'cp -f "filename_src" "filename_dst"'
+        else
+            oHMC_Namelist_Init%sCommandCopyFile = sCommandCopyFile
+        endif
+        
+        
         oHMC_Namelist_Init%sCommandCreateFolder = sCommandCreateFolder
         
         ! Command line argument(s) or namelist parameter(s)   

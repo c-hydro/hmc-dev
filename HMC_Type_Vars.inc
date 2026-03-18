@@ -55,7 +55,8 @@ TYPE HMC_Type_Vars
     ! Plant variable(s)
     integer(kind = 4),      allocatable, dimension (:, :)       :: a2iXYPlant
     integer(kind = 4),      allocatable, dimension (:)          :: a1iFlagDamPlant
-    real(kind = 4),         allocatable, dimension (:)          :: a1dQMaxPlant, a1dTcPlant
+    real(kind = 4),         allocatable, dimension (:)          :: a1dQReleaseExpPlant
+    real(kind = 4),         allocatable, dimension (:)          :: a1dQMinPlant, a1dQMaxPlant, a1dTcPlant
     character(len = 500),   allocatable, dimension (:)          :: a1sNamePlant
     
     ! Catch and release variable(s)

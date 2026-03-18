@@ -1,0 +1,1271 @@
+----------------------------------------------
+ HMC LOGGER 
+ StartLog: 2026-03-18 14:56:40.999
+----------------------------------------------
+ [2026-03-18 14:56:40.999] INFO:    ************************************************************************
+ [2026-03-18 14:56:40.999] INFO:     Hydrological Model Continuum (Version: 3.1.6)
+ [2026-03-18 14:56:40.999] INFO:     Author(s): Delogu F., Silvestro F., Gabellani S., Libertino A., Ercolani G.
+ [2026-03-18 14:56:40.999] INFO:     Release Date: 2025/01/01
+ [2026-03-18 14:56:40.999] INFO:    ************************************************************************
+ [2026-03-18 14:56:40.999] INFO:     Operative System: GNU/Linux
+ [2026-03-18 14:56:40.999] INFO:     Read Namelist ...
+ [2026-03-18 14:56:40.999] WARNING:  Soil parametrization type is NOT set explicitly - The classical approach through CN will be used
+ [2026-03-18 14:56:40.999] INFO:     Activation of generic outcome dumping: EXTENDED DATASETS
+ [2026-03-18 14:56:40.999] INFO:     Activation of flooding outcome dumping: NOT ACTIVE
+ [2026-03-18 14:56:40.999] INFO:     Activation of snow outcome dumping: NOT ACTIVE
+ [2026-03-18 14:56:40.999] INFO:     PARAMETER(S) DEFAULT INFO --- dUc:    15.0000000 - dUh:   0.500000000 dCt:   0.469999999 dCf:    5.20000011E-02
+ [2026-03-18 14:56:40.999] INFO:     Read Namelist ... OK
+ [2026-03-18 14:56:40.999] INFO:    ************************************************************************
+ [2026-03-18 14:56:40.999] INFO:     SIMULATION START :: Time: 2026-03-18 14:56:40.998
+ [2026-03-18 14:56:40.999] INFO:     Define land data dims ...
+ [2026-03-18 14:56:40.999] INFO:     Define land data dims ... OK
+ [2026-03-18 14:56:40.999] INFO:     Define forcing data dims ...
+ [2026-03-18 14:56:41.008] INFO:     Define forcing data dims ... OK
+ [2026-03-18 14:56:41.010] INFO:     Define section data dims ...
+ [2026-03-18 14:56:41.010] INFO:     Define section data dims ... OK
+ [2026-03-18 14:56:41.010] INFO:     Define lake(s) data dims ...
+ [2026-03-18 14:56:41.010] INFO:     Define lake(s) data dims ... OK
+ [2026-03-18 14:56:41.010] INFO:     Define dam(s) data dims ...
+ [2026-03-18 14:56:41.010] INFO:     Define dam(s) data dims ... OK
+ [2026-03-18 14:56:41.010] INFO:     Define joint(s) data dims ...
+ [2026-03-18 14:56:41.010] INFO:     Define joint(s) data dims ... OK
+ [2026-03-18 14:56:41.010] INFO:     Define intake(s) data dims ...
+ [2026-03-18 14:56:41.010] INFO:     Define intake(s) data dims ... OK
+ [2026-03-18 14:56:41.014] INFO:     Define time dims ...
+ [2026-03-18 14:56:41.341] INFO:     TIME INFO --- CorrivationTime:            0 [hour] SimLength:          744 [m] DaySteps:           24
+ [2026-03-18 14:56:41.341] INFO:     Define time dims ... OK
+ [2026-03-18 14:56:41.342] INFO:     Allocating static variable(s) ...
+ [2026-03-18 14:56:41.342] INFO:     Allocating static variable(s) ... OK
+ [2026-03-18 14:56:41.342] INFO:     Allocating dynamic variable(s) ...
+ [2026-03-18 14:56:41.342] INFO:     Allocating dynamic variable(s) ... OK
+ [2026-03-18 14:56:41.342] INFO:     Initialize scalar variable(s) ...
+ [2026-03-18 14:56:41.342] INFO:     Initialize scalar variable(s) ... OK
+ [2026-03-18 14:56:41.342] INFO:     Initialize static variable(s) ...
+ [2026-03-18 14:56:41.400] INFO:     Initialize static variable(s) ... OK
+ [2026-03-18 14:56:41.400] INFO:     Initialize dynamic variable(s) ...
+ [2026-03-18 14:56:41.825] INFO:     Initialize dynamic variable(s) ... OK
+ [2026-03-18 14:56:41.825] INFO:     Define land geographical data  ...
+ [2026-03-18 14:56:41.825] INFO:     Define land geographical data  ... OK
+ [2026-03-18 14:56:41.826] INFO:     Define forcing geographical data  ...
+ [2026-03-18 14:56:41.833] INFO:     Define forcing geographical data  ... OK
+ [2026-03-18 14:56:41.834] INFO:     Land and forcing grids are equals
+ [2026-03-18 14:56:41.835] INFO:     Data :: Static gridded ...
+ [2026-03-18 14:56:41.889] INFO:     Data :: Static gridded :: Get land information ...
+ [2026-03-18 14:56:42.333] WARNING:  INQUIRE FAILED :: GetArcGrid ---> file not found (filename: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/gridded/PoBasin.mask.txt)
+ [2026-03-18 14:56:42.333] WARNING:  Mask data not found. Defining Mask based on DEM (negative elevations allowed).
+ [2026-03-18 14:56:43.306] WARNING:  INQUIRE FAILED :: GetArcGrid ---> file not found (filename: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/gridded/PoBasin.wt_max.txt)
+ [2026-03-18 14:56:43.306] WARNING:  WT maximum data not found. Initializing WT maximum data with default values.
+ [2026-03-18 14:56:43.307] WARNING:  INQUIRE FAILED :: GetArcGrid ---> file not found (filename: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/gridded/PoBasin.ksatratio.txt)
+ [2026-03-18 14:56:43.307] WARNING:  KSatRatio data not found. Initializing KSatRatio with scalar value from namelist.
+ [2026-03-18 14:56:43.478] WARNING:  INQUIRE FAILED :: GetArcGrid ---> file not found (filename: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/gridded/PoBasin.ct_wp.txt)
+ [2026-03-18 14:56:43.648] WARNING:  INQUIRE FAILED :: GetArcGrid ---> file not found (filename: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/gridded/PoBasin.uc.txt)
+ [2026-03-18 14:56:43.648] WARNING:  Uc data not found. Initializing Uc with average values.
+ [2026-03-18 14:56:43.650] WARNING:  INQUIRE FAILED :: GetArcGrid ---> file not found (filename: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/gridded/PoBasin.uh.txt)
+ [2026-03-18 14:56:43.650] WARNING:  Uh data not found. Initializing Uh with average values.
+ [2026-03-18 14:56:43.651] WARNING:  INQUIRE FAILED :: Get1d_ASCII ---> file not found (filename: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/gridded/PoBasin.ia.txt)
+ [2026-03-18 14:56:43.651] WARNING:  VegIA data not found. Initializing VegIA with default values.
+ [2026-03-18 14:56:43.652] WARNING:  INQUIRE FAILED :: GetArcGrid ---> file not found (filename: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/gridded/PoBasin.coeffres.txt)
+ [2026-03-18 14:56:43.652] WARNING:  CoeffRes data not found. Initializing CoeffRes with namelist flag condition.
+ [2026-03-18 14:56:43.652] WARNING:  INQUIRE FAILED :: GetArcGrid ---> file not found (filename: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/gridded/PoBasin.nature.txt)
+ [2026-03-18 14:56:43.652] WARNING:  Nature data not found. Initializing Nature with default values.
+ [2026-03-18 14:56:43.654] WARNING:  Watertable sources not activated. CoeffWS is null.
+ [2026-03-18 14:56:43.654] WARNING:  Watertable deep losses not activated. CoeffWDL is null.
+ [2026-03-18 14:56:43.655] WARNING:  Channel Network activated. Initializing SectionWidth with undefined values.
+ [2026-03-18 14:56:43.655] WARNING:  Fracturing not activated. Initializing Fracturing with zero values.
+ [2026-03-18 14:56:43.655] WARNING:  Flooding not activated.
+ [2026-03-18 14:56:43.731] INFO:     Data :: Static gridded :: Get land information ... OK
+ [2026-03-18 14:56:43.731] INFO:     Data :: Static gridded :: Compute derived land information ...
+ [2026-03-18 14:56:43.738] INFO:     DOMAIN INFO --- NPixels :       311155 [-] Area:    72889.9219 [Km^2] TerrainHeigthMax:    4745.70020 [m]
+ [2026-03-18 14:56:43.769] INFO:     Data :: Static gridded :: Compute derived land information ... OK
+ [2026-03-18 14:56:43.920] INFO:     Data :: Static gridded :: Get parameter(s) information ...
+ [2026-03-18 14:56:44.002] INFO:     Data :: Static gridded :: Get parameter(s) information ... OK
+ [2026-03-18 14:56:44.007] INFO:     Data :: Static gridded :: Get watertable information ...
+ [2026-03-18 14:56:44.035] WARNING:  Watertable  initialization using Continuum formula
+ [2026-03-18 14:56:44.045] INFO:     Data :: Static gridded :: Get watertable information ... OK
+ [2026-03-18 14:56:44.047] INFO:     Data :: Static gridded :: Get channel fraction information ...
+ [2026-03-18 14:56:44.048] INFO:     Data :: Static gridded :: Get channel fraction information ... SKIPPED
+ [2026-03-18 14:56:44.048] INFO:     Data :: Static gridded ... OK
+ [2026-03-18 14:56:44.048] INFO:     Data :: Static point ...
+ [2026-03-18 14:56:44.048] INFO:     Define section info ...
+ [2026-03-18 14:56:44.048] INFO:     Define section info ... OK
+ [2026-03-18 14:56:44.050] INFO:     Define lake(s) info ...
+ [2026-03-18 14:56:44.057] INFO:     Define lake(s) info ... OK
+ [2026-03-18 14:56:44.060] INFO:     Define dam(s) and plant(s) info ...
+ [2026-03-18 14:56:44.060] INFO:     Dam Name:  _VANNINO
+ [2026-03-18 14:56:44.060] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.060] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _VANNINO)
+ [2026-03-18 14:56:44.060] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.060] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.063] INFO:     Dam Name:  _CODELAGO
+ [2026-03-18 14:56:44.063] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.063] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _CODELAGO)
+ [2026-03-18 14:56:44.063] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.063] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.065] INFO:     Dam Name:  _LAGO_D'AVINO
+ [2026-03-18 14:56:44.065] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.065] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_D'AVINO)
+ [2026-03-18 14:56:44.065] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.065] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.068] INFO:     Dam Name:  _BUSIN
+ [2026-03-18 14:56:44.068] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.068] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _BUSIN)
+ [2026-03-18 14:56:44.068] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.068] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.071] INFO:     Dam Name:  _LAGO_GABIET_SUD
+ [2026-03-18 14:56:44.071] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.071] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_GABIET_SUD)
+ [2026-03-18 14:56:44.071] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.071] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.073] INFO:     Dam Name:  _LAVAGNINA_INF_
+ [2026-03-18 14:56:44.073] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.073] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAVAGNINA_INF_)
+ [2026-03-18 14:56:44.073] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.073] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.076] INFO:     Dam Name:  _ORTIGLIETTO_M_ZERBINO
+ [2026-03-18 14:56:44.076] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.076] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _ORTIGLIETTO_M_ZERBINO)
+ [2026-03-18 14:56:44.076] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.076] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.078] INFO:     Dam Name:  _ALPE_CAVALLI
+ [2026-03-18 14:56:44.078] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.078] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _ALPE_CAVALLI)
+ [2026-03-18 14:56:44.078] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.078] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.081] INFO:     Dam Name:  _CAMPLICCIOLI
+ [2026-03-18 14:56:44.081] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.081] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _CAMPLICCIOLI)
+ [2026-03-18 14:56:44.081] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.081] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.083] INFO:     Dam Name:  _LAGO_CINGINO
+ [2026-03-18 14:56:44.083] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.083] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_CINGINO)
+ [2026-03-18 14:56:44.083] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.083] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.086] INFO:     Dam Name:  _CARDENELLO
+ [2026-03-18 14:56:44.086] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.086] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _CARDENELLO)
+ [2026-03-18 14:56:44.086] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.086] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.088] INFO:     Dam Name:  _GURZIA
+ [2026-03-18 14:56:44.088] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.088] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _GURZIA)
+ [2026-03-18 14:56:44.088] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.088] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.091] INFO:     Dam Name:  _CIGNANA_(I)
+ [2026-03-18 14:56:44.091] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.091] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _CIGNANA_(I))
+ [2026-03-18 14:56:44.091] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.091] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.093] INFO:     Dam Name:  _ROCHEMOLLES
+ [2026-03-18 14:56:44.093] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.093] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _ROCHEMOLLES)
+ [2026-03-18 14:56:44.093] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.093] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.096] INFO:     Dam Name:  _LAGO_LAVEZZE
+ [2026-03-18 14:56:44.096] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.096] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_LAVEZZE)
+ [2026-03-18 14:56:44.096] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.096] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.098] INFO:     Dam Name:  _LAGO_LUNGO
+ [2026-03-18 14:56:44.098] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.098] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_LUNGO)
+ [2026-03-18 14:56:44.098] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.098] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.101] INFO:     Dam Name:  _LAGO_BADANA
+ [2026-03-18 14:56:44.101] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.101] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_BADANA)
+ [2026-03-18 14:56:44.101] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.101] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.103] INFO:     Dam Name:  _CERESOLE_REALE_MAGGIORE
+ [2026-03-18 14:56:44.103] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.103] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _CERESOLE_REALE_MAGGIORE)
+ [2026-03-18 14:56:44.103] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.103] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.106] INFO:     Dam Name:  _VAL_DI_NOCI
+ [2026-03-18 14:56:44.106] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.106] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _VAL_DI_NOCI)
+ [2026-03-18 14:56:44.106] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.106] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.108] INFO:     Dam Name:  _LAGO_NERO
+ [2026-03-18 14:56:44.108] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.108] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_NERO)
+ [2026-03-18 14:56:44.108] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.108] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.111] INFO:     Dam Name:  _LAGO_D'ARNO
+ [2026-03-18 14:56:44.111] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.111] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_D'ARNO)
+ [2026-03-18 14:56:44.111] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.111] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.113] INFO:     Dam Name:  _LAGO_COLOMBO
+ [2026-03-18 14:56:44.113] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.113] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_COLOMBO)
+ [2026-03-18 14:56:44.113] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.113] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.116] INFO:     Dam Name:  _LAGO_SARDEGNANA
+ [2026-03-18 14:56:44.116] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.116] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_SARDEGNANA)
+ [2026-03-18 14:56:44.116] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.116] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.118] INFO:     Dam Name:  _LAGO_SALARNO
+ [2026-03-18 14:56:44.118] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.118] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_SALARNO)
+ [2026-03-18 14:56:44.118] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.118] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.121] INFO:     Dam Name:  _LAGO_AVIO
+ [2026-03-18 14:56:44.121] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.121] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_AVIO)
+ [2026-03-18 14:56:44.121] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.121] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.123] INFO:     Dam Name:  _LAGO_TRUZZO
+ [2026-03-18 14:56:44.123] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.123] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_TRUZZO)
+ [2026-03-18 14:56:44.123] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.123] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.126] INFO:     Dam Name:  _LAGO_VENINA
+ [2026-03-18 14:56:44.126] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.126] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_VENINA)
+ [2026-03-18 14:56:44.126] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.126] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.128] INFO:     Dam Name:  _PADULI
+ [2026-03-18 14:56:44.128] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.128] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _PADULI)
+ [2026-03-18 14:56:44.128] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.128] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.132] INFO:     Dam Name:  _MOLATO
+ [2026-03-18 14:56:44.132] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.132] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _MOLATO)
+ [2026-03-18 14:56:44.132] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.132] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.137] INFO:     Dam Name:  _FONTANALUCCIA
+ [2026-03-18 14:56:44.137] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.137] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _FONTANALUCCIA)
+ [2026-03-18 14:56:44.137] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.137] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.142] INFO:     Dam Name:  _MIGNANO
+ [2026-03-18 14:56:44.142] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.142] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _MIGNANO)
+ [2026-03-18 14:56:44.142] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.142] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.147] INFO:     Dam Name:  _LAGO_DELLA_VACCA
+ [2026-03-18 14:56:44.147] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.147] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_DELLA_VACCA)
+ [2026-03-18 14:56:44.147] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.147] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.152] INFO:     Dam Name:  _PIANO_BARBELLINO
+ [2026-03-18 14:56:44.152] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.152] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _PIANO_BARBELLINO)
+ [2026-03-18 14:56:44.152] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.152] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.157] INFO:     Dam Name:  _LAGO_VERDE
+ [2026-03-18 14:56:44.157] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.157] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_VERDE)
+ [2026-03-18 14:56:44.157] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.157] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.162] INFO:     Dam Name:  _SCAIS
+ [2026-03-18 14:56:44.162] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.162] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _SCAIS)
+ [2026-03-18 14:56:44.162] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.162] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.167] INFO:     Dam Name:  _LAGHI_GEMELLI
+ [2026-03-18 14:56:44.167] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.167] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGHI_GEMELLI)
+ [2026-03-18 14:56:44.167] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.167] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.172] INFO:     Dam Name:  _PIAN_CASERE
+ [2026-03-18 14:56:44.172] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.172] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _PIAN_CASERE)
+ [2026-03-18 14:56:44.172] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.172] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.176] INFO:     Dam Name:  _PLACE_MOULIN
+ [2026-03-18 14:56:44.176] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.176] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _PLACE_MOULIN)
+ [2026-03-18 14:56:44.176] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.176] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.179] INFO:     Dam Name:  _CAMPOSECCO
+ [2026-03-18 14:56:44.179] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.179] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _CAMPOSECCO)
+ [2026-03-18 14:56:44.179] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.179] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.181] INFO:     Dam Name:  _LAGO_BAITONE
+ [2026-03-18 14:56:44.181] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.181] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_BAITONE)
+ [2026-03-18 14:56:44.181] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.181] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.184] INFO:     Dam Name:  _LAGO_DELLA_ROSSA
+ [2026-03-18 14:56:44.184] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.184] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_DELLA_ROSSA)
+ [2026-03-18 14:56:44.184] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.184] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.186] INFO:     Dam Name:  _VALTOGGIA
+ [2026-03-18 14:56:44.186] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.186] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _VALTOGGIA)
+ [2026-03-18 14:56:44.186] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.186] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.189] INFO:     Dam Name:  _LAGO_VALDIFRATI
+ [2026-03-18 14:56:44.189] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.189] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_VALDIFRATI)
+ [2026-03-18 14:56:44.189] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.189] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.191] INFO:     Dam Name:  _LAGO_DEL_DIAVOLO
+ [2026-03-18 14:56:44.191] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.191] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_DEL_DIAVOLO)
+ [2026-03-18 14:56:44.191] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.191] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.194] INFO:     Dam Name:  _LAGO_GOILLET
+ [2026-03-18 14:56:44.194] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.194] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_GOILLET)
+ [2026-03-18 14:56:44.194] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.194] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.196] INFO:     Dam Name:  _MORASCO
+ [2026-03-18 14:56:44.196] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.196] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _MORASCO)
+ [2026-03-18 14:56:44.196] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.196] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.199] INFO:     Dam Name:  _SARNICO
+ [2026-03-18 14:56:44.199] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.199] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _SARNICO)
+ [2026-03-18 14:56:44.199] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.199] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.201] INFO:     Dam Name:  _ALPE_LARECCHIO
+ [2026-03-18 14:56:44.201] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.201] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _ALPE_LARECCHIO)
+ [2026-03-18 14:56:44.201] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.201] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.204] INFO:     Dam Name:  _AGARO
+ [2026-03-18 14:56:44.204] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.204] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _AGARO)
+ [2026-03-18 14:56:44.204] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.204] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.206] INFO:     Dam Name:  _AGNEL
+ [2026-03-18 14:56:44.206] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.206] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _AGNEL)
+ [2026-03-18 14:56:44.206] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.206] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.209] INFO:     Dam Name:  _CASTELLO
+ [2026-03-18 14:56:44.209] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.209] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _CASTELLO)
+ [2026-03-18 14:56:44.209] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.209] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.211] INFO:     Dam Name:  _OSIGLIETTA
+ [2026-03-18 14:56:44.211] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.211] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _OSIGLIETTA)
+ [2026-03-18 14:56:44.211] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.211] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.214] INFO:     Dam Name:  _MIORINA
+ [2026-03-18 14:56:44.214] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.214] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _MIORINA)
+ [2026-03-18 14:56:44.214] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.214] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.216] INFO:     Dam Name:  _LAGO_BENEDETTO
+ [2026-03-18 14:56:44.216] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.216] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_BENEDETTO)
+ [2026-03-18 14:56:44.216] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.216] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.219] INFO:     Dam Name:  _REGGEA
+ [2026-03-18 14:56:44.219] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.219] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _REGGEA)
+ [2026-03-18 14:56:44.219] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.219] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.221] INFO:     Dam Name:  _SAN_GIACOMO
+ [2026-03-18 14:56:44.221] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.221] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _SAN_GIACOMO)
+ [2026-03-18 14:56:44.221] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.221] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.224] INFO:     Dam Name:  _LAGO_INFERNO
+ [2026-03-18 14:56:44.224] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.224] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_INFERNO)
+ [2026-03-18 14:56:44.224] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.224] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.226] INFO:     Dam Name:  _LAGO_DI_TRONA
+ [2026-03-18 14:56:44.226] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.226] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_DI_TRONA)
+ [2026-03-18 14:56:44.226] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.226] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.229] INFO:     Dam Name:  _BEAUREGARD
+ [2026-03-18 14:56:44.229] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.229] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _BEAUREGARD)
+ [2026-03-18 14:56:44.229] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.229] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.231] INFO:     Dam Name:  _SESSERA_-_PIANCONE
+ [2026-03-18 14:56:44.231] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.231] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _SESSERA_-_PIANCONE)
+ [2026-03-18 14:56:44.231] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.231] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.234] INFO:     Dam Name:  _PANTANO_D'AVIO
+ [2026-03-18 14:56:44.234] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.234] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _PANTANO_D'AVIO)
+ [2026-03-18 14:56:44.234] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.234] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.236] INFO:     Dam Name:  _OLGINATE
+ [2026-03-18 14:56:44.236] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.236] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _OLGINATE)
+ [2026-03-18 14:56:44.236] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.236] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.238] INFO:     Dam Name:  _SABBIONE
+ [2026-03-18 14:56:44.239] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.239] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _SABBIONE)
+ [2026-03-18 14:56:44.239] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.239] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.241] INFO:     Dam Name:  _LAGO_PUBLINO
+ [2026-03-18 14:56:44.241] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.241] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_PUBLINO)
+ [2026-03-18 14:56:44.241] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.241] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.243] INFO:     Dam Name:  _ISOLATO_-_LAGO_DI_EMET
+ [2026-03-18 14:56:44.244] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.244] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _ISOLATO_-_LAGO_DI_EMET)
+ [2026-03-18 14:56:44.244] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.244] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.246] INFO:     Dam Name:  _SERRU'
+ [2026-03-18 14:56:44.246] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.246] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _SERRU')
+ [2026-03-18 14:56:44.246] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.246] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.248] INFO:     Dam Name:  _BRUGNETO
+ [2026-03-18 14:56:44.248] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.248] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _BRUGNETO)
+ [2026-03-18 14:56:44.249] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.249] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.251] INFO:     Dam Name:  _PONTE_DELL'ACQUA
+ [2026-03-18 14:56:44.251] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.251] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _PONTE_DELL'ACQUA)
+ [2026-03-18 14:56:44.251] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.251] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.253] INFO:     Dam Name:  _LAGO_FREGABOLGIA
+ [2026-03-18 14:56:44.253] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.253] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_FREGABOLGIA)
+ [2026-03-18 14:56:44.253] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.254] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.256] INFO:     Dam Name:  _VALSOERA
+ [2026-03-18 14:56:44.256] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.256] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _VALSOERA)
+ [2026-03-18 14:56:44.256] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.256] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.258] INFO:     Dam Name:  _FRERA
+ [2026-03-18 14:56:44.258] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.258] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _FRERA)
+ [2026-03-18 14:56:44.258] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.258] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.261] INFO:     Dam Name:  _PORTO_DELLA_TORRE
+ [2026-03-18 14:56:44.261] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.261] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _PORTO_DELLA_TORRE)
+ [2026-03-18 14:56:44.261] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.261] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.264] INFO:     Dam Name:  _PIANTELESSIO
+ [2026-03-18 14:56:44.264] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.264] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _PIANTELESSIO)
+ [2026-03-18 14:56:44.264] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.264] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.266] INFO:     Dam Name:  _CANCANO
+ [2026-03-18 14:56:44.266] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.266] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _CANCANO)
+ [2026-03-18 14:56:44.266] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.266] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.269] INFO:     Dam Name:  _MALGA_BOAZZO
+ [2026-03-18 14:56:44.269] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.269] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _MALGA_BOAZZO)
+ [2026-03-18 14:56:44.269] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.269] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.271] INFO:     Dam Name:  _PONTE_PIA'
+ [2026-03-18 14:56:44.271] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.271] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _PONTE_PIA')
+ [2026-03-18 14:56:44.271] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.271] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.274] INFO:     Dam Name:  _CAMPO_MORO_(I)
+ [2026-03-18 14:56:44.274] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.274] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _CAMPO_MORO_(I))
+ [2026-03-18 14:56:44.274] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.274] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.276] INFO:     Dam Name:  _MALGA_BISSINA
+ [2026-03-18 14:56:44.276] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.276] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _MALGA_BISSINA)
+ [2026-03-18 14:56:44.276] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.276] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.279] INFO:     Dam Name:  _VENEROCOLO
+ [2026-03-18 14:56:44.279] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.279] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _VENEROCOLO)
+ [2026-03-18 14:56:44.279] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.279] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.281] INFO:     Dam Name:  _LAGO_EUGIO
+ [2026-03-18 14:56:44.281] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.281] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_EUGIO)
+ [2026-03-18 14:56:44.281] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.281] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.284] INFO:     Dam Name:  _ISOLA_SERAFINI
+ [2026-03-18 14:56:44.284] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.284] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _ISOLA_SERAFINI)
+ [2026-03-18 14:56:44.284] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.284] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.286] INFO:     Dam Name:  _PONTE_COLA
+ [2026-03-18 14:56:44.286] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.286] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _PONTE_COLA)
+ [2026-03-18 14:56:44.286] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.286] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.289] INFO:     Dam Name:  _ALPE_GERA
+ [2026-03-18 14:56:44.289] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.289] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _ALPE_GERA)
+ [2026-03-18 14:56:44.289] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.289] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.291] INFO:     Dam Name:  _PIASTRA
+ [2026-03-18 14:56:44.291] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.291] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _PIASTRA)
+ [2026-03-18 14:56:44.291] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.291] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.294] INFO:     Dam Name:  _ROBBIATE
+ [2026-03-18 14:56:44.294] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.294] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _ROBBIATE)
+ [2026-03-18 14:56:44.294] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.294] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.296] INFO:     Dam Name:  _TREZZO_SULL'ADDA
+ [2026-03-18 14:56:44.296] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.296] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _TREZZO_SULL'ADDA)
+ [2026-03-18 14:56:44.296] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.296] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.299] INFO:     Dam Name:  _LAGO_DELIO_NORD
+ [2026-03-18 14:56:44.299] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.299] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_DELIO_NORD)
+ [2026-03-18 14:56:44.299] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.299] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.301] INFO:     Dam Name:  _CHIOTAS
+ [2026-03-18 14:56:44.301] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.301] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _CHIOTAS)
+ [2026-03-18 14:56:44.301] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.301] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.304] INFO:     Dam Name:  _COLLE_LAURA
+ [2026-03-18 14:56:44.304] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.304] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _COLLE_LAURA)
+ [2026-03-18 14:56:44.304] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.304] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.306] INFO:     Dam Name:  _INGAGNA_(ARAL_GRANDE)
+ [2026-03-18 14:56:44.306] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.306] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _INGAGNA_(ARAL_GRANDE))
+ [2026-03-18 14:56:44.306] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.306] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.309] INFO:     Dam Name:  _FORCOLETTA
+ [2026-03-18 14:56:44.309] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.309] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _FORCOLETTA)
+ [2026-03-18 14:56:44.309] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.309] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.311] INFO:     Dam Name:  _VALLA
+ [2026-03-18 14:56:44.311] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.311] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _VALLA)
+ [2026-03-18 14:56:44.311] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.311] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.314] INFO:     Dam Name:  _CHABRIERES_-_GERMANASCA
+ [2026-03-18 14:56:44.314] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.314] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _CHABRIERES_-_GERMANASCA)
+ [2026-03-18 14:56:44.314] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.314] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.316] INFO:     Dam Name:  _LAGO_D'IDRO
+ [2026-03-18 14:56:44.316] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.316] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _LAGO_D'IDRO)
+ [2026-03-18 14:56:44.316] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.316] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.319] INFO:     Dam Name:  _BARDELLO
+ [2026-03-18 14:56:44.319] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.319] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _BARDELLO)
+ [2026-03-18 14:56:44.319] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.319] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.321] INFO:     Dam Name:  _OSTOLA
+ [2026-03-18 14:56:44.321] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.321] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _OSTOLA)
+ [2026-03-18 14:56:44.321] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.321] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.324] INFO:     Dam Name:  _RAVASANELLA
+ [2026-03-18 14:56:44.324] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.324] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _RAVASANELLA)
+ [2026-03-18 14:56:44.324] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.324] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.326] INFO:     Dam Name:  _PANARO
+ [2026-03-18 14:56:44.326] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.326] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _PANARO)
+ [2026-03-18 14:56:44.326] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.326] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.329] INFO:     Dam Name:  _PARMA_(CASSA_LAMINAZIONE_PIENE)
+ [2026-03-18 14:56:44.329] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.329] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _PARMA_(CASSA_LAMINAZIONE_PIENE))
+ [2026-03-18 14:56:44.329] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.329] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.331] INFO:     Dam Name:  _SALIONZE
+ [2026-03-18 14:56:44.331] INFO:     Define dam storage curve ...
+ [2026-03-18 14:56:44.331] WARNING:  No dam storage curve file found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/geo/PoBasin/point/#Nome (Dam: _SALIONZE)
+ [2026-03-18 14:56:44.331] INFO:     Define dam storage curve ... OK
+ [2026-03-18 14:56:44.331] INFO:     Dams file format: ReleaseExp = 6, Qmin = 0, Qmax = [from_file] [HMC version <= 3.3.0]
+ [2026-03-18 14:56:44.334] INFO:     Define dam(s) and plant(s) info ... OK
+ [2026-03-18 14:56:44.334] INFO:     Define joint(s) info ...
+ [2026-03-18 14:56:44.334] INFO:     No joint(s) available for this run!
+ [2026-03-18 14:56:44.334] INFO:     Define catch(s) and release(s) info ...
+ [2026-03-18 14:56:44.334] INFO:     No catch(es) and release(s) available for this run!
+ [2026-03-18 14:56:44.334] INFO:     Data :: Static point ... OK
+ [2026-03-18 14:56:44.698] INFO:     Get filename (restart gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/model_restart/PoBasin/hmc.state-grid.198309302300.nc ...
+ [2026-03-18 14:56:44.698] WARNING:  No compressed restart netCDF data found: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/model_restart/PoBasin/hmc.state-grid.198309302300.nc.gz
+ [2026-03-18 14:56:44.698] INFO:     Get filename (restart gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/model_restart/PoBasin/hmc.state-grid.198309302300.nc ... FAILED
+ [2026-03-18 14:56:44.698] INFO:     Data :: Restart gridded :: NetCDF :: Some/All variable(s) are N/A!
+ [2026-03-18 14:56:44.698] WARNING:  Restart flag activated but some data restart are not available!
+ [2026-03-18 14:56:44.698] WARNING:  Restart gridded conditions are null!
+ [2026-03-18 14:56:44.698] INFO:     Data :: Restart gridded :: NetCDF :: All snow variable(s) are loaded!
+ [2026-03-18 14:56:44.737] INFO:     Restart flag selected but data are N/A (gridded data)
+ [2026-03-18 14:56:44.907] INFO:     Get filename (state point): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/model_restart/PoBasin/hmc.state-point.198309302300.txt
+ [2026-03-18 14:56:44.907] INFO:     Get (restart point) at time 1983-09-30_23:00:00 ...
+ [2026-03-18 14:56:44.907] WARNING:  INQUIRE FAILED :: state point ASCII ---> file not readable (filename: /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/model_restart/PoBasin/hmc.state-point.198309302300.txt)
+ [2026-03-18 14:56:44.907] INFO:     Get (restart point) at time 1983-09-30_23:00:00 ... OK
+ [2026-03-18 14:56:44.907] INFO:     Data :: Restart point :: ASCII :: Some/All variable(s) are N/A!
+ [2026-03-18 14:56:44.907] WARNING:  Restart flag activated but some data restart are not available!
+ [2026-03-18 14:56:44.907] WARNING:  Restart point conditions are null!
+ [2026-03-18 14:56:44.907] INFO:     Restart flag selected but data are N/A (point data)
+ [2026-03-18 14:56:44.907] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1983-10-01_00:00:00            1          744         3600 =====
+ [2026-03-18 14:56:44.907] INFO:     STEP CLOCK START :: Time: 2026-03-18 14:56:44.907
+ [2026-03-18 14:56:44.907] INFO:     Get (forcing point) at time 1983-10-01_00:00:00 ...
+ [2026-03-18 14:56:44.907] WARNING:  No forcing point ASCII data found (dam volume): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/damv.db.198310010000.txt
+ [2026-03-18 14:56:44.907] INFO:     Get filename (forcing point dams): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/damv.db.198310010000.txt ... FAILED
+ [2026-03-18 14:56:44.907] INFO:     Get (forcing point) at time 1983-10-01_00:00:00 ... FAILED
+ [2026-03-18 14:56:44.907] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.907] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.907] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.907] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.907] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.907] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.907] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.907] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.907] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.907] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.907] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.907] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.908] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.908] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.909] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.909] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.910] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.910] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.910] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.910] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.910] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.910] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.910] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.910] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.910] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.910] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.910] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.910] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.910] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.910] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.910] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.910] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.910] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.910] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.910] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.910] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.910] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.910] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.910] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.910] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.910] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.910] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.910] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.910] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.910] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.910] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.910] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.910] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.910] WARNING:  No forcing time-series ASCII data found (plant): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt
+ [2026-03-18 14:56:44.910] INFO:     Get filename (plant forcing time-series): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/hmc.forcing-ts.plant_#File.txt ... FAILED
+ [2026-03-18 14:56:44.926] INFO:     Get filename (forcing gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010000.nc ...
+ [2026-03-18 14:56:44.931] INFO:     Using compressed forcing file (unzipped to PID file): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010000_13237.nc
+ [2026-03-18 14:56:44.966] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: AirPressure)
+ [2026-03-18 14:56:44.966] WARNING:  Get forcing gridded data FAILED! Check forcing data for AirPressure! Variable initializes in default mode using Altitude values!
+ [2026-03-18 14:56:44.967] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: Albedo)
+ [2026-03-18 14:56:44.967] WARNING:  Get forcing gridded data FAILED! Check forcing data for Albedo!
+ [2026-03-18 14:56:44.968] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: LAI)
+ [2026-03-18 14:56:44.968] WARNING:  Get forcing gridded data FAILED! Check forcing data for LAI!
+ [2026-03-18 14:56:44.968] WARNING:  Dynamic Vegetation Phys not activated -- Using previous valid LAI!
+ [2026-03-18 14:56:44.969] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: FC)
+ [2026-03-18 14:56:44.969] WARNING:  Get forcing gridded data FAILED! Check forcing data for FC!
+ [2026-03-18 14:56:44.971] INFO:     Get filename (forcing gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010000.nc ... OK
+ [2026-03-18 14:56:45.073] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2026-03-18 14:56:45.080] WARNING:  All LAI values are undefined! LAI will be initialized using a default monthly value!
+ [2026-03-18 14:56:45.091] WARNING:  Fractional vegetation Cover set equal to one!
+ [2026-03-18 14:56:45.097] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2026-03-18 14:56:45.141] INFO:     Get filename (updating gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010000.nc ...
+ [2026-03-18 14:56:45.144] INFO:     Using compressed updating file (unzipped to PID file): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010000_13237.nc
+ [2026-03-18 14:56:45.156] INFO:     Get filename (updating gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010000.nc ... OK
+ [2026-03-18 14:56:45.258] INFO:     Phys :: StateUpdating ...
+ [2026-03-18 14:56:45.268] INFO:     Phys :: StateUpdating :: Soil Moisture ...
+ [2026-03-18 14:56:45.268] INFO:     Phys :: StateUpdating :: Soil Moisture ... NOT ACTIVATED
+ [2026-03-18 14:56:45.279] INFO:     Phys :: StateUpdating ... OK
+ [2026-03-18 14:56:45.291] INFO:     Phys :: Snow model ...
+ [2026-03-18 14:56:45.321] INFO:     Phys :: Snow model ... NOT ACTIVATED
+ [2026-03-18 14:56:45.345] INFO:     Phys :: Land surface model ...
+ [2026-03-18 14:56:45.384] INFO:     Phys :: Land surface model :: ACTIVATED
+ [2026-03-18 14:56:45.787] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2026-03-18 14:56:45.787] INFO:     Phys :: LSM :: AvgValue ::  LST: 286.5      [K]  Rn:  -60.6     [W/m^2]  H:   -4.5     [W/m^2]  LE:   17.5     [W/m^2]
+ [2026-03-18 14:56:45.791] INFO:    ET END :: Max:   0.234541282 - Min:    0.00000000 - Mean:    2.73135267E-02
+ [2026-03-18 14:56:45.795] INFO:    ET.POT END :: Max:   0.351594001 - Min:    0.00000000 - Mean:    4.19426933E-02
+ [2026-03-18 14:56:45.802] INFO:    LST END :: Max:    291.251526 - Min:    269.011475 - Mean:    286.539795
+ [2026-03-18 14:56:45.805] INFO:    SM :: Max:   0.298669338 - Min:   0.150000006 - Mean:   0.269677907
+ [2026-03-18 14:56:45.847] INFO:    RN :: Max:   -51.3322449 - Min:   -75.4057922 - Mean:   -60.6095467
+ [2026-03-18 14:56:45.850] INFO:    H :: Max:    68.7428131 - Min:   -119.948235 - Mean:   -4.49868488
+ [2026-03-18 14:56:45.854] INFO:    LE :: Max:    160.445175 - Min:   -13.1388168 - Mean:    17.4990978
+ [2026-03-18 14:56:45.867] INFO:     Phys :: Land surface model ... OK
+ [2026-03-18 14:56:45.878] INFO:     Phys :: Evapotranspiration ...
+ [2026-03-18 14:56:45.901] INFO:     Phys :: EVT START :: AvgValue ::  AEvt:  0.0273    [mm]  PEvt:  0.0419    [mm]  Evt:  0.0273    [mm]  Evt Tot:  0.0273    [mm]
+ [2026-03-18 14:56:45.937] INFO:     Phys :: EVT END :: AvgValue ::  AEvt:  0.0280    [mm]  PEvt:  0.0419    [mm]  Evt:  0.0273    [mm]  Evt Tot:  0.0553    [mm]
+ [2026-03-18 14:56:45.997] INFO:     Phys :: Evapotranspiration ... OK
+ [2026-03-18 14:56:46.005] INFO:     Phys :: Retention ...
+ [2026-03-18 14:56:46.041] INFO:     Phys :: Retention ... OK
+ [2026-03-18 14:56:46.043] INFO:     Phys :: Convolution [channel network] ...
+ [2026-03-18 14:56:46.082] INFO:     Phys :: Convolution :: IntegrationStep ::   56       [s]
+ [2026-03-18 14:56:46.082] INFO:     Phys :: Convolution :: Values ::  Uc:   0.10     [m/s]  Rain:  0.00000   [mm]
+ [2026-03-18 14:56:46.085] INFO:     Phys :: Convolution :: TimeStart: 2026-03-18 14:56:46.085
+ [2026-03-18 14:57:20.804] INFO:     Phys :: Convolution :: Discharge :: Q SecFirst:       0.00 [m^3/s] Q SecMax:       0.71 [m^3/s]
+ [2026-03-18 14:57:20.946] INFO:     Phys :: Convolution :: TimeEnd: 2026-03-18 14:57:20.946
+ [2026-03-18 14:57:20.968] INFO:     Phys :: Convolution [channel network] ... OK
+ [2026-03-18 14:57:21.128] INFO:     Save filename (result gridded): /home/fabio/Desktop/shybox/exec/case_study_itwater/runner_hmc/model_results/PoBasin/gridded/1983/10/01/hmc.output-grid.198310010000.nc ...
+ [2026-03-18 14:57:21.892] INFO:     Save filename (result gridded): /home/fabio/Desktop/shybox/exec/case_study_itwater/runner_hmc/model_results/PoBasin/gridded/1983/10/01/hmc.output-grid.198310010000.nc ... OK
+ [2026-03-18 14:57:22.136] INFO:     Save (result point) at time: 1983-10-01_00:00:00 ...
+ [2026-03-18 14:57:22.143] INFO:     Save (result point) at time: 1983-10-01_00:00:00 ... OK
+ [2026-03-18 14:57:22.148] INFO:     STEP CLOCK END :: Time: 2026-03-18 14:57:22.148
+ [2026-03-18 14:57:22.148] INFO:     ===== TIME STEP END :: Date, iT, iNTime, iDt :: 1983-10-01_00:00:00            1          744         3600 =====
+ [2026-03-18 14:57:22.148] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1983-10-01_01:00:00            2          744         3600 =====
+ [2026-03-18 14:57:22.148] INFO:     STEP CLOCK START :: Time: 2026-03-18 14:57:22.148
+ [2026-03-18 14:57:22.148] INFO:     Get (forcing point) at time 1983-10-01_01:00:00 ...
+ [2026-03-18 14:57:22.148] WARNING:  No forcing point ASCII data found (dam volume): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/damv.db.198310010100.txt
+ [2026-03-18 14:57:22.148] INFO:     Get filename (forcing point dams): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/damv.db.198310010100.txt ... FAILED
+ [2026-03-18 14:57:22.148] INFO:     Get (forcing point) at time 1983-10-01_01:00:00 ... FAILED
+ [2026-03-18 14:57:22.162] INFO:     Get filename (forcing gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010100.nc ...
+ [2026-03-18 14:57:22.167] INFO:     Using compressed forcing file (unzipped to PID file): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010100_13237.nc
+ [2026-03-18 14:57:22.202] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: AirPressure)
+ [2026-03-18 14:57:22.202] WARNING:  Get forcing gridded data FAILED! Check forcing data for AirPressure! Variable initializes in default mode using Altitude values!
+ [2026-03-18 14:57:22.203] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: Albedo)
+ [2026-03-18 14:57:22.203] WARNING:  Get forcing gridded data FAILED! Check forcing data for Albedo!
+ [2026-03-18 14:57:22.204] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: LAI)
+ [2026-03-18 14:57:22.204] WARNING:  Get forcing gridded data FAILED! Check forcing data for LAI!
+ [2026-03-18 14:57:22.204] WARNING:  Dynamic Vegetation Phys not activated -- Using previous valid LAI!
+ [2026-03-18 14:57:22.204] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: FC)
+ [2026-03-18 14:57:22.204] WARNING:  Get forcing gridded data FAILED! Check forcing data for FC!
+ [2026-03-18 14:57:22.207] INFO:     Get filename (forcing gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010100.nc ... OK
+ [2026-03-18 14:57:22.308] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2026-03-18 14:57:22.322] WARNING:  Fractional vegetation Cover set equal to one!
+ [2026-03-18 14:57:22.327] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2026-03-18 14:57:22.374] INFO:     Get filename (updating gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010100.nc ...
+ [2026-03-18 14:57:22.377] INFO:     Using compressed updating file (unzipped to PID file): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010100_13237.nc
+ [2026-03-18 14:57:22.389] INFO:     Get filename (updating gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010100.nc ... OK
+ [2026-03-18 14:57:22.494] INFO:     Phys :: StateUpdating ...
+ [2026-03-18 14:57:22.505] INFO:     Phys :: StateUpdating :: Soil Moisture ...
+ [2026-03-18 14:57:22.505] INFO:     Phys :: StateUpdating :: Soil Moisture ... NOT ACTIVATED
+ [2026-03-18 14:57:22.517] INFO:     Phys :: StateUpdating ... OK
+ [2026-03-18 14:57:22.529] INFO:     Phys :: Snow model ...
+ [2026-03-18 14:57:22.559] INFO:     Phys :: Snow model ... NOT ACTIVATED
+ [2026-03-18 14:57:22.582] INFO:     Phys :: Land surface model ...
+ [2026-03-18 14:57:22.623] INFO:     Phys :: Land surface model :: ACTIVATED
+ [2026-03-18 14:57:22.994] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2026-03-18 14:57:22.994] INFO:     Phys :: LSM :: AvgValue ::  LST: 285.9      [K]  Rn:  -55.1     [W/m^2]  H:   -3.5     [W/m^2]  LE:   11.4     [W/m^2]
+ [2026-03-18 14:57:22.997] INFO:    ET END :: Max:   0.202544913 - Min:    0.00000000 - Mean:    1.86978746E-02
+ [2026-03-18 14:57:23.001] INFO:    ET.POT END :: Max:   0.299532384 - Min:    0.00000000 - Mean:    2.90277489E-02
+ [2026-03-18 14:57:23.008] INFO:    LST END :: Max:    290.494019 - Min:    269.633575 - Mean:    285.868317
+ [2026-03-18 14:57:23.012] INFO:    SM :: Max:   0.493232936 - Min:    0.00000000 - Mean:   0.269532412
+ [2026-03-18 14:57:23.054] INFO:    RN :: Max:   -40.0884094 - Min:   -82.2971497 - Mean:   -55.0706062
+ [2026-03-18 14:57:23.058] INFO:    H :: Max:    94.7949142 - Min:   -133.096817 - Mean:   -3.47898912
+ [2026-03-18 14:57:23.062] INFO:    LE :: Max:    138.163406 - Min:   -15.8868732 - Mean:    11.3855019
+ [2026-03-18 14:57:23.075] INFO:     Phys :: Land surface model ... OK
+ [2026-03-18 14:57:23.086] INFO:     Phys :: Evapotranspiration ...
+ [2026-03-18 14:57:23.111] INFO:     Phys :: EVT START :: AvgValue ::  AEvt:  0.0187    [mm]  PEvt:  0.0290    [mm]  Evt:  0.0187    [mm]  Evt Tot:  0.0740    [mm]
+ [2026-03-18 14:57:23.147] INFO:     Phys :: EVT END :: AvgValue ::  AEvt:  0.0190    [mm]  PEvt:  0.0290    [mm]  Evt:  0.0187    [mm]  Evt Tot:  0.0930    [mm]
+ [2026-03-18 14:57:23.222] INFO:     Phys :: Evapotranspiration ... OK
+ [2026-03-18 14:57:23.229] INFO:     Phys :: Retention ...
+ [2026-03-18 14:57:23.267] INFO:     Phys :: Retention ... OK
+ [2026-03-18 14:57:23.267] INFO:     Phys :: Convolution [channel network] ...
+ [2026-03-18 14:57:23.308] INFO:     Phys :: Convolution :: IntegrationStep ::   62       [s]
+ [2026-03-18 14:57:23.308] INFO:     Phys :: Convolution :: Values ::  Uc:   1.38     [m/s]  Rain:  0.75598   [mm]
+ [2026-03-18 14:57:23.310] INFO:     Phys :: Convolution :: TimeStart: 2026-03-18 14:57:23.310
+ [2026-03-18 14:57:54.000] INFO:     Phys :: Convolution :: Discharge :: Q SecFirst:       0.00 [m^3/s] Q SecMax:       3.33 [m^3/s]
+ [2026-03-18 14:57:54.144] INFO:     Phys :: Convolution :: TimeEnd: 2026-03-18 14:57:54.144
+ [2026-03-18 14:57:54.167] INFO:     Phys :: Convolution [channel network] ... OK
+ [2026-03-18 14:57:54.168] INFO:     STEP CLOCK END :: Time: 2026-03-18 14:57:54.168
+ [2026-03-18 14:57:54.169] INFO:     ===== TIME STEP END :: Date, iT, iNTime, iDt :: 1983-10-01_01:00:00            2          744         3600 =====
+ [2026-03-18 14:57:54.169] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1983-10-01_02:00:00            3          744         3600 =====
+ [2026-03-18 14:57:54.169] INFO:     STEP CLOCK START :: Time: 2026-03-18 14:57:54.169
+ [2026-03-18 14:57:54.169] INFO:     Get (forcing point) at time 1983-10-01_02:00:00 ...
+ [2026-03-18 14:57:54.169] WARNING:  No forcing point ASCII data found (dam volume): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/damv.db.198310010200.txt
+ [2026-03-18 14:57:54.169] INFO:     Get filename (forcing point dams): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/damv.db.198310010200.txt ... FAILED
+ [2026-03-18 14:57:54.169] INFO:     Get (forcing point) at time 1983-10-01_02:00:00 ... FAILED
+ [2026-03-18 14:57:54.183] INFO:     Get filename (forcing gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010200.nc ...
+ [2026-03-18 14:57:54.195] INFO:     Using compressed forcing file (unzipped to PID file): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010200_13237.nc
+ [2026-03-18 14:57:54.230] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: AirPressure)
+ [2026-03-18 14:57:54.230] WARNING:  Get forcing gridded data FAILED! Check forcing data for AirPressure! Variable initializes in default mode using Altitude values!
+ [2026-03-18 14:57:54.231] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: Albedo)
+ [2026-03-18 14:57:54.231] WARNING:  Get forcing gridded data FAILED! Check forcing data for Albedo!
+ [2026-03-18 14:57:54.232] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: LAI)
+ [2026-03-18 14:57:54.232] WARNING:  Get forcing gridded data FAILED! Check forcing data for LAI!
+ [2026-03-18 14:57:54.232] WARNING:  Dynamic Vegetation Phys not activated -- Using previous valid LAI!
+ [2026-03-18 14:57:54.233] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: FC)
+ [2026-03-18 14:57:54.233] WARNING:  Get forcing gridded data FAILED! Check forcing data for FC!
+ [2026-03-18 14:57:54.235] INFO:     Get filename (forcing gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010200.nc ... OK
+ [2026-03-18 14:57:54.341] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2026-03-18 14:57:54.355] WARNING:  Fractional vegetation Cover set equal to one!
+ [2026-03-18 14:57:54.361] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2026-03-18 14:57:54.410] INFO:     Get filename (updating gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010200.nc ...
+ [2026-03-18 14:57:54.419] INFO:     Using compressed updating file (unzipped to PID file): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010200_13237.nc
+ [2026-03-18 14:57:54.431] INFO:     Get filename (updating gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010200.nc ... OK
+ [2026-03-18 14:57:54.539] INFO:     Phys :: StateUpdating ...
+ [2026-03-18 14:57:54.550] INFO:     Phys :: StateUpdating :: Soil Moisture ...
+ [2026-03-18 14:57:54.550] INFO:     Phys :: StateUpdating :: Soil Moisture ... NOT ACTIVATED
+ [2026-03-18 14:57:54.562] INFO:     Phys :: StateUpdating ... OK
+ [2026-03-18 14:57:54.576] INFO:     Phys :: Snow model ...
+ [2026-03-18 14:57:54.609] INFO:     Phys :: Snow model ... NOT ACTIVATED
+ [2026-03-18 14:57:54.634] INFO:     Phys :: Land surface model ...
+ [2026-03-18 14:57:54.677] INFO:     Phys :: Land surface model :: ACTIVATED
+ [2026-03-18 14:57:55.067] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2026-03-18 14:57:55.067] INFO:     Phys :: LSM :: AvgValue ::  LST: 285.7      [K]  Rn:  -53.5     [W/m^2]  H:   -4.4     [W/m^2]  LE:   11.1     [W/m^2]
+ [2026-03-18 14:57:55.071] INFO:    ET END :: Max:   0.216850385 - Min:    0.00000000 - Mean:    1.87246408E-02
+ [2026-03-18 14:57:55.075] INFO:    ET.POT END :: Max:   0.321421027 - Min:    0.00000000 - Mean:    2.91194711E-02
+ [2026-03-18 14:57:55.083] INFO:    LST END :: Max:    290.048706 - Min:    269.961884 - Mean:    285.692871
+ [2026-03-18 14:57:55.087] INFO:    SM :: Max:   0.649682701 - Min:    0.00000000 - Mean:   0.269519031
+ [2026-03-18 14:57:55.133] INFO:    RN :: Max:   -36.8361206 - Min:   -88.8678894 - Mean:   -53.4846764
+ [2026-03-18 14:57:55.137] INFO:    H :: Max:    96.0942841 - Min:   -145.427795 - Mean:   -4.42892742
+ [2026-03-18 14:57:55.141] INFO:    LE :: Max:    147.990616 - Min:   -16.8757210 - Mean:    11.0552111
+ [2026-03-18 14:57:55.155] INFO:     Phys :: Land surface model ... OK
+ [2026-03-18 14:57:55.167] INFO:     Phys :: Evapotranspiration ...
+ [2026-03-18 14:57:55.191] INFO:     Phys :: EVT START :: AvgValue ::  AEvt:  0.0187    [mm]  PEvt:  0.0291    [mm]  Evt:  0.0187    [mm]  Evt Tot:  0.1117    [mm]
+ [2026-03-18 14:57:55.229] INFO:     Phys :: EVT END :: AvgValue ::  AEvt:  0.0189    [mm]  PEvt:  0.0291    [mm]  Evt:  0.0187    [mm]  Evt Tot:  0.1306    [mm]
+ [2026-03-18 14:57:55.308] INFO:     Phys :: Evapotranspiration ... OK
+ [2026-03-18 14:57:55.316] INFO:     Phys :: Retention ...
+ [2026-03-18 14:57:55.356] INFO:     Phys :: Retention ... OK
+ [2026-03-18 14:57:55.357] INFO:     Phys :: Convolution [channel network] ...
+ [2026-03-18 14:57:55.400] INFO:     Phys :: Convolution :: IntegrationStep ::   68       [s]
+ [2026-03-18 14:57:55.401] INFO:     Phys :: Convolution :: Values ::  Uc:   1.47     [m/s]  Rain:  0.32104   [mm]
+ [2026-03-18 14:57:55.403] INFO:     Phys :: Convolution :: TimeStart: 2026-03-18 14:57:55.403
+ [2026-03-18 14:58:23.809] INFO:     Phys :: Convolution :: Discharge :: Q SecFirst:       0.00 [m^3/s] Q SecMax:       5.76 [m^3/s]
+ [2026-03-18 14:58:23.960] INFO:     Phys :: Convolution :: TimeEnd: 2026-03-18 14:58:23.960
+ [2026-03-18 14:58:23.983] INFO:     Phys :: Convolution [channel network] ... OK
+ [2026-03-18 14:58:23.985] INFO:     STEP CLOCK END :: Time: 2026-03-18 14:58:23.985
+ [2026-03-18 14:58:23.985] INFO:     ===== TIME STEP END :: Date, iT, iNTime, iDt :: 1983-10-01_02:00:00            3          744         3600 =====
+ [2026-03-18 14:58:23.985] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1983-10-01_03:00:00            4          744         3600 =====
+ [2026-03-18 14:58:23.985] INFO:     STEP CLOCK START :: Time: 2026-03-18 14:58:23.985
+ [2026-03-18 14:58:23.985] INFO:     Get (forcing point) at time 1983-10-01_03:00:00 ...
+ [2026-03-18 14:58:23.985] WARNING:  No forcing point ASCII data found (dam volume): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/damv.db.198310010300.txt
+ [2026-03-18 14:58:23.985] INFO:     Get filename (forcing point dams): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/damv.db.198310010300.txt ... FAILED
+ [2026-03-18 14:58:23.985] INFO:     Get (forcing point) at time 1983-10-01_03:00:00 ... FAILED
+ [2026-03-18 14:58:23.999] INFO:     Get filename (forcing gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010300.nc ...
+ [2026-03-18 14:58:24.011] INFO:     Using compressed forcing file (unzipped to PID file): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010300_13237.nc
+ [2026-03-18 14:58:24.046] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: AirPressure)
+ [2026-03-18 14:58:24.046] WARNING:  Get forcing gridded data FAILED! Check forcing data for AirPressure! Variable initializes in default mode using Altitude values!
+ [2026-03-18 14:58:24.047] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: Albedo)
+ [2026-03-18 14:58:24.047] WARNING:  Get forcing gridded data FAILED! Check forcing data for Albedo!
+ [2026-03-18 14:58:24.047] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: LAI)
+ [2026-03-18 14:58:24.047] WARNING:  Get forcing gridded data FAILED! Check forcing data for LAI!
+ [2026-03-18 14:58:24.047] WARNING:  Dynamic Vegetation Phys not activated -- Using previous valid LAI!
+ [2026-03-18 14:58:24.048] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: FC)
+ [2026-03-18 14:58:24.048] WARNING:  Get forcing gridded data FAILED! Check forcing data for FC!
+ [2026-03-18 14:58:24.051] INFO:     Get filename (forcing gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010300.nc ... OK
+ [2026-03-18 14:58:24.160] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2026-03-18 14:58:24.175] WARNING:  Fractional vegetation Cover set equal to one!
+ [2026-03-18 14:58:24.180] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2026-03-18 14:58:24.229] INFO:     Get filename (updating gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010300.nc ...
+ [2026-03-18 14:58:24.238] INFO:     Using compressed updating file (unzipped to PID file): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010300_13237.nc
+ [2026-03-18 14:58:24.250] INFO:     Get filename (updating gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010300.nc ... OK
+ [2026-03-18 14:58:24.360] INFO:     Phys :: StateUpdating ...
+ [2026-03-18 14:58:24.372] INFO:     Phys :: StateUpdating :: Soil Moisture ...
+ [2026-03-18 14:58:24.372] INFO:     Phys :: StateUpdating :: Soil Moisture ... NOT ACTIVATED
+ [2026-03-18 14:58:24.384] INFO:     Phys :: StateUpdating ... OK
+ [2026-03-18 14:58:24.398] INFO:     Phys :: Snow model ...
+ [2026-03-18 14:58:24.432] INFO:     Phys :: Snow model ... NOT ACTIVATED
+ [2026-03-18 14:58:24.458] INFO:     Phys :: Land surface model ...
+ [2026-03-18 14:58:24.507] INFO:     Phys :: Land surface model :: ACTIVATED
+ [2026-03-18 14:58:24.938] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2026-03-18 14:58:24.938] INFO:     Phys :: LSM :: AvgValue ::  LST: 285.0      [K]  Rn:  -52.9     [W/m^2]  H:  -10.7     [W/m^2]  LE:    6.6     [W/m^2]
+ [2026-03-18 14:58:24.941] INFO:    ET END :: Max:   0.235273734 - Min:    0.00000000 - Mean:    1.28349923E-02
+ [2026-03-18 14:58:24.945] INFO:    ET.POT END :: Max:   0.349287152 - Min:    0.00000000 - Mean:    1.96583439E-02
+ [2026-03-18 14:58:24.953] INFO:    LST END :: Max:    290.314270 - Min:    266.127258 - Mean:    284.951965
+ [2026-03-18 14:58:24.957] INFO:    SM :: Max:   0.759658039 - Min:    0.00000000 - Mean:   0.269564897
+ [2026-03-18 14:58:25.007] INFO:    RN :: Max:   -35.0506897 - Min:   -93.3130188 - Mean:   -52.9320717
+ [2026-03-18 14:58:25.011] INFO:    H :: Max:    13.5868111 - Min:   -148.775146 - Mean:   -10.7286501
+ [2026-03-18 14:58:25.015] INFO:    LE :: Max:    160.606216 - Min:   -17.0608540 - Mean:    6.55698967
+ [2026-03-18 14:58:25.031] INFO:     Phys :: Land surface model ... OK
+ [2026-03-18 14:58:25.044] INFO:     Phys :: Evapotranspiration ...
+ [2026-03-18 14:58:25.071] INFO:     Phys :: EVT START :: AvgValue ::  AEvt:  0.0128    [mm]  PEvt:  0.0197    [mm]  Evt:  0.0128    [mm]  Evt Tot:  0.1435    [mm]
+ [2026-03-18 14:58:25.110] INFO:     Phys :: EVT END :: AvgValue ::  AEvt:  0.0130    [mm]  PEvt:  0.0197    [mm]  Evt:  0.0128    [mm]  Evt Tot:  0.1565    [mm]
+ [2026-03-18 14:58:25.192] INFO:     Phys :: Evapotranspiration ... OK
+ [2026-03-18 14:58:25.201] INFO:     Phys :: Retention ...
+ [2026-03-18 14:58:25.244] INFO:     Phys :: Retention ... OK
+ [2026-03-18 14:58:25.245] INFO:     Phys :: Convolution [channel network] ...
+ [2026-03-18 14:58:25.292] INFO:     Phys :: Convolution :: IntegrationStep ::   74       [s]
+ [2026-03-18 14:58:25.292] INFO:     Phys :: Convolution :: Values ::  Uc:   2.05     [m/s]  Rain:  0.00000   [mm]
+ [2026-03-18 14:58:25.295] INFO:     Phys :: Convolution :: TimeStart: 2026-03-18 14:58:25.295
+ [2026-03-18 14:58:54.340] INFO:     Phys :: Convolution :: Discharge :: Q SecFirst:       0.00 [m^3/s] Q SecMax:       6.91 [m^3/s]
+ [2026-03-18 14:58:54.489] INFO:     Phys :: Convolution :: TimeEnd: 2026-03-18 14:58:54.489
+ [2026-03-18 14:58:54.513] INFO:     Phys :: Convolution [channel network] ... OK
+ [2026-03-18 14:58:54.515] INFO:     STEP CLOCK END :: Time: 2026-03-18 14:58:54.515
+ [2026-03-18 14:58:54.515] INFO:     ===== TIME STEP END :: Date, iT, iNTime, iDt :: 1983-10-01_03:00:00            4          744         3600 =====
+ [2026-03-18 14:58:54.515] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1983-10-01_04:00:00            5          744         3600 =====
+ [2026-03-18 14:58:54.515] INFO:     STEP CLOCK START :: Time: 2026-03-18 14:58:54.515
+ [2026-03-18 14:58:54.515] INFO:     Get (forcing point) at time 1983-10-01_04:00:00 ...
+ [2026-03-18 14:58:54.515] WARNING:  No forcing point ASCII data found (dam volume): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/damv.db.198310010400.txt
+ [2026-03-18 14:58:54.515] INFO:     Get filename (forcing point dams): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/damv.db.198310010400.txt ... FAILED
+ [2026-03-18 14:58:54.515] INFO:     Get (forcing point) at time 1983-10-01_04:00:00 ... FAILED
+ [2026-03-18 14:58:54.531] INFO:     Get filename (forcing gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010400.nc ...
+ [2026-03-18 14:58:54.543] INFO:     Using compressed forcing file (unzipped to PID file): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010400_13237.nc
+ [2026-03-18 14:58:54.579] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: AirPressure)
+ [2026-03-18 14:58:54.579] WARNING:  Get forcing gridded data FAILED! Check forcing data for AirPressure! Variable initializes in default mode using Altitude values!
+ [2026-03-18 14:58:54.580] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: Albedo)
+ [2026-03-18 14:58:54.580] WARNING:  Get forcing gridded data FAILED! Check forcing data for Albedo!
+ [2026-03-18 14:58:54.581] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: LAI)
+ [2026-03-18 14:58:54.581] WARNING:  Get forcing gridded data FAILED! Check forcing data for LAI!
+ [2026-03-18 14:58:54.581] WARNING:  Dynamic Vegetation Phys not activated -- Using previous valid LAI!
+ [2026-03-18 14:58:54.582] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: FC)
+ [2026-03-18 14:58:54.582] WARNING:  Get forcing gridded data FAILED! Check forcing data for FC!
+ [2026-03-18 14:58:54.585] INFO:     Get filename (forcing gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010400.nc ... OK
+ [2026-03-18 14:58:54.700] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2026-03-18 14:58:54.715] WARNING:  Fractional vegetation Cover set equal to one!
+ [2026-03-18 14:58:54.721] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2026-03-18 14:58:54.771] INFO:     Get filename (updating gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010400.nc ...
+ [2026-03-18 14:58:54.780] INFO:     Using compressed updating file (unzipped to PID file): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010400_13237.nc
+ [2026-03-18 14:58:54.793] INFO:     Get filename (updating gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010400.nc ... OK
+ [2026-03-18 14:58:54.904] INFO:     Phys :: StateUpdating ...
+ [2026-03-18 14:58:54.915] INFO:     Phys :: StateUpdating :: Soil Moisture ...
+ [2026-03-18 14:58:54.916] INFO:     Phys :: StateUpdating :: Soil Moisture ... NOT ACTIVATED
+ [2026-03-18 14:58:54.928] INFO:     Phys :: StateUpdating ... OK
+ [2026-03-18 14:58:54.941] INFO:     Phys :: Snow model ...
+ [2026-03-18 14:58:54.974] INFO:     Phys :: Snow model ... NOT ACTIVATED
+ [2026-03-18 14:58:55.000] INFO:     Phys :: Land surface model ...
+ [2026-03-18 14:58:55.045] INFO:     Phys :: Land surface model :: ACTIVATED
+ [2026-03-18 14:58:55.453] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2026-03-18 14:58:55.453] INFO:     Phys :: LSM :: AvgValue ::  LST: 284.6      [K]  Rn:  -50.6     [W/m^2]  H:  -11.6     [W/m^2]  LE:    5.1     [W/m^2]
+ [2026-03-18 14:58:55.457] INFO:    ET END :: Max:   0.247542217 - Min:    0.00000000 - Mean:    1.09510068E-02
+ [2026-03-18 14:58:55.461] INFO:    ET.POT END :: Max:   0.368443608 - Min:    0.00000000 - Mean:    1.66655295E-02
+ [2026-03-18 14:58:55.469] INFO:    LST END :: Max:    290.133759 - Min:    264.858795 - Mean:    284.571106
+ [2026-03-18 14:58:55.474] INFO:    SM :: Max:   0.849542081 - Min:    0.00000000 - Mean:   0.269794911
+ [2026-03-18 14:58:55.524] INFO:    RN :: Max:   -35.7169800 - Min:   -78.7376099 - Mean:   -50.5651360
+ [2026-03-18 14:58:55.528] INFO:    H :: Max:    6.44239283 - Min:   -156.062744 - Mean:   -11.5751743
+ [2026-03-18 14:58:55.532] INFO:    LE :: Max:    169.018845 - Min:   -18.2889061 - Mean:    5.14061546
+ [2026-03-18 14:58:55.548] INFO:     Phys :: Land surface model ... OK
+ [2026-03-18 14:58:55.561] INFO:     Phys :: Evapotranspiration ...
+ [2026-03-18 14:58:55.589] INFO:     Phys :: EVT START :: AvgValue ::  AEvt:  0.0110    [mm]  PEvt:  0.0167    [mm]  Evt:  0.0110    [mm]  Evt Tot:  0.1675    [mm]
+ [2026-03-18 14:58:55.629] INFO:     Phys :: EVT END :: AvgValue ::  AEvt:  0.0112    [mm]  PEvt:  0.0167    [mm]  Evt:  0.0110    [mm]  Evt Tot:  0.1786    [mm]
+ [2026-03-18 14:58:55.710] INFO:     Phys :: Evapotranspiration ... OK
+ [2026-03-18 14:58:55.720] INFO:     Phys :: Retention ...
+ [2026-03-18 14:58:55.761] INFO:     Phys :: Retention ... OK
+ [2026-03-18 14:58:55.762] INFO:     Phys :: Convolution [channel network] ...
+ [2026-03-18 14:58:55.807] INFO:     Phys :: Convolution :: IntegrationStep ::   80       [s]
+ [2026-03-18 14:58:55.807] INFO:     Phys :: Convolution :: Values ::  Uc:   2.46     [m/s]  Rain:  0.00000   [mm]
+ [2026-03-18 14:58:55.810] INFO:     Phys :: Convolution :: TimeStart: 2026-03-18 14:58:55.810
+ [2026-03-18 14:59:22.786] INFO:     Phys :: Convolution :: Discharge :: Q SecFirst:       0.00 [m^3/s] Q SecMax:       7.02 [m^3/s]
+ [2026-03-18 14:59:22.941] INFO:     Phys :: Convolution :: TimeEnd: 2026-03-18 14:59:22.941
+ [2026-03-18 14:59:22.965] INFO:     Phys :: Convolution [channel network] ... OK
+ [2026-03-18 14:59:22.968] INFO:     STEP CLOCK END :: Time: 2026-03-18 14:59:22.968
+ [2026-03-18 14:59:22.968] INFO:     ===== TIME STEP END :: Date, iT, iNTime, iDt :: 1983-10-01_04:00:00            5          744         3600 =====
+ [2026-03-18 14:59:22.968] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1983-10-01_05:00:00            6          744         3600 =====
+ [2026-03-18 14:59:22.968] INFO:     STEP CLOCK START :: Time: 2026-03-18 14:59:22.968
+ [2026-03-18 14:59:22.968] INFO:     Get (forcing point) at time 1983-10-01_05:00:00 ...
+ [2026-03-18 14:59:22.968] WARNING:  No forcing point ASCII data found (dam volume): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/damv.db.198310010500.txt
+ [2026-03-18 14:59:22.968] INFO:     Get filename (forcing point dams): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/damv.db.198310010500.txt ... FAILED
+ [2026-03-18 14:59:22.968] INFO:     Get (forcing point) at time 1983-10-01_05:00:00 ... FAILED
+ [2026-03-18 14:59:22.983] INFO:     Get filename (forcing gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010500.nc ...
+ [2026-03-18 14:59:22.996] INFO:     Using compressed forcing file (unzipped to PID file): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010500_13237.nc
+ [2026-03-18 14:59:23.034] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: AirPressure)
+ [2026-03-18 14:59:23.034] WARNING:  Get forcing gridded data FAILED! Check forcing data for AirPressure! Variable initializes in default mode using Altitude values!
+ [2026-03-18 14:59:23.036] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: Albedo)
+ [2026-03-18 14:59:23.036] WARNING:  Get forcing gridded data FAILED! Check forcing data for Albedo!
+ [2026-03-18 14:59:23.036] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: LAI)
+ [2026-03-18 14:59:23.036] WARNING:  Get forcing gridded data FAILED! Check forcing data for LAI!
+ [2026-03-18 14:59:23.036] WARNING:  Dynamic Vegetation Phys not activated -- Using previous valid LAI!
+ [2026-03-18 14:59:23.038] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: FC)
+ [2026-03-18 14:59:23.038] WARNING:  Get forcing gridded data FAILED! Check forcing data for FC!
+ [2026-03-18 14:59:23.040] INFO:     Get filename (forcing gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010500.nc ... OK
+ [2026-03-18 14:59:23.158] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2026-03-18 14:59:23.173] WARNING:  Fractional vegetation Cover set equal to one!
+ [2026-03-18 14:59:23.179] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2026-03-18 14:59:23.232] INFO:     Get filename (updating gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010500.nc ...
+ [2026-03-18 14:59:23.241] INFO:     Using compressed updating file (unzipped to PID file): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010500_13237.nc
+ [2026-03-18 14:59:23.254] INFO:     Get filename (updating gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010500.nc ... OK
+ [2026-03-18 14:59:23.370] INFO:     Phys :: StateUpdating ...
+ [2026-03-18 14:59:23.382] INFO:     Phys :: StateUpdating :: Soil Moisture ...
+ [2026-03-18 14:59:23.382] INFO:     Phys :: StateUpdating :: Soil Moisture ... NOT ACTIVATED
+ [2026-03-18 14:59:23.394] INFO:     Phys :: StateUpdating ... OK
+ [2026-03-18 14:59:23.408] INFO:     Phys :: Snow model ...
+ [2026-03-18 14:59:23.442] INFO:     Phys :: Snow model ... NOT ACTIVATED
+ [2026-03-18 14:59:23.468] INFO:     Phys :: Land surface model ...
+ [2026-03-18 14:59:23.514] INFO:     Phys :: Land surface model :: ACTIVATED
+ [2026-03-18 14:59:23.935] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2026-03-18 14:59:23.935] INFO:     Phys :: LSM :: AvgValue ::  LST: 284.3      [K]  Rn:  -49.8     [W/m^2]  H:  -11.8     [W/m^2]  LE:    5.0     [W/m^2]
+ [2026-03-18 14:59:23.939] INFO:    ET END :: Max:   0.240357101 - Min:    0.00000000 - Mean:    1.06387166E-02
+ [2026-03-18 14:59:23.943] INFO:    ET.POT END :: Max:   0.357632726 - Min:    0.00000000 - Mean:    1.61651690E-02
+ [2026-03-18 14:59:23.952] INFO:    LST END :: Max:    290.006348 - Min:    264.273834 - Mean:    284.327454
+ [2026-03-18 14:59:23.956] INFO:    SM :: Max:   0.912470341 - Min:    0.00000000 - Mean:   0.270187140
+ [2026-03-18 14:59:24.005] INFO:    RN :: Max:   -35.3970642 - Min:   -69.2930298 - Mean:   -49.8058968
+ [2026-03-18 14:59:24.009] INFO:    H :: Max:    4.03629446 - Min:   -150.483780 - Mean:   -11.8162613
+ [2026-03-18 14:59:24.013] INFO:    LE :: Max:    164.159332 - Min:   -22.0784969 - Mean:    4.95465422
+ [2026-03-18 14:59:24.029] INFO:     Phys :: Land surface model ... OK
+ [2026-03-18 14:59:24.041] INFO:     Phys :: Evapotranspiration ...
+ [2026-03-18 14:59:24.068] INFO:     Phys :: EVT START :: AvgValue ::  AEvt:  0.0106    [mm]  PEvt:  0.0162    [mm]  Evt:  0.0106    [mm]  Evt Tot:  0.1893    [mm]
+ [2026-03-18 14:59:24.108] INFO:     Phys :: EVT END :: AvgValue ::  AEvt:  0.0109    [mm]  PEvt:  0.0162    [mm]  Evt:  0.0106    [mm]  Evt Tot:  0.2001    [mm]
+ [2026-03-18 14:59:24.188] INFO:     Phys :: Evapotranspiration ... OK
+ [2026-03-18 14:59:24.197] INFO:     Phys :: Retention ...
+ [2026-03-18 14:59:24.240] INFO:     Phys :: Retention ... OK
+ [2026-03-18 14:59:24.241] INFO:     Phys :: Convolution [channel network] ...
+ [2026-03-18 14:59:24.288] INFO:     Phys :: Convolution :: IntegrationStep ::   86       [s]
+ [2026-03-18 14:59:24.288] INFO:     Phys :: Convolution :: Values ::  Uc:   2.43     [m/s]  Rain:  0.00000   [mm]
+ [2026-03-18 14:59:24.292] INFO:     Phys :: Convolution :: TimeStart: 2026-03-18 14:59:24.292
+ [2026-03-18 14:59:48.906] INFO:     Phys :: Convolution :: Discharge :: Q SecFirst:       0.00 [m^3/s] Q SecMax:       7.02 [m^3/s]
+ [2026-03-18 14:59:49.068] INFO:     Phys :: Convolution :: TimeEnd: 2026-03-18 14:59:49.068
+ [2026-03-18 14:59:49.093] INFO:     Phys :: Convolution [channel network] ... OK
+ [2026-03-18 14:59:49.095] INFO:     STEP CLOCK END :: Time: 2026-03-18 14:59:49.095
+ [2026-03-18 14:59:49.095] INFO:     ===== TIME STEP END :: Date, iT, iNTime, iDt :: 1983-10-01_05:00:00            6          744         3600 =====
+ [2026-03-18 14:59:49.095] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1983-10-01_06:00:00            7          744         3600 =====
+ [2026-03-18 14:59:49.095] INFO:     STEP CLOCK START :: Time: 2026-03-18 14:59:49.095
+ [2026-03-18 14:59:49.095] INFO:     Get (forcing point) at time 1983-10-01_06:00:00 ...
+ [2026-03-18 14:59:49.095] WARNING:  No forcing point ASCII data found (dam volume): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/damv.db.198310010600.txt
+ [2026-03-18 14:59:49.095] INFO:     Get filename (forcing point dams): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/damv.db.198310010600.txt ... FAILED
+ [2026-03-18 14:59:49.095] INFO:     Get (forcing point) at time 1983-10-01_06:00:00 ... FAILED
+ [2026-03-18 14:59:49.111] INFO:     Get filename (forcing gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010600.nc ...
+ [2026-03-18 14:59:49.124] INFO:     Using compressed forcing file (unzipped to PID file): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010600_13237.nc
+ [2026-03-18 14:59:49.161] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: AirPressure)
+ [2026-03-18 14:59:49.161] WARNING:  Get forcing gridded data FAILED! Check forcing data for AirPressure! Variable initializes in default mode using Altitude values!
+ [2026-03-18 14:59:49.163] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: Albedo)
+ [2026-03-18 14:59:49.163] WARNING:  Get forcing gridded data FAILED! Check forcing data for Albedo!
+ [2026-03-18 14:59:49.163] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: LAI)
+ [2026-03-18 14:59:49.163] WARNING:  Get forcing gridded data FAILED! Check forcing data for LAI!
+ [2026-03-18 14:59:49.163] WARNING:  Dynamic Vegetation Phys not activated -- Using previous valid LAI!
+ [2026-03-18 14:59:49.164] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: FC)
+ [2026-03-18 14:59:49.164] WARNING:  Get forcing gridded data FAILED! Check forcing data for FC!
+ [2026-03-18 14:59:49.167] INFO:     Get filename (forcing gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010600.nc ... OK
+ [2026-03-18 14:59:49.284] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2026-03-18 14:59:49.299] WARNING:  Fractional vegetation Cover set equal to one!
+ [2026-03-18 14:59:49.306] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2026-03-18 14:59:49.359] INFO:     Get filename (updating gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010600.nc ...
+ [2026-03-18 14:59:49.370] INFO:     Using compressed updating file (unzipped to PID file): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010600_13237.nc
+ [2026-03-18 14:59:49.391] INFO:     Get filename (updating gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010600.nc ... OK
+ [2026-03-18 14:59:49.508] INFO:     Phys :: StateUpdating ...
+ [2026-03-18 14:59:49.521] INFO:     Phys :: StateUpdating :: Soil Moisture ...
+ [2026-03-18 14:59:49.521] INFO:     Phys :: StateUpdating :: Soil Moisture ... NOT ACTIVATED
+ [2026-03-18 14:59:49.534] INFO:     Phys :: StateUpdating ... OK
+ [2026-03-18 14:59:49.548] INFO:     Phys :: Snow model ...
+ [2026-03-18 14:59:49.583] INFO:     Phys :: Snow model ... NOT ACTIVATED
+ [2026-03-18 14:59:49.610] INFO:     Phys :: Land surface model ...
+ [2026-03-18 14:59:49.664] INFO:     Phys :: Land surface model :: ACTIVATED
+ [2026-03-18 14:59:50.103] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2026-03-18 14:59:50.103] INFO:     Phys :: LSM :: AvgValue ::  LST: 285.2      [K]  Rn:   12.4     [W/m^2]  H:   -5.3     [W/m^2]  LE:   11.0     [W/m^2]
+ [2026-03-18 14:59:50.107] INFO:    ET END :: Max:   0.283022165 - Min:    0.00000000 - Mean:    1.76647417E-02
+ [2026-03-18 14:59:50.112] INFO:    ET.POT END :: Max:   0.416318178 - Min:    0.00000000 - Mean:    2.68871188E-02
+ [2026-03-18 14:59:50.120] INFO:    LST END :: Max:    290.894104 - Min:    264.995239 - Mean:    285.172791
+ [2026-03-18 14:59:50.124] INFO:    SM :: Max:   0.955483615 - Min:    0.00000000 - Mean:   0.270671964
+ [2026-03-18 14:59:50.174] INFO:    RN :: Max:    74.2664795 - Min:   -63.1138611 - Mean:    12.3896408
+ [2026-03-18 14:59:50.178] INFO:    H :: Max:    20.9955349 - Min:   -114.108955 - Mean:   -5.26865387
+ [2026-03-18 14:59:50.182] INFO:    LE :: Max:    193.296738 - Min:   -16.9874535 - Mean:    10.9981012
+ [2026-03-18 14:59:50.197] INFO:     Phys :: Land surface model ... OK
+ [2026-03-18 14:59:50.209] INFO:     Phys :: Evapotranspiration ...
+ [2026-03-18 14:59:50.236] INFO:     Phys :: EVT START :: AvgValue ::  AEvt:  0.0177    [mm]  PEvt:  0.0269    [mm]  Evt:  0.0177    [mm]  Evt Tot:  0.2178    [mm]
+ [2026-03-18 14:59:50.275] INFO:     Phys :: EVT END :: AvgValue ::  AEvt:  0.0180    [mm]  PEvt:  0.0269    [mm]  Evt:  0.0177    [mm]  Evt Tot:  0.2358    [mm]
+ [2026-03-18 14:59:50.353] INFO:     Phys :: Evapotranspiration ... OK
+ [2026-03-18 14:59:50.362] INFO:     Phys :: Retention ...
+ [2026-03-18 14:59:50.404] INFO:     Phys :: Retention ... OK
+ [2026-03-18 14:59:50.405] INFO:     Phys :: Convolution [channel network] ...
+ [2026-03-18 14:59:50.453] INFO:     Phys :: Convolution :: IntegrationStep ::   78       [s]
+ [2026-03-18 14:59:50.453] INFO:     Phys :: Convolution :: Values ::  Uc:   2.44     [m/s]  Rain:  1.46384   [mm]
+ [2026-03-18 14:59:50.455] INFO:     Phys :: Convolution :: TimeStart: 2026-03-18 14:59:50.455
+ [2026-03-18 15:00:18.048] INFO:     Phys :: Convolution :: Discharge :: Q SecFirst:       0.00 [m^3/s] Q SecMax:       7.01 [m^3/s]
+ [2026-03-18 15:00:18.194] INFO:     Phys :: Convolution :: TimeEnd: 2026-03-18 15:00:18.194
+ [2026-03-18 15:00:18.217] INFO:     Phys :: Convolution [channel network] ... OK
+ [2026-03-18 15:00:18.219] INFO:     STEP CLOCK END :: Time: 2026-03-18 15:00:18.219
+ [2026-03-18 15:00:18.219] INFO:     ===== TIME STEP END :: Date, iT, iNTime, iDt :: 1983-10-01_06:00:00            7          744         3600 =====
+ [2026-03-18 15:00:18.219] INFO:     ===== TIME STEP START :: Date, iT, iNTime, iDt, Clock :: 1983-10-01_07:00:00            8          744         3600 =====
+ [2026-03-18 15:00:18.219] INFO:     STEP CLOCK START :: Time: 2026-03-18 15:00:18.219
+ [2026-03-18 15:00:18.219] INFO:     Get (forcing point) at time 1983-10-01_07:00:00 ...
+ [2026-03-18 15:00:18.219] WARNING:  No forcing point ASCII data found (dam volume): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/damv.db.198310010700.txt
+ [2026-03-18 15:00:18.219] INFO:     Get filename (forcing point dams): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/damv.db.198310010700.txt ... FAILED
+ [2026-03-18 15:00:18.219] INFO:     Get (forcing point) at time 1983-10-01_07:00:00 ... FAILED
+ [2026-03-18 15:00:18.235] INFO:     Get filename (forcing gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010700.nc ...
+ [2026-03-18 15:00:18.251] INFO:     Using compressed forcing file (unzipped to PID file): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010700_13237.nc
+ [2026-03-18 15:00:18.287] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: AirPressure)
+ [2026-03-18 15:00:18.287] WARNING:  Get forcing gridded data FAILED! Check forcing data for AirPressure! Variable initializes in default mode using Altitude values!
+ [2026-03-18 15:00:18.288] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: Albedo)
+ [2026-03-18 15:00:18.288] WARNING:  Get forcing gridded data FAILED! Check forcing data for Albedo!
+ [2026-03-18 15:00:18.289] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: LAI)
+ [2026-03-18 15:00:18.289] WARNING:  Get forcing gridded data FAILED! Check forcing data for LAI!
+ [2026-03-18 15:00:18.289] WARNING:  Dynamic Vegetation Phys not activated -- Using previous valid LAI!
+ [2026-03-18 15:00:18.290] WARNING:  INQUIRE FAILED :: Get2d_NC ---> nf90_inq_varid (varname: FC)
+ [2026-03-18 15:00:18.290] WARNING:  Get forcing gridded data FAILED! Check forcing data for FC!
+ [2026-03-18 15:00:18.292] INFO:     Get filename (forcing gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.forcing-grid.198310010700.nc ... OK
+ [2026-03-18 15:00:18.403] WARNING:  All air pressure values are equal to 101.3 [kPa]! AirPressure will be initialized using altitude (DEM) information!
+ [2026-03-18 15:00:18.417] WARNING:  Fractional vegetation Cover set equal to one!
+ [2026-03-18 15:00:18.424] WARNING:  All albedo values are undefined! Albedo will be initialized using monthly mean information!
+ [2026-03-18 15:00:18.473] INFO:     Get filename (updating gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010700.nc ...
+ [2026-03-18 15:00:18.483] INFO:     Using compressed updating file (unzipped to PID file): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010700_13237.nc
+ [2026-03-18 15:00:18.503] INFO:     Get filename (updating gridded): /home/fabio/Desktop/shybox/dset/case_study_itwater/runner_hmc/data/PoBasin/1983/10/01/hmc.updating-grid.198310010700.nc ... OK
+ [2026-03-18 15:00:18.612] INFO:     Phys :: StateUpdating ...
+ [2026-03-18 15:00:18.624] INFO:     Phys :: StateUpdating :: Soil Moisture ...
+ [2026-03-18 15:00:18.624] INFO:     Phys :: StateUpdating :: Soil Moisture ... NOT ACTIVATED
+ [2026-03-18 15:00:18.637] INFO:     Phys :: StateUpdating ... OK
+ [2026-03-18 15:00:18.650] INFO:     Phys :: Snow model ...
+ [2026-03-18 15:00:18.683] INFO:     Phys :: Snow model ... NOT ACTIVATED
+ [2026-03-18 15:00:18.708] INFO:     Phys :: Land surface model ...
+ [2026-03-18 15:00:18.751] INFO:     Phys :: Land surface model :: ACTIVATED
+ [2026-03-18 15:00:19.153] INFO:     Phys :: LSM :: IntegrationStep ::  900   [s]
+ [2026-03-18 15:00:19.153] INFO:     Phys :: LSM :: AvgValue ::  LST: 289.0      [K]  Rn:  180.3     [W/m^2]  H:   10.7     [W/m^2]  LE:   30.1     [W/m^2]
+ [2026-03-18 15:00:19.156] INFO:    ET END :: Max:   0.429455638 - Min:    0.00000000 - Mean:    4.40070108E-02
+ [2026-03-18 15:00:19.160] INFO:    ET.POT END :: Max:   0.591293991 - Min:    0.00000000 - Mean:    6.73263669E-02
+ [2026-03-18 15:00:19.168] INFO:    LST END :: Max:    295.425385 - Min:    270.145294 - Mean:    288.970795
+ [2026-03-18 15:00:19.172] INFO:    SM :: Max:   0.985611022 - Min:    0.00000000 - Mean:   0.271169752
+ [2026-03-18 15:00:19.219] INFO:    RN :: Max:    300.503296 - Min:   -59.0216675 - Mean:    180.254715
+ [2026-03-18 15:00:19.223] INFO:    H :: Max:    107.826729 - Min:   -87.7416763 - Mean:    10.7023954
+ [2026-03-18 15:00:19.227] INFO:    LE :: Max:    293.032776 - Min:   -10.9163151 - Mean:    30.0529804
+ [2026-03-18 15:00:19.242] INFO:     Phys :: Land surface model ... OK
+ [2026-03-18 15:00:19.254] INFO:     Phys :: Evapotranspiration ...
+ [2026-03-18 15:00:19.279] INFO:     Phys :: EVT START :: AvgValue ::  AEvt:  0.0440    [mm]  PEvt:  0.0673    [mm]  Evt:  0.0440    [mm]  Evt Tot:  0.2798    [mm]
+ [2026-03-18 15:00:19.318] INFO:     Phys :: EVT END :: AvgValue ::  AEvt:  0.0449    [mm]  PEvt:  0.0673    [mm]  Evt:  0.0440    [mm]  Evt Tot:  0.3246    [mm]
+ [2026-03-18 15:00:19.391] INFO:     Phys :: Evapotranspiration ... OK
+ [2026-03-18 15:00:19.399] INFO:     Phys :: Retention ...
+ [2026-03-18 15:00:19.440] INFO:     Phys :: Retention ... OK
+ [2026-03-18 15:00:19.441] INFO:     Phys :: Convolution [channel network] ...
+ [2026-03-18 15:00:19.485] INFO:     Phys :: Convolution :: IntegrationStep ::   72       [s]
+ [2026-03-18 15:00:19.485] INFO:     Phys :: Convolution :: Values ::  Uc:   2.66     [m/s]  Rain:  2.14015   [mm]
+ [2026-03-18 15:00:19.488] INFO:     Phys :: Convolution :: TimeStart: 2026-03-18 15:00:19.488
