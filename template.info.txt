@@ -117,6 +117,8 @@ iFlagInfiltRateVariable = 2
 ! Evapotranspiration reduction with water stress 
 ! (0=no reduction except for mass balance constraint; 1=classical beta function-different between Jarvis and pre-Jarvis ET module)
 iFlagBetaET = 1
+! Routing approach (1 = grid (default); 2 = indexed)
+iFlagRoutingType = 1
 ! -----------------------------------------------------------------------------------------------
 
 ! GEOGRAPHICAL INFO ------------------------------------------------------------------------------
@@ -373,10 +375,10 @@ sCommandCreateFolder = 'mkdir -p path'
 
 ! INFO MODEL ------------------------------------------------------------------------------------
 ! Release version     (x.x.x)
-sReleaseVersion = '3.3.0'
+sReleaseVersion = '3.4.0'
 ! Author(s)         (Surname N.)
 sAuthorNames = 'Delogu F., Silvestro F., Gabellani S., Libertino A., Ercolani G.'
 ! Release Date      (yyyy/mm/dd)
-sReleaseDate = '2025/11/13'
+sReleaseDate = '2026/03/20'
 ! -----------------------------------------------------------------------------------------------
 
