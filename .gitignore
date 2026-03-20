@@ -34,6 +34,12 @@
 *.app
 
 # Project folder(s) and file(s)
+old/
+OLD/
+Old/
+/old/
+/Old/
+/OLD/
 /build/
 /nbproject/
 nbproject/
@@ -41,3 +47,5 @@ nbproject/private/
 .dep.inc
 /dist/
 *.log
+hmc.log
+LogZip.txt
