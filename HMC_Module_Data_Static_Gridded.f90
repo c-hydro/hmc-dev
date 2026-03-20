@@ -1,8 +1,9 @@
 !------------------------------------------------------------------------------------------    
 ! File:   HMC_Module_Data_Static_Gridded.f90
-! Author(s): Fabio Delogu, Francesco Silvestro, Simone Gabellani
-!
-! Created on April 30, 2015, 9:45 AM
+! Author(s):    Fabio Delogu, Francesco Silvestro, Simone Gabellani
+! Date:         20260320
+
+! Module to read the gridded static datasets
 !------------------------------------------------------------------------------------------
 
 !------------------------------------------------------------------------------------
@@ -71,7 +72,11 @@ contains
         ! Calling subroutine to compute channel fraction 
         call HMC_Data_Static_Gridded_ChannelFraction(iID, iRows, iCols)
         !------------------------------------------------------------------------------------
-
+        
+        !------------------------------------------------------------------------------------
+        ! Calling subroutine to compute channel fraction 
+        call HMC_Data_Static_Gridded_Routing(iID, iRows, iCols)
+        !------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------
         ! Info end
@@ -2104,6 +2109,118 @@ contains
         
     end subroutine HMC_Data_Static_Gridded_WTable
     !------------------------------------------------------------------------------------ 
-      
+    
+    !------------------------------------------------------------------------------------ 
+    ! Subroutine for computing routing cells information
+    subroutine HMC_Data_Static_Gridded_Routing(iID, iRows, iCols)
+
+        !------------------------------------------------------------------------------------------
+        ! Variable(s)
+        integer(kind = 4), intent(in) :: iID
+        integer(kind = 4), intent(in) :: iRows, iCols
+                
+        integer(kind = 4)   :: iI, iJ
+        integer(kind = 4)   :: iII, iJJ
+        integer(kind = 4)   :: iIII, iJJJ
+        integer(kind = 4)   :: iPNT, iMask
+        integer(kind = 4)   :: iNCells, iActiveCells
+        character(len = 50) :: sNCells, sActiveCells
+        
+        integer(kind = 4), dimension (iRows*iCols)      :: a1iVarRoutingSrcI, a1iVarRoutingSrcJ
+        integer(kind = 4), dimension (iRows*iCols)      :: a1iVarRoutingDstI, a1iVarRoutingDstJ
+        integer(kind = 4), dimension (iRows*iCols)      :: a1iVarRoutingMask, a1iVarRoutingPNT
+        !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
+        ! Initialization
+        a1iVarRoutingSrcI = -9999; a1iVarRoutingSrcJ = -9999;
+        a1iVarRoutingDstI = -9999; a1iVarRoutingDstJ = -9999;
+        iNCells = 0; iActiveCells = 0
+        iPNT = -9999; iMask = -9999
+        iI = -9999; iJ = -9999; iII = -9999; iJJ = -9999; iIII = -9999; iJJJ = -9999;
+        !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
+        ! Info start
+        call mprintf(.true., iINFO_Verbose, ' Data :: Static gridded :: Get routing information ... ' )
+        
+        ! Debug
+        if (iDEBUG.gt.0) then
+            
+            write(sNCells, '(I10)') iNCells
+            write(sActiveCells, '(I10)') iActiveCells
+            
+            call mprintf(.true., iINFO_Extra, ' ======== ROUTING START ========== ') 
+            call mprintf(.true., iINFO_Extra, ' Total cells: ' // trim(adjustl(sNCells)) )
+            call mprintf(.true., iINFO_Extra, ' Active cells: ' // trim(adjustl(sActiveCells)) )
+            call mprintf(.true., iINFO_Extra, '') 
+        endif   
+        !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
+        ! compute cell amount
+        iNCells = iRows*iCols
+        
+        ! iterate over rows, cols to genereate idxs
+        do iJ = 1, iCols
+            do iI = 1, iRows
+                
+                iMask = oHMC_Vars(iID)%a2iMask(iI,iJ)
+                if (iMask .gt. 0) then
+
+                    iPNT = int(oHMC_Vars(iID)%a2iPNT(iI,iJ))
+
+                    iII  = (iPNT - 1)/3 - 1
+                    iJJ  = iPNT - 5 - 3*iII
+                    iIII = iI + iII
+                    iJJJ = iJ + iJJ
+
+                    if (iIII.ge.1 .and. iIII.le.iRows .and. &
+                        iJJJ.ge.1 .and. iJJJ.le.iCols) then
+
+                        iActiveCells = iActiveCells + 1
+                        
+                        a1iVarRoutingSrcI(iActiveCells) = iI
+                        a1iVarRoutingSrcJ(iActiveCells) = iJ
+                        a1iVarRoutingDstI(iActiveCells) = iIII
+                        a1iVarRoutingDstJ(iActiveCells) = iJJJ
+                        a1iVarRoutingMask(iActiveCells) = iMask
+                        a1iVarRoutingPNT(iActiveCells) = iPNT
+                        
+                    end if
+                end if
+
+            end do
+        end do
+        !------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------
+        ! Debug
+        if (iDEBUG.gt.0) then
+            write(sNCells, '(I10)') iNCells
+            write(sActiveCells, '(I10)') iActiveCells
+            call mprintf(.true., iINFO_Extra, ' Total cells: ' // trim(adjustl(sNCells)) )
+            call mprintf(.true., iINFO_Extra, ' Active cells: ' // trim(adjustl(sActiveCells)) )
+            call mprintf(.true., iINFO_Extra, ' ========= ROUTING END =========== ') 
+        endif
+        
+        ! Updating variable(s) to global declaration 
+        oHMC_Vars(iID)%a1iRoutingSrcI = a1iVarRoutingSrcI
+        oHMC_Vars(iID)%a1iRoutingSrcJ = a1iVarRoutingSrcJ
+        oHMC_Vars(iID)%a1iRoutingDstI = a1iVarRoutingDstI
+        oHMC_Vars(iID)%a1iRoutingDstJ = a1iVarRoutingDstJ
+        oHMC_Vars(iID)%a1iRoutingMask = a1iVarRoutingMask
+        oHMC_Vars(iID)%a1iRoutingPNT = a1iVarRoutingPNT
+        
+        oHMC_Vars(iID)%iRoutingCellsN = iNCells
+        oHMC_Vars(iID)%iRoutingCellsActive = iActiveCells
+        oHMC_Vars(iID)%bRoutingIndex = .true.
+        
+        ! Info end
+        call mprintf(.true., iINFO_Verbose, ' Data :: Static gridded :: Get routing information ... OK' )
+
+    end subroutine HMC_Data_Static_Gridded_Routing
+    !------------------------------------------------------------------------------------ 
+    
 end module HMC_Module_Data_Static_Gridded
 !------------------------------------------------------------------------------------

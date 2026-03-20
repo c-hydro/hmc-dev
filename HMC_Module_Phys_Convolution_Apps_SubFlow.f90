@@ -2,7 +2,7 @@
 ! File:   HMC_Module_Phys_Convolution_Apps_SubFlow.f90
 !
 ! Author(s):    Fabio Delogu, Francesco Silvestro, Simone Gabellani
-! Date:         20190410
+! Date:         20260320
 !
 ! Convolution Apps SubFlow subroutine(s) for HMC model
 !------------------------------------------------------------------------------------
@@ -117,75 +117,32 @@ contains
             enddo
         endif
         !------------------------------------------------------------------------------------------
-            
+        
         !------------------------------------------------------------------------------------------
-        ! Cycling on each pixels
+        ! Cycles on each pixels (using grid or index methods)
+        
+        ! NOTE:
         ! Calcola il volume di uscita dalla cella nei due casi: a2dV > o < di a2dS;
         ! Qsup � la portata che esce dalla parte superiore della cella e si aggiunge al deflusso superficiale               
-        ! il contatore punta alla cella successiva(controllare se vale per l'ultima cella)
-        iI = 0; iJ = 0;
-        do iJ = 1, iCols
-            do iI = 1, iRows
-                
-                ! DEM condition
-                if (oHMC_Vars(iID)%a2iMask(iI,iJ).gt.0.0) then
-                    
-                    ! Pointers definition
-  
-                    !iVarPNT = 0
-                    !iVarPNT = int(oHMC_Vars(iID)%a2iPNT(iI,iJ))
-                    
-                    ! Defining flow directions
-                    iII = int((int(oHMC_Vars(iID)%a2iPNT(iI,iJ))  - 1)/3) - 1
-                    iJJ = int(oHMC_Vars(iID)%a2iPNT(iI,iJ)) - 5 - 3*iII
-                    iIII = iI + iII
-                    iJJJ = iJ + iJJ
-                    
-                    ! Debugging ndexes
-                    !write(*,*) 'Rate: ',dRate,' iPNT: ',iVarPNT
-                    !write(*,*) 'iJ: ',iJ, ' iI: ',iI, ' iJJ: ',iJJ, ' iII: ',iII , ' iJJJ: ',iJJJ, ' iIII: ',iIII
-                    
-                    ! Calculating VTot and VLoss using flowdeep condition
-                    if (iFlagFlowDeep.eq.0) then
-                        
-                        ! VTot (Vloss == 0)
-                        if(iIII.ge.1.and.iJJJ.ge.1) then
-                            a2dVarVTotStep(iIII,iJJJ) = a2dVarVTotStep(iIII,iJJJ) + oHMC_Vars(iID)%a2dVSub(iI, iJ)
-                        endif
-                        
-                    else
-                        
-                        ! Rate definition
-                        dRate = 0.0; 
-                        dRate = sin(oHMC_Vars(iID)%a2dBeta(iI,iJ))
-                        
-                        ! Checking rate value
-                        if(dRate.gt.0.99)        dRate = 0.99
-                        if(dRate.lt.dRateMin)   dRate = dRateMin
-
-                        ! Rescaling dRate according to dRateRescaling set in the namelist
-                        !(dRate=fraction to hypodermic flow; (1-dRate)=fraction to percolation)
-                        ! No rescaling if dRateRescaling>=0.99; otherwise, dRateRescaling will be the new maximum
-                        if(oHMC_Namelist(iID)%dRateRescaling.ge.0.99)  oHMC_Namelist(iID)%dRateRescaling = 0.99
-                        dRate = dRateMin + (dRate-dRateMin)/(0.99-dRateMin) *(oHMC_Namelist(iID)%dRateRescaling-dRateMin)
-                        
-                        ! VTot
-                        if(iIII.ge.1.and.iJJJ.ge.1) then
-                            a2dVarVTotStep(iIII,iJJJ) = a2dVarVTotStep(iIII,iJJJ) + oHMC_Vars(iID)%a2dVSub(iI, iJ)*dRate
-                        endif
-                        ! Vloss
-                        if(iIII.ge.1.and.iJJJ.ge.1) then 
-                            a2dVarVLoss(iIII,iJJJ) = a2dVarVLoss(iIII,iJJJ) + oHMC_Vars(iID)%a2dVSub(iI, iJ)*(1 - dRate)
-                        endif
-                    
-                    endif
-                    
-                endif
-              
-            enddo
-        enddo
-        !------------------------------------------------------------------------------------------
+        ! il contatore punta alla cella successiva (controllare se vale per l'ultima cella)
         
+        ! Evaluate flag to use index or grid routing
+        if (oHMC_Namelist(iID)%iFlagRoutingType .eq. 2 .and. &
+            oHMC_Vars(iID)%bRoutingIndex) then
+
+            call compute_routing_index( &
+                iID, iRows, iCols, iFlagFlowDeep, dRateMin, &
+                a2dVarVTotStep, a2dVarVLoss )
+
+        else
+
+            call compute_routing_grid( &
+                iID, iRows, iCols, iFlagFlowDeep, dRateMin, &
+                a2dVarVTotStep, a2dVarVLoss )
+
+        endif
+        !------------------------------------------------------------------------------------------
+
         !------------------------------------------------------------------------------------------
         ! Updating total volume 
         a2dVarVTot = a2dVarVTot + a2dVarVTotStep
@@ -244,5 +201,176 @@ contains
     end subroutine HMC_Phys_Convolution_Apps_SubFlow
     !------------------------------------------------------------------------------------------
     
+    
+    subroutine compute_routing_index( &
+        iID, iRows, iCols, iFlagFlowDeep, dRateMin, a2dVarVTotStep, a2dVarVLoss )
+
+        !------------------------------------------------------------------------------------------
+        implicit none
+
+        integer(kind = 4), intent(in) :: iID
+        integer(kind = 4), intent(in) :: iRows, iCols
+        integer(kind = 4), intent(in) :: iFlagFlowDeep
+        real(kind = 4),    intent(in) :: dRateMin
+
+        real(kind = 4), dimension(iRows, iCols), intent(inout) :: a2dVarVTotStep
+        real(kind = 4), dimension(iRows, iCols), intent(inout) :: a2dVarVLoss
+
+        integer(kind = 4) :: iCell
+        integer(kind = 4) :: iI, iJ
+        integer(kind = 4) :: iIII, iJJJ
+        integer(kind = 4) :: iActiveCells
+        real(kind = 4)    :: dRate, dRateRescaling
+        !------------------------------------------------------------------------------------------
+        
+        !------------------------------------------------------------------------------------------
+        ! No rescaling if dRateRescaling>=0.99; otherwise, dRateRescaling will be the new maximum
+        dRateRescaling = oHMC_Namelist(iID)%dRateRescaling
+        if (dRateRescaling .ge. 0.99) dRateRescaling = 0.99
+        
+        if (oHMC_Namelist(iID)%dRateRescaling .ge. 0.99) &
+            oHMC_Namelist(iID)%dRateRescaling = 0.99
+        
+        ! iterate over active cells
+        iActiveCells = oHMC_Vars(iID)%iRoutingCellsActive
+        do iCell = 1, iActiveCells
+
+            iI   = oHMC_Vars(iID)%a1iRoutingSrcI(iCell)
+            iJ   = oHMC_Vars(iID)%a1iRoutingSrcJ(iCell)
+            iIII = oHMC_Vars(iID)%a1iRoutingDstI(iCell)
+            iJJJ = oHMC_Vars(iID)%a1iRoutingDstJ(iCell)
+            
+            ! Safety check: keep behavior explicit and robust
+            if (iIII.ge.1 .and. iIII.le.iRows .and. iJJJ.ge.1 .and. iJJJ.le.iCols) then
+
+                ! Calculating VTot and VLoss using flowdeep condition
+                if (iFlagFlowDeep .eq. 0) then
+
+                    ! VTot (VLoss == 0)
+                    a2dVarVTotStep(iIII,iJJJ) = a2dVarVTotStep(iIII,iJJJ) + &
+                                                oHMC_Vars(iID)%a2dVSub(iI,iJ)
+
+                else
+
+                    ! Rate definition
+                    dRate = sin(oHMC_Vars(iID)%a2dBeta(iI,iJ))
+
+                    ! Checking rate value
+                    if (dRate .gt. 0.99)     dRate = 0.99
+                    if (dRate .lt. dRateMin) dRate = dRateMin
+
+                    ! Rescaling dRate according to dRateRescaling set in the namelist
+                    ! (dRate=fraction to hypodermic flow; (1-dRate)=fraction to percolation)
+                    dRate = dRateMin + (dRate - dRateMin)/(0.99 - dRateMin) * &
+                            (dRateRescaling - dRateMin)
+
+                    ! VTot
+                    a2dVarVTotStep(iIII,iJJJ) = a2dVarVTotStep(iIII,iJJJ) + &
+                                                oHMC_Vars(iID)%a2dVSub(iI,iJ)*dRate
+
+                    ! VLoss
+                    a2dVarVLoss(iIII,iJJJ) = a2dVarVLoss(iIII,iJJJ) + &
+                                             oHMC_Vars(iID)%a2dVSub(iI,iJ)*(1.0 - dRate)
+
+                endif
+
+            endif
+
+        enddo
+        !------------------------------------------------------------------------------------------
+
+    end subroutine compute_routing_index
+    !------------------------------------------------------------------------------------------
+    
+
+    !------------------------------------------------------------------------------------------
+    ! Subroutine for routing hypodermic flow using full-grid iteration
+    subroutine compute_routing_grid( &
+        iID, iRows, iCols, iFlagFlowDeep, dRateMin, a2dVarVTotStep, a2dVarVLoss )
+
+        !------------------------------------------------------------------------------------------
+        ! variable(s)
+        integer(kind = 4), intent(in) :: iID
+        integer(kind = 4), intent(in) :: iRows, iCols
+        integer(kind = 4), intent(in) :: iFlagFlowDeep
+        real(kind = 4),    intent(in) :: dRateMin
+
+        real(kind = 4), dimension(iRows, iCols), intent(inout) :: a2dVarVTotStep
+        real(kind = 4), dimension(iRows, iCols), intent(inout) :: a2dVarVLoss
+
+        integer(kind = 4) :: iI, iII, iIII, iJ, iJJ, iJJJ
+        real(kind = 4)    :: dRate, dRateRescaling
+        !------------------------------------------------------------------------------------------
+
+        !------------------------------------------------------------------------------------------
+        ! No rescaling if dRateRescaling>=0.99; otherwise, dRateRescaling will be the new maximum
+        dRateRescaling = oHMC_Namelist(iID)%dRateRescaling
+        if (dRateRescaling .ge. 0.99) dRateRescaling = 0.99
+
+        iI = 0; iJ = 0;
+        do iJ = 1, iCols
+            do iI = 1, iRows
+
+                ! DEM condition
+                if (oHMC_Vars(iID)%a2iMask(iI,iJ) .gt. 0.0) then
+
+                    ! Defining flow directions
+                    iII  = int((int(oHMC_Vars(iID)%a2iPNT(iI,iJ)) - 1)/3) - 1
+                    iJJ  = int(oHMC_Vars(iID)%a2iPNT(iI,iJ)) - 5 - 3*iII
+                    iIII = iI + iII
+                    iJJJ = iJ + iJJ
+
+                    ! Check destination cell inside the domain
+                    if (iIII .ge. 1 .and. iIII .le. iRows .and. &
+                        iJJJ .ge. 1 .and. iJJJ .le. iCols) then
+
+                        ! Calculating VTot and VLoss using flowdeep condition
+                        if (iFlagFlowDeep .eq. 0) then
+
+                            ! VTot (VLoss == 0)
+                            a2dVarVTotStep(iIII,iJJJ) = a2dVarVTotStep(iIII,iJJJ) + &
+                                                        oHMC_Vars(iID)%a2dVSub(iI,iJ)
+
+                        else
+
+                            ! Rate definition
+                            dRate = sin(oHMC_Vars(iID)%a2dBeta(iI,iJ))
+
+                            ! Checking rate value
+                            if (dRate .gt. 0.99)     dRate = 0.99
+                            if (dRate .lt. dRateMin) dRate = dRateMin
+
+                            ! Rescaling dRate according to dRateRescaling set in the namelist
+                            ! (dRate = fraction to hypodermic flow; (1-dRate) = fraction to percolation)
+                            dRate = dRateMin + (dRate - dRateMin)/(0.99 - dRateMin) * &
+                                    (dRateRescaling - dRateMin)
+
+                            ! VTot
+                            a2dVarVTotStep(iIII,iJJJ) = a2dVarVTotStep(iIII,iJJJ) + &
+                                                        oHMC_Vars(iID)%a2dVSub(iI,iJ)*dRate
+
+                            ! VLoss
+                            a2dVarVLoss(iIII,iJJJ) = a2dVarVLoss(iIII,iJJJ) + &
+                                                     oHMC_Vars(iID)%a2dVSub(iI,iJ)*(1.0 - dRate)
+
+                        endif
+
+                    endif
+
+                endif
+
+            enddo
+        enddo
+        !------------------------------------------------------------------------------------------
+
+    end subroutine compute_routing_grid
+    !------------------------------------------------------------------------------------------
+    
 end module HMC_Module_Phys_Convolution_Apps_SubFlow
 !------------------------------------------------------------------------------------------
+
+
+
+
+
+

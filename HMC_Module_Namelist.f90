@@ -1,7 +1,7 @@
 !--------------------------------------------------------------------------------  
 ! File:   HMC_Module_Namelist.f90
-! Author(s): Fabio Delogu, Francesco Silvestro, Simone Gabellani
-! Created on May, 20 2014, 9:57 AM
+! Author(s):    Fabio Delogu, Francesco Silvestro, Simone Gabellani
+! Date:         20260320
 !
 ! Module to allocate and read namelist
 !--------------------------------------------------------------------------------
@@ -73,6 +73,7 @@ contains
         integer(kind = 4)       :: iFlagSoilParamsType
         integer(kind = 4)       :: iFlagInfiltRateVariable
         integer(kind = 4)       :: iFlagBetaET
+        integer(kind = 4)       :: iFlagRoutingType
         
         logical                 :: bGridCheck
 
@@ -211,6 +212,7 @@ contains
                                         iFlagSoilParamsType, &
                                         iFlagInfiltRateVariable, &
                                         iFlagBetaET, &
+                                        iFlagRoutingType, &
                                         a1dGeoForcing, a1dResForcing, a1iDimsForcing, &
                                         iScaleFactor, iTcMax, iTVeg, &
                                         iSimLength, iDtModel, &
@@ -278,7 +280,7 @@ contains
         iFlagFlood = -9999; iFlagEnergyBalance = -9999;
         iFlagSoilParamsType = -9999;
         iFlagInfiltRateVariable = -9999;
-        iFlagBetaET = 1;
+        iFlagBetaET = 1; iFlagRoutingType = -1;
         a1dGeoForcing = -9999.0; a1dResForcing = -9999.0; a1iDimsForcing = -9999; 
         iScaleFactor = -9999; iTcMax = -9999; iTVeg = -9999; iTc = -9999; 
         iSimLength = -9999; iDtModel = -9999; 
@@ -576,6 +578,25 @@ contains
         endif
         oHMC_Namelist_Init%iFlagBetaET = iFlagBetaET !if not defined in the namelist, remains 1 (implicit backward compatibility)
         
+        ! Routing type selection (grid or index approach)
+        if (iFlagRoutingType .eq. -1) then
+            ! Backward compatibility with older version of info file
+            oHMC_Namelist_Init%iFlagRoutingType = 1
+        else
+            oHMC_Namelist_Init%iFlagRoutingType = iFlagRoutingType
+        endif
+
+        if (oHMC_Namelist_Init%iFlagRoutingType .eq. 1) then
+            call mprintf(.true., iINFO_Basic, &
+                ' Routing evaluation is performed using a grid approach')
+        elseif (oHMC_Namelist_Init%iFlagRoutingType .eq. 2) then
+            call mprintf(.true., iINFO_Basic, &
+                ' Routing evaluation is performed using an index approach')
+        else
+            oHMC_Namelist_Init%iFlagRoutingType = 1
+            call mprintf(.true., iINFO_Basic, &
+                ' Routing evaluation is not correctly defined. Use default grid approach')
+        endif
         
         ! Geographical land and forcing info
         oHMC_Namelist_Init%bGridCheck = .false.

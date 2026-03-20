@@ -1,7 +1,7 @@
 !******************************************************************************************
 ! HYDROLOGICAL MODEL CONTINUUM
-! Version 3.3.1
-! Date: 2026/03/17 
+! Version 3.4.0
+! Date: 2026/03/20 
 !
 ! 
 ! 0) COMMAND LINE:
@@ -139,7 +139,7 @@ program HMC_Main
     character(len = 19)             :: sTimeState_Gridded, sTimeState_Point 
     character(len = 19)             :: sTimeEndLAI, sTimeEndFC
     character(len = 256)            :: sTime, sNTime, sDtModel
-    character(len = 256)            :: sPID
+    character(len = 256)            :: sPID, sTHREADS
 
     
     character(len=10)               :: sDateRunStart, sDateRunStep, sDateRunEnd
@@ -162,6 +162,7 @@ program HMC_Main
     sTimeOutput_Gridded = ""; sTimeOutput_Point = ""; 
     sTimeState_Gridded = "";  sTimeState_Point = ""; 
     sTimeEndLAI = ""; sTimeEndFC = "";
+    sPID = ""; sTHREADS = "";
     !------------------------------------------------------------------------------------------
     
     !------------------------------------------------------------------------------------------
@@ -192,7 +193,7 @@ program HMC_Main
                           
     ! Start simulation message
     call mprintf(.true., iINFO_Basic, ' SIMULATION START :: Time: ' //trim(sDateRunStart)//' '//trim(sTimeRunStart) )
-    
+
     ! Domain name
     sDomainName = oHMC_Namelist(iID)%sDomainName
                           

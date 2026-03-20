@@ -2,6 +2,11 @@
 Changelog
 =========
 
+Version 3.4.0 [2026-03-20]
+**************************
+- ADD: methods to compute routing by grid and index approaches (iFlagRoutingType: 1 grid (default) 2 indexed;
+- ADD: subroutine and methods to active the routing by grid and index approach
+
 Version 3.3.1 [2026-03-18]
 **************************
 - ADD: get the exponent on plant release curve from file (compatibility with the previous versions exp = 6);

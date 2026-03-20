@@ -32,6 +32,12 @@ TYPE HMC_Type_Vars
     real(kind = 4),         allocatable, dimension (:, :)       :: a2dExpRhoLow, a2dExpRhoHigh, a2dArctUp
     real(kind = 4),         allocatable, dimension (:, :)       :: a2dCoeffWS, a2dCoeffWDL
     
+    ! Routing variable(s) --> derived using PNT and MASK static variable(s) - mod. fabio 2026-03-19
+    integer(kind = 4),      allocatable, dimension (:)          :: a1iRoutingSrcI, a1iRoutingSrcJ, a1iRoutingDstI, a1iRoutingDstJ
+    integer(kind = 4),      allocatable, dimension (:)          :: a1iRoutingMask, a1iRoutingPNT
+    logical                                                     :: bRoutingIndex
+    integer(kind = 4)                                           :: iRoutingCellsN, iRoutingCellsActive
+    
     ! Section variable(s)
     integer(kind = 4),      allocatable, dimension (:, :)       :: a2iXYSection
     character(len = 500),   allocatable, dimension (:)          :: a1sNameSection
@@ -154,5 +160,5 @@ TYPE HMC_Type_Vars
     ! Flooding variable (s)
     real(kind = 4), allocatable,        dimension (:, :)        :: a2dLevBankL, a2dLevBankR, a2dFirst
     real(kind = 4), allocatable,        dimension (:, :)        :: a2dQfloodIL, a2dQfloodCL, a2dQfloodIR, a2dQfloodCR
-
+    
 END TYPE HMC_Type_Vars

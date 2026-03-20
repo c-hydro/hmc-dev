@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------------
 ! File:   HMC_Module_Vars_Manager.f90
-! Author(s): Fabio Delogu, Francesco Silvestro, Simone Gabellani
-! Created on February 11 2015, 9:57 AM
+! Author(s):    Fabio Delogu, Francesco Silvestro, Simone Gabellani
+! Date:         20260320
 !
 ! Module to allocate and initialize global variable(s)
 !------------------------------------------------------------------------------------
@@ -62,6 +62,14 @@ contains
         allocate( oHMC_Vars(iID)%a2iMask            (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dAreaCell        (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2iNature          (iRows, iCols) )
+        
+        ! routing derived variables - fabio mod 2026-03-19
+        allocate( oHMC_Vars(iID)%a1iRoutingSrcI     (iRows*iCols) ) 
+        allocate( oHMC_Vars(iID)%a1iRoutingSrcJ     (iRows*iCols) ) 
+        allocate( oHMC_Vars(iID)%a1iRoutingDstI     (iRows*iCols) ) 
+        allocate( oHMC_Vars(iID)%a1iRoutingDstJ     (iRows*iCols) ) 
+        allocate( oHMC_Vars(iID)%a1iRoutingMask  (iRows*iCols) ) 
+        allocate( oHMC_Vars(iID)%a1iRoutingPNT   (iRows*iCols) ) 
         
         allocate( oHMC_Vars(iID)%a2dC1              (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dF2              (iRows, iCols) )
@@ -189,7 +197,7 @@ contains
                 
         ! Dynamic (monthly) Vegetation variable(s)
         allocate( oHMC_Vars(iID)%a2dLAI             (iRows, iCols) )
-        allocate( oHMC_Vars(iID)%a2dFC             (iRows, iCols) )
+        allocate( oHMC_Vars(iID)%a2dFC              (iRows, iCols) )
         allocate( oHMC_Vars(iID)%a2dAlbedo          (iRows, iCols) )
         
         ! Dynamic snow variable(s)
@@ -348,6 +356,18 @@ contains
         oHMC_Vars(iID)%a2dAreaCell = 0.0
         oHMC_Vars(iID)%a2iNature = 0
         
+        ! Static routing variable(s) - mod. fabio 2026-03-19
+        oHMC_Vars(iID)%a1iRoutingSrcI = -9999
+        oHMC_Vars(iID)%a1iRoutingSrcJ = -9999
+        oHMC_Vars(iID)%a1iRoutingDstI = -9999
+        oHMC_Vars(iID)%a1iRoutingDstJ = -9999
+        oHMC_Vars(iID)%a1iRoutingMask  = -9999
+        oHMC_Vars(iID)%a1iRoutingPNT = -9999 
+        
+        oHMC_Vars(iID)%iRoutingCellsN = -9999
+        oHMC_Vars(iID)%iRoutingCellsActive = -9999
+        oHMC_Vars(iID)%bRoutingIndex = .false.
+
         ! Static infiltration (horton) variable(s)
         oHMC_Vars(iID)%a2dC1 = 0.0
         oHMC_Vars(iID)%a2dF2 = 0.0

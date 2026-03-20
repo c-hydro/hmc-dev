@@ -27,6 +27,7 @@ TYPE HMC_Type_Namelist
     integer(kind = 4)       :: iFlagSoilParamsType
     integer(kind = 4)       :: iFlagInfiltRateVariable
     integer(kind = 4)       :: iFlagBetaET
+    integer(kind = 4)       :: iFlagRoutingType
 
     logical                 :: bGridCheck
 

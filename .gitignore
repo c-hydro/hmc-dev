@@ -36,6 +36,8 @@
 # Project folder(s) and file(s)
 /build/
 /nbproject/
+nbproject/
 nbproject/private/
 .dep.inc
 /dist/
+*.log

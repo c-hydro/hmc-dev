@@ -2,7 +2,7 @@
 ! File:   HMC_Module_Phys_Convolution_Apps_SurfaceFlow.f90
 !
 ! Author(s):    Fabio Delogu, Francesco Silvestro, Simone Gabellani
-! Date:         20190410
+! Date:         20260320
 !
 ! Convolution Apps Surface subroutine(s) for HMC model
 !------------------------------------------------------------------------------------
@@ -432,9 +432,9 @@ contains
             enddo
         endif
         !------------------------------------------------------------------------------------------
-        
+
         !------------------------------------------------------------------------------------------
-        ! Flow part for following cell 
+        ! Flow part for following cell
         ! In Horton this flow will add at rain rate in the following step
 
         ! Checking hydro variable
@@ -442,43 +442,22 @@ contains
             a2dVarHydroUpd = 0.0000001
         endwhere
 
-        ! Calculating flow 
-        ! Calcolo la porzione di acqua che va nella cella successiva
-        ! Essa verr� sommata alla pioggia nella subroutine di Horton
-        ! l'istante successivo
+        ! Initialize routing arrays
         a2dVarRouting = 0.0
-        do iI = 1, iRows
-            do iJ = 1, iCols 
-                
-                ! DEM condition
-                if (oHMC_Vars(iID)%a2iMask(iI,iJ).gt.0.0) then
-                    
-                    ! Rate and pointers definition
-                    !iVarPNT = 0
-                    !iVarPNT = int(oHMC_Vars(iID)%a2iPNT(iI,iJ))
-                    
-                    ! Defining flow directions
-                    iII = int((int(oHMC_Vars(iID)%a2iPNT(iI,iJ))  - 1)/3) - 1
-                    iJJ = int(oHMC_Vars(iID)%a2iPNT(iI,iJ)) - 5 - 3*iII
-                    iIII = iI + iII
-                    iJJJ = iJ + iJJ
-                    
-                    if ( (iIII.ge.1) .and. (iJJJ.ge.1) ) then
-                        
-                        ! Integrazione del routing in mm/passo_integrazione_del_routing
-                        ! L'acqua viene mandata nella cella successiva e utilizzata nella Subrotine
-                        ! Horton
-                        dRm = 0.0;
-                        dRm = a2dVarQDisOut(iI, iJ) ! Trapezi
-                        
+        a2dVarQVolOut = 0.0
 
-                        a2dVarRouting(iIII, iJJJ) = a2dVarRouting(iIII, iJJJ) + dRm  ![mm]
-                        a2dVarQVolOut(iI, iJ) = dRm/dDtSurfaceflow	
-                        
-                    endif 
-                endif   
-            enddo
-        enddo				
+        ! Evaluate flag to use index or grid routing
+        if (oHMC_Namelist(iID)%iFlagRoutingType .eq. 2 .and. oHMC_Vars(iID)%bRoutingIndex) then
+
+            call compute_routing_index_channel_network( &
+                iID, iRows, iCols, dDtSurfaceflow, a2dVarQDisOut, a2dVarRouting, a2dVarQVolOut )
+
+        else
+
+            call compute_routing_grid_channel_network( &
+                iID, iRows, iCols, dDtSurfaceflow, a2dVarQDisOut, a2dVarRouting, a2dVarQVolOut )
+
+        endif
         !------------------------------------------------------------------------------------------
 
         !------------------------------------------------------------------------------------------
@@ -685,7 +664,95 @@ contains
            
     end subroutine HMC_Phys_Convolution_Apps_SurfaceFlow_ChannelNetwork
     !------------------------------------------------------------------------------------------
-      
+    
+        !------------------------------------------------------------------------------------------
+    ! Surface routing using grid approach
+    subroutine compute_routing_grid_channel_network( &
+        iID, iRows, iCols, dDtSurfaceflow, a2dVarQDisOut, a2dVarRouting, a2dVarQVolOut )
+
+        integer(kind = 4), intent(in) :: iID, iRows, iCols
+        real(kind = 4),    intent(in) :: dDtSurfaceflow
+
+        real(kind = 4), dimension(iRows, iCols), intent(in)    :: a2dVarQDisOut
+        real(kind = 4), dimension(iRows, iCols), intent(inout) :: a2dVarRouting
+        real(kind = 4), dimension(iRows, iCols), intent(inout) :: a2dVarQVolOut
+
+        integer(kind = 4) :: iI, iJ
+        integer(kind = 4) :: iII, iJJ
+        integer(kind = 4) :: iIII, iJJJ
+        real(kind = 4)    :: dRm
+
+        do iI = 1, iRows
+            do iJ = 1, iCols
+
+                if (oHMC_Vars(iID)%a2iMask(iI,iJ) .gt. 0.0) then
+
+                    ! Defining flow directions
+                    iII  = int((int(oHMC_Vars(iID)%a2iPNT(iI,iJ)) - 1)/3) - 1
+                    iJJ  = int(oHMC_Vars(iID)%a2iPNT(iI,iJ)) - 5 - 3*iII
+                    iIII = iI + iII
+                    iJJJ = iJ + iJJ
+
+                    if (iIII.ge.1 .and. iIII.le.iRows .and. iJJJ.ge.1 .and. iJJJ.le.iCols) then
+
+                        dRm = a2dVarQDisOut(iI, iJ)
+
+                        a2dVarRouting(iIII, iJJJ) = a2dVarRouting(iIII, iJJJ) + dRm
+                        a2dVarQVolOut(iI, iJ) = dRm/dDtSurfaceflow
+
+                    endif
+
+                endif
+
+            enddo
+        enddo
+
+    end subroutine compute_routing_grid_channel_network
+    !------------------------------------------------------------------------------------------
+    
+    !------------------------------------------------------------------------------------------
+    ! Surface routing using indexed approach
+    subroutine compute_routing_index_channel_network( &
+        iID, iRows, iCols, dDtSurfaceflow, a2dVarQDisOut, a2dVarRouting, a2dVarQVolOut )
+
+        implicit none
+
+        integer(kind = 4), intent(in) :: iID, iRows, iCols
+        real(kind = 4),    intent(in) :: dDtSurfaceflow
+
+        real(kind = 4), dimension(iRows, iCols), intent(in)    :: a2dVarQDisOut
+        real(kind = 4), dimension(iRows, iCols), intent(inout) :: a2dVarRouting
+        real(kind = 4), dimension(iRows, iCols), intent(inout) :: a2dVarQVolOut
+
+        integer(kind = 4) :: iCell
+        integer(kind = 4) :: iI, iJ
+        integer(kind = 4) :: iIII, iJJJ
+        integer(kind = 4) :: iActiveCells
+        real(kind = 4)    :: dRm
+
+        iActiveCells = oHMC_Vars(iID)%iRoutingCellsActive
+
+        do iCell = 1, iActiveCells
+
+            iI   = oHMC_Vars(iID)%a1iRoutingSrcI(iCell)
+            iJ   = oHMC_Vars(iID)%a1iRoutingSrcJ(iCell)
+            iIII = oHMC_Vars(iID)%a1iRoutingDstI(iCell)
+            iJJJ = oHMC_Vars(iID)%a1iRoutingDstJ(iCell)
+
+            if (iIII.ge.1 .and. iIII.le.iRows .and. iJJJ.ge.1 .and. iJJJ.le.iCols) then
+
+                dRm = a2dVarQDisOut(iI, iJ)
+
+                a2dVarRouting(iIII, iJJJ) = a2dVarRouting(iIII, iJJJ) + dRm
+                a2dVarQVolOut(iI, iJ)     = dRm / dDtSurfaceflow
+
+            endif
+
+        enddo
+
+    end subroutine compute_routing_index_channel_network
+    !------------------------------------------------------------------------------------------
+
     !------------------------------------------------------------------------------------------
     ! Subroutine for calculating surface flow channel fraction
     subroutine HMC_Phys_Convolution_Apps_SurfaceFlow_ChannelFraction(iID, iRows, iCols, &
@@ -1303,50 +1370,36 @@ contains
             enddo
         endif
         !------------------------------------------------------------------------------------------
-
-        !------------------------------------------------------------------------------------------  
+        
+        !---------------------------------------------------------------------------  
         ! Calculating flow 
+        
+        ! NOTE:
         ! Calcolo la porzione di acqua che va nella cella successiva
         ! Essa verr� sommata alla pioggia nella subroutine di Horton
         ! l'istante successivo  
+   
         a2dVarRouting = 0.0
-        oHMC_Vars(iID)%a2dQup = 0.0 !Initialize and put in channels the following t
-        oHMC_Vars(iID)%a2dQC = a2dVarQDisOut !Streamflow in Channels Updated
-        do iI = 1, iRows
-            do iJ = 1, iCols 
-                
-                ! DEM condition
-                if (oHMC_Vars(iID)%a2iMask(iI,iJ).gt.0.0) then
-                    
-                    ! Rate and pointers definition
-                    !iVarPNT = 0
-                    !iVarPNT = int(oHMC_Vars(iID)%a2iPNT(iI,iJ))
-                    
-                    ! Defining flow directions
-                    iII = int((int(oHMC_Vars(iID)%a2iPNT(iI,iJ))  - 1)/3) - 1
-                    iJJ = int(oHMC_Vars(iID)%a2iPNT(iI,iJ)) - 5 - 3*iII
-                    iIII = iI + iII
-                    iJJJ = iJ + iJJ
-                    
-                    if ( (iIII.ge.1) .and. (iJJJ.ge.1) ) then
-                        
-                        ! Integrazione del routing in mm/passo_integrazione_del_routing
-                        ! L'acqua viene mandata nella cella successiva e utilizzata nella Subrotine
-                        ! Horton
-                        dRm = oHMC_Vars(iID)%a2dQC(iI, iJ);                        
-                        oHMC_Vars(iID)%a2dQup(iIII, iJJJ) = oHMC_Vars(iID)%a2dQup(iIII, iJJJ) + dRm ![m3/s] Channels
-                        
-                        dRm = (1-a2dPartition(iI, iJ))* oHMC_Vars(iID)%a2dQH(iI, iJ)*dDtSurfaceflow*1000/a2dVarAreaCell(iI, iJ) !Routing hillslope in mm
-                        a2dVarRouting(iIII, iJJJ) = a2dVarRouting(iIII, iJJJ) + dRm  ![mm]
-                        
-                        a2dVarQVolOut(iI, iJ) = dRm/dDtSurfaceflow !Controllare se serve
-                        
-                    endif 
-                endif   
-            enddo
-        enddo				
-        !------------------------------------------------------------------------------------------
+        oHMC_Vars(iID)%a2dQup = 0.0
+        oHMC_Vars(iID)%a2dQC = a2dVarQDisOut
+        a2dVarQVolOut = 0.0
 
+        ! Evaluate flag to use index or grid routing
+        if (oHMC_Namelist(iID)%iFlagRoutingType .eq. 2 .and. oHMC_Vars(iID)%bRoutingIndex) then
+
+            call compute_routing_index_channel_fraction( &
+                iID, iRows, iCols, dDtSurfaceflow, a2dPartition, a2dVarAreaCell, &
+                a2dVarRouting, a2dVarQVolOut )
+
+        else
+
+            call compute_routing_grid_channel_fraction( &
+                iID, iRows, iCols, dDtSurfaceflow, a2dPartition, a2dVarAreaCell, &
+                a2dVarRouting, a2dVarQVolOut )
+
+        endif
+        !------------------------------------------------------------------------------------------
+        
         !------------------------------------------------------------------------------------------
         ! Check joint availability
         if (iNJoint .gt. 0) then
@@ -1467,8 +1520,106 @@ contains
         oHMC_Vars(iID)%a2dHydroCatch = a2dVarHydroCatch
         oHMC_Vars(iID)%a2dHydroRelease = a2dVarHydroRelease
         
-        end subroutine HMC_Phys_Convolution_Apps_SurfaceFlow_ChannelFraction
-        !------------------------------------------------------------------------------------------
-        
+    end subroutine HMC_Phys_Convolution_Apps_SurfaceFlow_ChannelFraction
+    !------------------------------------------------------------------------------------------
+
+    !------------------------------------------------------------------------------------------
+    ! Surface routing channel fraction using grid approach
+    subroutine compute_routing_grid_channel_fraction( &
+        iID, iRows, iCols, dDtSurfaceflow, a2dPartition, a2dVarAreaCell, a2dVarRouting, a2dVarQVolOut )
+
+        integer(kind = 4), intent(in) :: iID, iRows, iCols
+        real(kind = 4),    intent(in) :: dDtSurfaceflow
+
+        real(kind = 4), dimension(iRows, iCols), intent(in)    :: a2dPartition
+        real(kind = 4), dimension(iRows, iCols), intent(in)    :: a2dVarAreaCell
+        real(kind = 4), dimension(iRows, iCols), intent(inout) :: a2dVarRouting
+        real(kind = 4), dimension(iRows, iCols), intent(inout) :: a2dVarQVolOut
+
+        integer(kind = 4) :: iI, iJ
+        integer(kind = 4) :: iII, iJJ
+        integer(kind = 4) :: iIII, iJJJ
+        real(kind = 4)    :: dRm
+
+        do iI = 1, iRows
+            do iJ = 1, iCols
+
+                if (oHMC_Vars(iID)%a2iMask(iI,iJ) .gt. 0.0) then
+
+                    ! Defining flow directions
+                    iII  = int((int(oHMC_Vars(iID)%a2iPNT(iI,iJ)) - 1)/3) - 1
+                    iJJ  = int(oHMC_Vars(iID)%a2iPNT(iI,iJ)) - 5 - 3*iII
+                    iIII = iI + iII
+                    iJJJ = iJ + iJJ
+
+                    if (iIII.ge.1 .and. iIII.le.iRows .and. iJJJ.ge.1 .and. iJJJ.le.iCols) then
+
+                        dRm = oHMC_Vars(iID)%a2dQC(iI, iJ)
+                        oHMC_Vars(iID)%a2dQup(iIII, iJJJ) = oHMC_Vars(iID)%a2dQup(iIII, iJJJ) + dRm
+
+                        dRm = (1 - a2dPartition(iI, iJ))*oHMC_Vars(iID)%a2dQH(iI, iJ)* &
+                              dDtSurfaceflow*1000.0/a2dVarAreaCell(iI, iJ)
+
+                        a2dVarRouting(iIII, iJJJ) = a2dVarRouting(iIII, iJJJ) + dRm
+                        a2dVarQVolOut(iI, iJ) = dRm/dDtSurfaceflow
+
+                    endif
+
+                endif
+
+            enddo
+        enddo
+
+    end subroutine compute_routing_grid_channel_fraction
+    !------------------------------------------------------------------------------------------
+    
+    !------------------------------------------------------------------------------------------
+    ! Surface routing channel fraction using indexed approach
+    subroutine compute_routing_index_channel_fraction( &
+        iID, iRows, iCols, dDtSurfaceflow, a2dPartition, a2dVarAreaCell, a2dVarRouting, a2dVarQVolOut )
+
+        implicit none
+
+        integer(kind = 4), intent(in) :: iID, iRows, iCols
+        real(kind = 4),    intent(in) :: dDtSurfaceflow
+
+        real(kind = 4), dimension(iRows, iCols), intent(in)    :: a2dPartition
+        real(kind = 4), dimension(iRows, iCols), intent(in)    :: a2dVarAreaCell
+        real(kind = 4), dimension(iRows, iCols), intent(inout) :: a2dVarRouting
+        real(kind = 4), dimension(iRows, iCols), intent(inout) :: a2dVarQVolOut
+
+        integer(kind = 4) :: iCell
+        integer(kind = 4) :: iI, iJ
+        integer(kind = 4) :: iIII, iJJJ
+        integer(kind = 4) :: iActiveCells
+        real(kind = 4)    :: dRmQup, dRmRouting
+
+        iActiveCells = oHMC_Vars(iID)%iRoutingCellsActive
+
+        do iCell = 1, iActiveCells
+
+            iI   = oHMC_Vars(iID)%a1iRoutingSrcI(iCell)
+            iJ   = oHMC_Vars(iID)%a1iRoutingSrcJ(iCell)
+            iIII = oHMC_Vars(iID)%a1iRoutingDstI(iCell)
+            iJJJ = oHMC_Vars(iID)%a1iRoutingDstJ(iCell)
+
+            if (iIII.ge.1 .and. iIII.le.iRows .and. iJJJ.ge.1 .and. iJJJ.le.iCols) then
+
+                dRmQup = oHMC_Vars(iID)%a2dQC(iI, iJ)
+                oHMC_Vars(iID)%a2dQup(iIII, iJJJ) = oHMC_Vars(iID)%a2dQup(iIII, iJJJ) + dRmQup
+
+                dRmRouting = (1.0 - a2dPartition(iI, iJ))*oHMC_Vars(iID)%a2dQH(iI, iJ)* &
+                             dDtSurfaceflow*1000.0/a2dVarAreaCell(iI, iJ)
+
+                a2dVarRouting(iIII, iJJJ) = a2dVarRouting(iIII, iJJJ) + dRmRouting
+                a2dVarQVolOut(iI, iJ)     = dRmRouting/dDtSurfaceflow
+
+            endif
+
+        enddo
+
+    end subroutine compute_routing_index_channel_fraction
+    !------------------------------------------------------------------------------------------
+ 
 end module HMC_Module_Phys_Convolution_Apps_SurfaceFlow
 !------------------------------------------------------------------------------------------
