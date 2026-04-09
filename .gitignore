@@ -34,6 +34,16 @@
 *.app
 
 # Project folder(s) and file(s)
+old/
+OLD/
+Old/
+/old/
+/Old/
+/OLD/
+/conda/
+conda/
+hmc_debug_venv/
+/hmc_debug_venv/
 /build/
 /nbproject/
 nbproject/
@@ -41,3 +51,5 @@ nbproject/private/
 .dep.inc
 /dist/
 *.log
+hmc.log
+LogZip.txt

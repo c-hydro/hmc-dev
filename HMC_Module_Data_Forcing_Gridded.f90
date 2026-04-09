@@ -35,6 +35,7 @@ module HMC_Module_Data_Forcing_Gridded
                                             HMC_Tools_Generic_SwitchGrid, &
                                             HMC_Tools_Generic_UnzipFile, &
                                             HMC_Tools_Generic_RemoveFile, HMC_Tools_Generic_CopyFile, &
+                                            percentage2Dvar, &
                                             check2Dvar, getProcessID
                                             
     use HMC_Module_Tools_Time,      only:   HMC_Tools_Time_MonthVal, &
@@ -64,11 +65,14 @@ contains
         integer(kind = 4)           :: iFlagTypeData_Forcing
         integer(kind = 4)           :: iScaleFactor, iFlagDynVeg, iFlagEnergyBalance
         
+        real(kind = 4)              :: dPercRainL, dPercTaL, dPercIncRadl, dPercRelHumL, dPercWindL, dPercPaL
+        real(kind = 4)              :: dPercAlbedoL, dPercLAIL, dPercFCL, dPercAEvtL, dPercPEvtL
+        
         character(len = 19)         :: sTime
 
         character(len = 12)         :: sTimeMonth
         
-        character(len = 1024)        :: sPathData_Forcing
+        character(len = 1024)       :: sPathData_Forcing
         
         real(kind = 4)              :: dVarLAI, dVarAlbedo
         
@@ -87,6 +91,14 @@ contains
                                                                     a2dVarRelHumF, a2dVarPaF, &
                                                                     a2dVarAlbedoF, a2dVarLAIF, a2dVarFCF, &
                                                                     a2dVarAEvtF, a2dVarPEvtF
+                                                                                                                      
+        character(len=16), dimension(11) :: sName
+        real(kind=4),      dimension(11) :: dPerc
+        character(len=256) :: sLog
+        integer :: i
+        
+        sName = [ character(len=16) :: 'Rain', 'Ta', 'IncRad', 'RelHum', 'Wind', 'Pa', &
+                                       'Albedo', 'LAI', 'FC', 'AEvt', 'PEvt' ]
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -119,6 +131,11 @@ contains
         a2dVarAEvtL = -9999.0; a2dVarPEvtL = -9999.0;
         
         sTimeEndLAI = ''; sTimeStartLAI = '';
+        
+        dPercRainL = -9999.0; dPercTaL = -9999.0; dPercIncRadL = -9999.0; 
+        dPercRelHumL = -9999.0; dPercWindL = -9999.0; dPercPaL = -9999.0;
+        dPercAlbedoL = -9999.0; dPercLAIL = -9999.0; dPercFCL = -9999.0; 
+        dPercAEvtL = -9999.0; dPercPEvtL = -9999.0;
         !------------------------------------------------------------------------------------------
                                                                                                 
         !------------------------------------------------------------------------------------------
@@ -234,13 +251,13 @@ contains
                                               iRowsF, iColsF, a2dVarRainF, &
                                               oHMC_Vars(iID)%a2dDem, &
                                               oHMC_Vars(iID)%a2iXIndex, oHMC_Vars(iID)%a2iYIndex)
-                                              
+                                                                             
             call HMC_Tools_Generic_SwitchGrid(oHMC_Namelist(iID)%iFlagGrid, &
                                               iRowsL, iColsL, a2dVarTaL, &
                                               iRowsF, iColsF, a2dVarTaF, &
                                               oHMC_Vars(iID)%a2dDem, &
                                               oHMC_Vars(iID)%a2iXIndex, oHMC_Vars(iID)%a2iYIndex)        
-                                              
+                              
             call HMC_Tools_Generic_SwitchGrid(oHMC_Namelist(iID)%iFlagGrid, &
                                               iRowsL, iColsL, a2dVarIncRadL, &
                                               iRowsF, iColsF, a2dVarIncRadF, &
@@ -295,7 +312,41 @@ contains
                                               oHMC_Vars(iID)%a2dDem, &
                                               oHMC_Vars(iID)%a2iXIndex, oHMC_Vars(iID)%a2iYIndex)  
             !------------------------------------------------------------------------------------------
-                                       
+            
+            !------------------------------------------------------------------------------------------
+            ! Debug
+            if (iDEBUG.gt.0) then
+                
+                ! Compute percentages
+                dPercRainL      = percentage2Dvar(a2dVarRainL,   oHMC_Vars(iID)%a2iMask)
+                dPercTaL        = percentage2Dvar(a2dVarTaL,     oHMC_Vars(iID)%a2iMask)
+                dPercIncRadL    = percentage2Dvar(a2dVarIncRadL, oHMC_Vars(iID)%a2iMask)
+                dPercRelHumL    = percentage2Dvar(a2dVarRelHumL, oHMC_Vars(iID)%a2iMask)
+                dPercWindL      = percentage2Dvar(a2dVarWindL,   oHMC_Vars(iID)%a2iMask)
+                dPercPaL        = percentage2Dvar(a2dVarPaL,     oHMC_Vars(iID)%a2iMask)
+
+                dPercAlbedoL    = percentage2Dvar(a2dVarAlbedoL, oHMC_Vars(iID)%a2iMask)
+                dPercLAIL       = percentage2Dvar(a2dVarLAIL,    oHMC_Vars(iID)%a2iMask)
+                dPercFCL        = percentage2Dvar(a2dVarFCL,     oHMC_Vars(iID)%a2iMask)
+                dPercAEvtL      = percentage2Dvar(a2dVarAEvtL,   oHMC_Vars(iID)%a2iMask)
+                dPercPEvtL      = percentage2Dvar(a2dVarPEvtL,   oHMC_Vars(iID)%a2iMask)
+
+
+                ! write percentage of finite pixels for all forcing variables
+                dPerc = (/ dPercRainL, dPercTaL, dPercIncRadL, dPercRelHumL, dPercWindL, dPercPaL, &
+                           dPercAlbedoL, dPercLAIL, dPercFCL, dPercAEvtL, dPercPEvtL /)
+
+                ! write percetange values
+                call mprintf(.true., iINFO_Verbose, 'Percentage of available forcing pixels over mask ... ')
+                do i = 1, 11
+                    write(sLog,'(a,a,2x,a,f6.2,a)') '  ', trim(sName(i)), '=', dPerc(i), ' %'
+                    call mprintf(.true., iINFO_Verbose, trim(sLog))
+                end do
+                call mprintf(.true., iINFO_Verbose, 'Percentage of available forcing pixels over mask ... OK')
+            
+            endif
+            !------------------------------------------------------------------------------------------                
+                  
             !------------------------------------------------------------------------------------------
             ! Check variable(s) limits and domain
             a2dVarRainL = check2Dvar(a2dVarRainL,               oHMC_Vars(iID)%a2iMask,     0.0,    850.0,  0.0)
@@ -307,7 +358,7 @@ contains
             a2dVarAEvtL = check2Dvar(a2dVarAEvtL,               oHMC_Vars(iID)%a2iMask,     0.0,    50.0,   0.0 )
             a2dVarPEvtL = check2Dvar(a2dVarPEvtL,               oHMC_Vars(iID)%a2iMask,     0.0,    50.0,   0.0 )
             !------------------------------------------------------------------------------------------
-  
+
         else
             
             !------------------------------------------------------------------------------------------
