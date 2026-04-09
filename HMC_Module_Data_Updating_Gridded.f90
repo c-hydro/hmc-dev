@@ -36,7 +36,8 @@ module HMC_Module_Data_Updating_Gridded
                                             HMC_Tools_Generic_UnzipFile, &
                                             HMC_Tools_Generic_RemoveFile, &
                                             HMC_Tools_Generic_CopyFile, &
-                                            check2Dvar, getProcessID
+                                            check2Dvar, percentage2DVar, &
+                                            getProcessID
                                             
     use HMC_Module_Tools_Time,      only:   HMC_Tools_Time_MonthVal
                              
@@ -58,11 +59,15 @@ contains
         integer(kind = 4)           :: iRowsStartL, iRowsEndL, iColsStartL, iColsEndL
         integer(kind = 4)           :: iRowsL, iColsL
         integer(kind = 4)           :: iFlagTypeData_Updating, iFlagSnow
+        
+        real(kind = 4)              :: dPercSnowCAL, dPercSnowQAL, dPercSnowMaskL
+        real(kind = 4)              :: dPercSMStartL, dPercSMGainL
+        real(kind = 4)              :: dPercSnowHeightL, dPercSnowHeight
  
         character(len = 19)         :: sTime
         character(len = 12)         :: sTimeMonth
         
-        character(len = 1024)        :: sPathData_Updating
+        character(len = 1024)       :: sPathData_Updating
         
         real(kind = 4)              :: dVarLAI, dVarAlbedo
         
@@ -71,6 +76,14 @@ contains
                                                                     a2dVarSnowMaskL, &
                                                                     a2dVarSMStarL, a2dVarSMGainL, &
                                                                     a2dVarSnowHeightL, a2dVarSnowKernelL
+                                                                    
+        character(len=16), dimension(7) :: sName
+        real(kind=4),      dimension(7) :: dPerc
+        character(len=256) :: sLog
+        integer :: i
+        
+        sName = [ character(len=16) :: 'SnowCover', 'SnowQuality', 'SnowMask', 'SMStart', 'SMGain', &
+                                       'SnowHeight', 'SnowKernel' ]
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------
@@ -91,6 +104,10 @@ contains
         a2dVarSnowMaskL = -9999.0;
         a2dVarSMStarL = -9999.0; a2dVarSMGainL = -9999.0;
         a2dVarSnowHeightL = -9999.9; a2dVarSnowKernelL = -9999.0; 
+        
+        dPercSnowCAL = -9999.0; dPercSnowQAL = -9999.0; dPercSnowMaskL = -9999.0;
+        dPercSMStartL = -9999.0; dPercSMGainL = -9999.0;
+        dPercSnowHeightL = -9999.0; dPercSnowHeight = -9999.0;
         !------------------------------------------------------------------------------------------
                                                                                                 
         !------------------------------------------------------------------------------------------
@@ -185,7 +202,36 @@ contains
                 call mprintf(.true., iINFO_Extra, '')                
             endif
             !------------------------------------------------------------------------------------------
-                     
+            
+            !------------------------------------------------------------------------------------------
+            ! Debug
+            if (iDEBUG.gt.0) then
+                
+                ! Compute percentages
+                dPercSnowCAL     = percentage2Dvar(a2dVarSnowCAL,   oHMC_Vars(iID)%a2iMask)
+                dPercSnowQAL     = percentage2Dvar(a2dVarSnowQAL,     oHMC_Vars(iID)%a2iMask)
+                dPercSnowMaskL   = percentage2Dvar(a2dVarSnowMaskL, oHMC_Vars(iID)%a2iMask)
+                dPercSMStartL    = percentage2Dvar(a2dVarSMStarL, oHMC_Vars(iID)%a2iMask)
+                dPercSMGainL     = percentage2Dvar(a2dVarSMGainL,   oHMC_Vars(iID)%a2iMask)
+                dPercSnowHeightL = percentage2Dvar(a2dVarSnowHeightL,     oHMC_Vars(iID)%a2iMask)
+                dPercSnowHeightL  = percentage2Dvar(a2dVarSnowKernelL, oHMC_Vars(iID)%a2iMask)
+
+                ! write percentage of finite pixels for all updating variables
+                dPerc = (/ dPercSnowCAL, dPercSnowQAL, dPercSnowMaskL, dPercSMStartL, dPercSMGainL, &
+                           dPercSnowHeightL, dPercSnowHeightL /)
+
+                ! write percetange values
+                call mprintf(.true., iINFO_Verbose, 'Percentage of available updating pixels over mask ... ')
+                do i = 1, 7
+                    write(sLog,'(a,a,2x,a,f6.2,a)') '  ', trim(sName(i)), '=', dPerc(i), ' %'
+                    call mprintf(.true., iINFO_Verbose, trim(sLog))
+                end do
+                call mprintf(.true., iINFO_Verbose, 'Percentage of available updating pixels over mask ... OK')
+            
+            endif
+            !------------------------------------------------------------------------------------------  
+            
+             
             !------------------------------------------------------------------------------------------
             ! Check variable(s) limits and domain
             a2dVarSnowCAL = check2Dvar(a2dVarSnowCAL,           oHMC_Vars(iID)%a2iMask,     -1.0,   3.0,    -9999.0 )  
