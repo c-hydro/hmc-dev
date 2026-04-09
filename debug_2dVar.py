@@ -2,8 +2,8 @@
 """
 HMC Debugger - Debug variable 2d
 
-__date__ = '20220525'
-__version__ = '1.5.0'
+__date__ = '20230605'
+__version__ = '1.6.0'
 __author__ =
         'Fabio Delogu (fabio.delogu@cimafoundation.org'
 
@@ -13,6 +13,7 @@ General command line:
 python3 debug_2dVar.py -path_data path_string
 
 Version(s):
+20230605 (1.6.0) --> Fix bugs in the debugger to adapt the fortran code to the python interpreter
 20220525 (1.5.0) --> First Python release
 20151012 (1.0.2) --> Latest MatLab release
 """
@@ -35,8 +36,8 @@ import matplotlib.pylab as plt
 
 # -------------------------------------------------------------------------------------
 # Algorithm information
-alg_version = '1.5.0'
-alg_release = '2022-05-25'
+alg_version = '1.6.0'
+alg_release = '2023-06-05'
 alg_name = 'HMC Debugger - debug2dVar'
 # Algorithm parameter(s)
 time_format = '%Y-%m-%d %H:%M'
@@ -72,12 +73,14 @@ menu_options_type_2 = {
 }
 
 list_choice_figure = ['f', 'r', 'n', 'o', 'p']
+
+list_choice_view = ['fortran', 'geographic']
 # -------------------------------------------------------------------------------------
 
 
 # -------------------------------------------------------------------------------------
 # Script Main
-def main():
+def main(file_view='fortran'):
 
     # -------------------------------------------------------------------------------------
     # algorithm information
@@ -150,10 +153,13 @@ def main():
             if debug_option in sorted(list_choice_figure):  # choices to collect and plot datasets
 
                 if os.path.exists(file_path_data_tag):
-                    file_var_data, file_rows_2d, file_cols_2d = get_file_data(file_path_data_tag)
+                    file_var_data, file_rows_2d, file_cols_2d = get_file_data(
+                        file_path_data_tag, file_view=file_view)
                     file_var_stats = compute_var_data(file_var_data)
-                    file_var_info = organize_var_info(file_id, file_time=now_date_str, file_stats=file_var_stats)
-                    file_var_figure = create_figure(file_var_data, figure_title=file_var_info, figure_cmap=None)
+                    file_var_info = organize_var_info(
+                        file_id, file_time=now_date_str, file_stats=file_var_stats)
+                    file_var_figure = create_figure(
+                        file_var_data, figure_title=file_var_info, figure_cmap=None)
                     show_figure(file_var_figure)
 
                     file_dict_data_tag[file_id] = file_var_data
@@ -452,8 +458,9 @@ def get_file_data(file_name, file_delimiter=',', file_header=None, file_no_data=
         file_cols_2d = np.flipud(np.transpose(file_cols_2d))
 
     else:
+        file_views = ','.join(list_choice_view)
         logging.error(' ===> File view "' + file_view + '" is not supported')
-        raise NotImplementedError('File view name is not allowed')
+        raise NotImplementedError('File view name is not allowed. Supported views are: "' + str(file_views) + '"')
 
     # debug
     # plt.figure()

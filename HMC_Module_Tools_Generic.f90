@@ -327,6 +327,51 @@ contains
     !------------------------------------------------------------------------------------
     
     !------------------------------------------------------------------------------------
+    ! Function to compute percentage of finite pixels over a mask (0/1 mask)
+    function percentage2Dvar(data, mask) result(perc)
+
+        ! Inputs
+        real,    intent(in) :: data(:,:)
+        integer, intent(in) :: mask(:,:)   !0/1 mask
+
+        ! Output
+        real(kind = 4) :: perc
+
+        ! Local variables
+        integer :: i, j
+        integer :: count_valid, count_mask
+        
+        real, parameter :: no_data_value = -9999.0
+
+        count_valid = 0
+        count_mask  = 0
+
+        do j = 1, size(data, 2)
+            do i = 1, size(data, 1)
+
+                if (mask(i,j) == 1) then
+                    count_mask = count_mask + 1
+
+                    ! valid pixel condition
+                    if (.not. isnan(data(i,j)) .and. data(i,j) /= no_data_value) then
+                        count_valid = count_valid + 1
+                    end if
+
+                end if
+
+            end do
+        end do
+
+        if (count_mask > 0) then
+            perc = 100.0 * real(count_valid) / real(count_mask)
+        else
+            perc = 0.0
+        end if
+
+    end function percentage2Dvar
+    !------------------------------------------------------------------------------------
+    
+    !------------------------------------------------------------------------------------
     ! Function to compute maximum 2D variable value
     function max2Dvar(a2dVarValue, a2iVarMask)   result(dVarValue)
         
@@ -854,7 +899,7 @@ contains
    
     end subroutine HMC_Tools_Generic_SmoothTimeSeries
     !------------------------------------------------------------------------------------------
-
+        
     !------------------------------------------------------------------------------------------
     ! Subroutine to realize grid switcher between land-forcing data
     subroutine HMC_Tools_Generic_SwitchGrid(iFlagGrid, &
@@ -1089,7 +1134,7 @@ contains
             !------------------------------------------------------------------------------------------
         endif
         !------------------------------------------------------------------------------------------
-
+                
     end subroutine HMC_Tools_Generic_CreateIndexGrid
     !------------------------------------------------------------------------------------------
 

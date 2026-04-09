@@ -40,6 +40,10 @@ Old/
 /old/
 /Old/
 /OLD/
+/conda/
+conda/
+hmc_debug_venv/
+/hmc_debug_venv/
 /build/
 /nbproject/
 nbproject/
