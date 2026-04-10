@@ -36,8 +36,8 @@ The system is operational in:
 
 ## 🚀 Version
 
-- **Current version:** `v3.4.0`  
-- **Release date:** `2026-03-20`  
+- **Current version:** `v3.4.2`  
+- **Release date:** `2026-04-09`  
 
 👉 See [CHANGELOG.md](CHANGELOG.md)
 
