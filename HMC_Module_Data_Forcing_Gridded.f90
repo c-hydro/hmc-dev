@@ -331,7 +331,6 @@ contains
                 dPercAEvtL      = percentage2Dvar(a2dVarAEvtL,   oHMC_Vars(iID)%a2iMask)
                 dPercPEvtL      = percentage2Dvar(a2dVarPEvtL,   oHMC_Vars(iID)%a2iMask)
 
-
                 ! write percentage of finite pixels for all forcing variables
                 dPerc = (/ dPercRainL, dPercTaL, dPercIncRadL, dPercRelHumL, dPercWindL, dPercPaL, &
                            dPercAlbedoL, dPercLAIL, dPercFCL, dPercAEvtL, dPercPEvtL /)
@@ -346,7 +345,7 @@ contains
             
             endif
             !------------------------------------------------------------------------------------------                
-                  
+            
             !------------------------------------------------------------------------------------------
             ! Check variable(s) limits and domain
             a2dVarRainL = check2Dvar(a2dVarRainL,               oHMC_Vars(iID)%a2iMask,     0.0,    850.0,  0.0)

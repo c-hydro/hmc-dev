@@ -4,6 +4,17 @@ All notable changes to the Hydrological Model Continuum (HMC) are documented in 
 
 ---
 
+## [3.4.1] - 2026-04-09
+
+### Updated
+- Fortran debugger for checking and viewing 2d arrays (v.1.6.0)
+
+### Fixed
+- Fix and update suborutines to manage the not equal grids (forcing/updating vs land)
+- Removed testing/debug messages
+
+---
+
 ## [3.4.0] - 2026-03-20
 
 ### Added
@@ -24,9 +35,9 @@ All notable changes to the Hydrological Model Continuum (HMC) are documented in 
 - Minimum plant discharge from file (default compatibility: `min = 0`)
 - Support for compressed and uncompressed NetCDF forcing/updating files
 - Multiple methods for UDt evaluation (`iUDtMethod`):
-  - `1` → maximum
-  - `2` → percentage (`dUDtParam ∈ [0,1]`)
-  - `3` → percentile (`dUDtParam ∈ [25,100]`, default = 1)
+  - `1` :: maximum
+  - `2` :: percentage (`dUDtParam ∈ [0,1]`)
+  - `3` :: percentile (`dUDtParam ∈ [25,100]`, default = 1)
 
 ---
 
