@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
 # HMC Library Builder
-# Version: 3.4.0 (robust shell rewrite)
-# Date: 2026/03/20
+# Version: 3.4.2 (robust shell rewrite)
+# Date: 2026/04/09
 #
 # PURPOSE
 #   Configure, compile, and install the HMC model executable, with optional
@@ -13,13 +13,13 @@
 #      ./configure.sh
 #
 #   2) Automatic build from archive using explicit paths
-#      ./configure.sh hmc_v340.tar.gz "$HOME/fp_libs_system" "$HOME/fp_libs_system/hmc" true
+#      ./configure.sh hmc_v342.tar.gz "$HOME/fp_libs_system" "$HOME/fp_libs_system/hmc" true
 #
 #   3) Automatic profiling build using environment variable
-#      RUN=Profile ./configure.sh hmc_v340.tar.gz "$HOME/fp_libs_system" "$HOME/fp_libs_system/hmc" true
+#      RUN=Profile ./configure.sh hmc_v342.tar.gz "$HOME/fp_libs_system" "$HOME/fp_libs_system/hmc" true
 #
 #   4) Automatic profiling build using command-line option
-#      ./configure.sh --run Profile hmc_v340.tar.gz "$HOME/fp_libs_system" "$HOME/fp_libs_system/hmc" true
+#      ./configure.sh --run Profile hmc_v342.tar.gz "$HOME/fp_libs_system" "$HOME/fp_libs_system/hmc" true
 #
 #   5) Automatic profiling build with explicit PROFILE flag
 #      RUN=Profile PROFILE=true ./configure.sh
@@ -61,11 +61,11 @@ set -Eeuo pipefail
 # -----------------------------------------------------------------------------
 # Script option(s)
 Script="HMC Library Builder"
-Version="3.4.0"
-Date='2026/03/20'
+Version="3.4.2"
+Date='2026/04/09'
 
 # Defaults
-Archive_Default="hmc_v340.tar.gz"
+Archive_Default="hmc_v342.tar.gz"
 Lib_Dir_Deps_Default="$HOME/fp_libs_system"
 Lib_Dir_Exec_Default="$Lib_Dir_Deps_Default/hmc"
 Lib_Building_Default=false
@@ -816,12 +816,10 @@ echo ""
 
 tools=(
     gprof2dot.py
-    HMC_Launcher_Debug_Test.sh
-    HMC_Launcher_Test_Profiling.sh
-    HMC_Launcher_Test_Memory.sh
-    HMC_Launcher_Debug_Live.sh
-    HMC_Launcher_Test_Massif.sh
-    HMC_Launcher_Test_Execution.sh
+    hmc_debug_execution.sh
+    hmc_debug_launcher.sh
+    hmc_debug_profiler.sh
+    hmc_debug_memory.sh
 )
 
 for file_tool in "${tools[@]}"; do
