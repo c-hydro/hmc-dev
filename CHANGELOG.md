@@ -3,6 +3,14 @@
 All notable changes to the Hydrological Model Continuum (HMC) are documented in this file.
 
 ---
+## [3.4.3] - 2026-09-28
+
+### Fixed
+- Fixed water-table maximum elevation handling for domains with negative DEM values
+- Added consistency checks between the active MASK and DEM NoData cells
+- Added physical consistency checks for water-table geometry before deep-flow routing and losses computation
+
+---
 
 ## [3.4.1] - 2026-04-09
 
