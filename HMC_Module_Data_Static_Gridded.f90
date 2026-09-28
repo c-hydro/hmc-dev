@@ -1010,6 +1010,14 @@ contains
                 endwhere
             else
                 a2iVarMask = int(reshape(a2dVar, (/iRows, iCols/)))
+
+                ! Check consistency between provided MASK and DEM Andrea 20260911
+                if (any( (a2iVarMask .gt. 0) .and. &
+                        (a2dVarDEM .eq. oHMC_Namelist(iID)%dNoDataL) )) then
+                    call mprintf(.true., iERROR, &
+                        ' Active mask contains DEM NoData cells. Check mask and DEM consistency.')
+                endif
+
             endif
             !------------------------------------------------------------------------------------------
             
@@ -2031,16 +2039,25 @@ contains
             a2dVarWTableMax = a2dVarWTableMax_Tmp    
         endwhere
         
-        ! Check watertable maximum limits 
+        ! Check watertable maximum limits
         where( (a2iVarMask.gt.0.0).and.(a2dVarWTableMax.lt.0.0) )
             a2dVarWTableMax = 0.0 
         endwhere
+        ! Convert WTableMax from maximum depth [mm] to minimum watertable elevation [m a.s.l.]
         where(a2iVarMask.gt.0.0)
             a2dVarWTableMax = a2dVarDEM - a2dVarWTableMax/1000.0
         endwhere
-        where( (a2iVarMask.gt.0.0).and.(a2dVarWTableMax.lt.0.0) )
-            a2dVarWTableMax = 0.0 
-        endwhere
+        ! Andrea 20260911 - This led to problem(s) with negative DEM values
+        ! where( (a2iVarMask.gt.0.0).and.(a2dVarWTableMax.lt.0.0) )
+        !    a2dVarWTableMax = 0.0 
+        ! endwhere
+        if (any( (a2iVarMask.gt.0) .and. &
+                (a2dVarWTableMax.gt.a2dVarDEM) )) then
+
+            call mprintf(.true., iERROR, &
+                ' WTableMax elevation is above DEM. Invalid watertable geometry.')
+
+        endif
         !------------------------------------------------------------------------------------------
         
         !------------------------------------------------------------------------------------------

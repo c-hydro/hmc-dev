@@ -116,6 +116,14 @@ contains
             where( oHMC_Vars(iID)%a2iMask.gt.0.0 )
                 a2dVarWTableStep = a2dVarWTable + a2dVarVLoss/1000
             endwhere
+            ! Check watertable physical consistency before Darcy routing Andrea 20260911
+            if (any( (oHMC_Vars(iID)%a2iMask.gt.0) .and. &
+                    (a2dVarWTable.lt.oHMC_Vars(iID)%a2dWTableMax) )) then
+
+                call mprintf(.true., iERROR, &
+                    ' WTable is below WTableMax before Darcy routing.')
+
+            endif
             !------------------------------------------------------------------------------------------
 
             !------------------------------------------------------------------------------------------
@@ -256,8 +264,17 @@ contains
             where( oHMC_Vars(iID)%a2iMask.gt.0.0 )
                 a2dVarWTable = a2dVarWTableStep
             endwhere
+
+            ! Additional check watertable physical consistency before WS/WDL losses Andrea 20260911
+            if (any( (oHMC_Vars(iID)%a2iMask.gt.0) .and. &
+                    (a2dVarWTable.lt.oHMC_Vars(iID)%a2dWTableMax) )) then
+
+                call mprintf(.true., iERROR, &
+                    ' WTable is below WTableMax before WS/WDL computation.')
+
+            endif
             
-            a2dVarWSRunoff = 0.0
+            ! Compute Deep Losses and Water Sources
             where( oHMC_Vars(iID)%a2iMask.gt.0.0 )
 
                 a2dVarWDL = (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWDL*oHMC_Vars(iID)%a2dAreaCell ! m^3/s
@@ -411,6 +428,14 @@ contains
             where( oHMC_Vars(iID)%a2iMask.gt.0.0 )
                 a2dVarWTableStep = a2dVarWTable + a2dVarVLoss/1000
             endwhere
+            ! Check watertable physical consistency before Darcy routing Andrea 20260911
+            if (any( (oHMC_Vars(iID)%a2iMask.gt.0) .and. &
+                    (a2dVarWTable.lt.oHMC_Vars(iID)%a2dWTableMax) )) then
+
+                call mprintf(.true., iERROR, &
+                    ' WTable is below WTableMax before Darcy routing.')
+
+            endif
             !------------------------------------------------------------------------------------------
 
             !------------------------------------------------------------------------------------------
@@ -548,7 +573,17 @@ contains
             where( oHMC_Vars(iID)%a2iMask.gt.0.0 )
                 a2dVarWTable = a2dVarWTableStep
             endwhere
+
+            ! Additional check watertable physical consistency before WS/WDL losses Andrea 20260911
+            if (any( (oHMC_Vars(iID)%a2iMask.gt.0) .and. &
+                    (a2dVarWTable.lt.oHMC_Vars(iID)%a2dWTableMax) )) then
+
+                call mprintf(.true., iERROR, &
+                    ' WTable is below WTableMax before WS/WDL computation.')
+
+            endif
             
+            ! Compute Deep Losses and Water Sources
             where( oHMC_Vars(iID)%a2iMask.gt.0.0 )
 
                 a2dVarWDL = (a2dVarWTable - oHMC_Vars(iID)%a2dWTableMax)*oHMC_Vars(iID)%a2dCoeffWDL*oHMC_Vars(iID)%a2dAreaCell ! m^3/s
